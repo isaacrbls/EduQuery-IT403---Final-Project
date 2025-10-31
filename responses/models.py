@@ -1,3 +1,78 @@
 from django.db import models
+from django.conf import settings
+from surveys.models import Survey, Question, QuestionOption
 
 # Create your models here.
+
+class Response(models.Model):
+    """Model for survey responses/submissions"""
+    STATUS_CHOICES = (
+        ('in_progress', 'In Progress'),
+        ('submitted', 'Submitted'),
+    )
+
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name='responses')
+    respondent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='survey_responses', null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    started_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-submitted_at', '-started_at']
+
+    def __str__(self):
+        respondent_name = self.respondent.username if self.respondent else "Anonymous"
+        return f"{self.survey.title} - {respondent_name} ({self.status})"
+
+    @property
+    def is_complete(self):
+        return self.status == 'submitted'
+
+    @property
+    def completion_time(self):
+        if self.submitted_at and self.started_at:
+            return self.submitted_at - self.started_at
+        return None
+
+
+class Answer(models.Model):
+    """Model for individual question answers"""
+    response = models.ForeignKey(Response, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
+
+    # Different answer types
+    text_answer = models.TextField(blank=True, null=True)
+    selected_option = models.ForeignKey(QuestionOption, on_delete=models.CASCADE, null=True, blank=True, related_name='single_answers')
+    selected_options = models.ManyToManyField(QuestionOption, blank=True, related_name='multiple_answers')
+    number_answer = models.IntegerField(null=True, blank=True)  # For ratings and likert
+    date_answer = models.DateField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['response', 'question']
+        ordering = ['response', 'question__order']
+
+    def __str__(self):
+        return f"Answer to {self.question.question_text[:30]} by {self.response.respondent}"
+
+    def get_answer_display(self):
+        """Return the answer in a readable format"""
+        if self.question.question_type in ['text', 'textarea', 'email']:
+            return self.text_answer
+        elif self.question.question_type == 'mcq':
+            return self.selected_option.option_text if self.selected_option else None
+        elif self.question.question_type == 'checkbox':
+            return ', '.join([opt.option_text for opt in self.selected_options.all()])
+        elif self.question.question_type in ['likert', 'rating']:
+            return str(self.number_answer)
+        elif self.question.question_type == 'date':
+            return str(self.date_answer)
+        elif self.question.question_type == 'dropdown':
+            return self.selected_option.option_text if self.selected_option else None
+        return None
+
