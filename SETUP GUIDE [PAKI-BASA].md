@@ -1,4 +1,16 @@
-Create Virtual Environment
+
+## Prerequisites
+
+Before starting, make sure you have installed:
+- Python 3.8 or higher
+- Node.js 16 or higher
+- npm (comes with Node.js)
+
+---
+
+## Part 1: Django Backend Setup
+
+### Step 1: Create Virtual Environment
 
 ```bash
 # Create virtual environment
@@ -10,7 +22,7 @@ python3 -m venv venv
 
 ---
 
-Activate Virtual Environment
+### Step 2: Activate Virtual Environment
 
 **On Windows (Command Prompt):**
 ```cmd
@@ -20,7 +32,7 @@ venv\Scripts\activate
 
 ---
 
-Install Dependencies
+### Step 3: Install Python Dependencies
 
 ```bash
 # Make sure virtual environment is activated (venv)
@@ -35,16 +47,16 @@ pip install -r requirements.txt
 
 ---
 
-**Set Up Database**
+### Step 4: Set Up Database
 
-**Use the Automated Script**
+**Use the Automated Script:**
 ```bash
 python setup_db.py
 ```
 
 ---
 
-Verify Setup
+### Step 5: Verify Django Setup
 
 ```bash
 # Run verification script
@@ -59,7 +71,7 @@ You should see:
 
 ---
 
-Run the Development Server
+### Step 6: Start Django Backend Server
 
 ```bash
 python manage.py runserver
@@ -70,18 +82,66 @@ You should see:
 Starting development server at http://127.0.0.1:8000/
 ```
 
+**Keep this terminal running!** Django backend runs on port 8000.
+
 ---
-Access the Application
 
-Open your browser and visit:
+## Part 2: React Frontend Setup
 
-**Admin Panel:**
-- URL: http://127.0.0.1:8000/admin/
+### Step 7: Open a NEW Terminal
+
+**Important:** Keep the Django server running in the first terminal.
+Open a **second terminal** for the React frontend.
+
+---
+
+### Step 8: Navigate to Frontend Directory
+
+```bash
+cd frontend
+```
+
+---
+
+### Step 9: Install Node.js Dependencies
+
+```bash
+npm install
+```
+---
+
+### Step 10: Start React Development Server
+
+```bash
+npm run dev
+```
+
+You should see:
+```
+➜  Local:   http://localhost:5173/
+```
+
+**Keep this terminal running too!**
+
+---
+
+## Access the Application
+
+### React Frontend (Main Application):
+**URL:** http://localhost:5173
+
+This is your main application where users will interact.
+
+### Django Admin Panel:
+**URL:** http://127.0.0.1:8000/admin/
 - Username: `admin`
 - Password: `admin123`
 
-**Main Application:**
-- URL: http://127.0.0.1:8000/
+Use this to manage data directly.
+
+### Django API:
+**URL:** http://127.0.0.1:8000/api/
+
 
 ---
 
@@ -95,5 +155,3 @@ Open your browser and visit:
 | Student | student1 | student123 | Can take surveys |
 | Student | student2 | student123 | Can take surveys |
 | ... | student3-10 | student123 | More test accounts |
-
-

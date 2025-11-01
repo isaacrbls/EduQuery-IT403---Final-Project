@@ -25,7 +25,11 @@ urlpatterns = [
     path('surveys/', include('surveys.urls')),
     path('responses/', include('responses.urls')),
     path('analytics/', include('analytics.urls')),
-    path('api/', include('rest_framework.urls')),
+
+    # API endpoints
+    path('api/accounts/', include('accounts.api_urls')),
+    path('api/surveys/', include('surveys.api_urls')),
+    path('api/auth/', include('rest_framework.urls')),
 ]
 
 # Serve media files in development
