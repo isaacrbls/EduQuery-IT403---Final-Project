@@ -243,8 +243,8 @@ body {
 }
 
 .back-btn {
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-full);
     background: var(--surface-50);
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -257,6 +257,10 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
+.back-btn .material-icons {
+    font-size: 20px;
+}
+
 .back-btn:hover {
     background: var(--primary-500);
     color: white;
@@ -265,7 +269,7 @@ body {
 }
 
 .header-logo {
-    height: 40px;
+    height: 32px;
     object-fit: contain;
 }
 
@@ -273,27 +277,25 @@ body {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    margin-top: var(--space-5);
-    margin-bottom: var(--space-6);
+    margin-top: 30px;
+    margin-bottom: 40px;
     margin-left: 60px;
 }
 
 .section-icon {
-    width: 48px;
-    height: 48px;
+    font-size: 32px;
+    color: var(--primary-500);
+    padding: var(--space-2);
     background: rgba(47, 94, 83, 0.1);
     border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    color: var(--primary-500);
+    box-shadow: var(--shadow-sm);
 }
 
 .title-content h2 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--gray-900);
+    margin: 0;
 }
 
 /* Survey Details Card */

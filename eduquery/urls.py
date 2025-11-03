@@ -36,4 +36,3 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     # Do not map STATIC_URL here; django.contrib.staticfiles already serves assets from STATICFILES_DIRS in development.
-
