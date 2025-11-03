@@ -28,6 +28,109 @@ main {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
+/* 3D Character Illustration Styles */
+.character-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+}
+
+.character-3d:hover {
+    transform: rotateY(5deg) rotateX(2deg) scale(1.05);
+}
+
+/* Enhanced shadows for 3D effect */
+.shadow-3d {
+    box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.1),
+        0 6px 6px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Floating animation for educational elements */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-5px) rotate(2deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(0deg);
+    }
+    75% {
+        transform: translateY(-5px) rotate(-2deg);
+    }
+}
+
+.float-animation {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Celebration bounce animation */
+@keyframes celebrateBounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    40% {
+        transform: translateY(-10px) scale(1.1);
+    }
+    60% {
+        transform: translateY(-5px) scale(1.05);
+    }
+}
+
+.celebrate-bounce {
+    animation: celebrateBounce 2s ease-in-out infinite;
+}
+
+/* Gradient text effect */
+.gradient-text {
+    background: linear-gradient(135deg, #10b981, #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Enhanced input focus effects */
+.input-3d:focus {
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 25px rgba(16, 185, 129, 0.15),
+        0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Button 3D effect */
+.button-3d {
+    transform: perspective(1000px) rotateX(0deg);
+    transition: all 0.3s ease;
+}
+
+.button-3d:hover {
+    transform: perspective(1000px) rotateX(-5deg) translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.button-3d:active {
+    transform: perspective(1000px) rotateX(2deg) translateY(1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Character depth effects */
+.character-depth {
+    filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.3));
+    transition: filter 0.3s ease;
+}
+
+.character-depth:hover {
+    filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+/* Responsive 3D container */
+.container-3d {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
 /* Survey Question Styles */
 .question-item {
     border-left: 4px solid var(--primary-color);

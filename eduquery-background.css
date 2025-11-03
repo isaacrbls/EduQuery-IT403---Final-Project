@@ -1,0 +1,202 @@
+/*
+ * EduQuery Background Styles
+ * Copy this CSS to replicate the background from sign-in and sign-up pages
+ */
+
+:root {
+    /* EduQuery Color Palette */
+    --black: #000000;
+    --green-700: #007B3B;
+    --deep-forest: #1F3C35;
+    --sage: #597868;        /* panel bg */
+    --sage-500: #7D998A;
+    --zinc-300: #D9D9D9;    /* gradient start */
+    --stone-200: #EAE9E4;
+    --white: #FFFFFF;
+    --brand: #2F5E53;       /* accent brand */
+
+    /* Layout tokens */
+    --aside-w: clamp(420px, 26vw, 640px);
+    --radius: clamp(12px, 1vw, 16px);
+    --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: "Poppins", Inter, sans-serif;
+}
+
+/* MAIN BACKGROUND GRADIENT - This is the key background style */
+body {
+    min-height: 100vh;
+    margin: 0;
+    color: #1f2937;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: linear-gradient(135deg, var(--zinc-300) 0%, var(--sage) 100%);
+    /* This creates the light gray to sage green gradient */
+}
+
+/* Page wrapper */
+.page {
+    position: relative;
+    min-height: 100vh;
+}
+
+.main {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+@media (min-width: 640px) {
+    .main {
+        padding: 20px 24px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .main {
+        padding: 24px 32px;
+        padding-right: var(--aside-w);
+    }
+
+    /* For sign-in style with left illustration */
+    body.signin .main {
+        padding: 24px 32px;
+        padding-left: var(--aside-w);
+        padding-right: 32px;
+    }
+}
+
+/* Content containers */
+.container {
+    width: 100%;
+    max-width: 760px;
+    margin-right: 180px;
+    margin-left: auto;
+}
+
+.containerSignIn {
+    margin-left: 150px;
+}
+
+@media (min-width: 1024px) {
+    .containerSignIn {
+        margin-left: 100px;
+    }
+}
+
+/* RIGHT-SIDE ILLUSTRATION PANEL (Sign-up style) */
+.illustration {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .illustration {
+        height: 100vh;
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: clamp(500px, 35vw, 720px);
+        background: var(--sage);
+        border-top-left-radius: 80px;
+        border-bottom-left-radius: 80px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        z-index: 0;
+    }
+
+    .illustration img {
+        height: 105%;
+        width: 150%;
+        object-fit: contain;
+        margin-right: -40px;
+        margin-bottom: -20px;
+        filter: drop-shadow(0 12px 25px rgba(0, 0, 0, 0.4));
+    }
+}
+
+/* LEFT-SIDE ILLUSTRATION PANEL (Sign-in style) */
+.illustration2 {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .illustration2 {
+        height: 100vh;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: clamp(500px, 35vw, 720px);
+        background: var(--sage);
+        border-top-right-radius: 80px;
+        border-bottom-right-radius: 80px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        z-index: 0;
+    }
+
+    .illustration2 img {
+        height: 100%;
+        width: 150%;
+        object-fit: contain;
+        margin-right: -20px;
+        margin-bottom: -20px;
+        filter: drop-shadow(0 12px 25px rgba(0, 0, 0, 0.4));
+    }
+}
+
+/*
+ * QUICK USAGE EXAMPLES:
+ *
+ * For Sign-up style (right panel):
+ * <body>
+ *   <div class="page">
+ *     <main class="main">
+ *       <div class="container">
+ *         <!-- Your content here -->
+ *       </div>
+ *     </main>
+ *     <aside class="illustration" aria-hidden="true">
+ *       <img src="your-image.png" alt="" />
+ *     </aside>
+ *   </div>
+ * </body>
+ *
+ * For Sign-in style (left panel):
+ * <body class="signin">
+ *   <div class="page">
+ *     <main class="main">
+ *       <div class="containerSignIn">
+ *         <!-- Your content here -->
+ *       </div>
+ *     </main>
+ *     <aside class="illustration2" aria-hidden="true">
+ *       <img src="your-image.png" alt="" />
+ *     </aside>
+ *   </div>
+ * </body>
+ *
+ * For just the background gradient (minimal):
+ * body {
+ *   background: linear-gradient(135deg, #D9D9D9 0%, #597868 100%);
+ * }
+ */

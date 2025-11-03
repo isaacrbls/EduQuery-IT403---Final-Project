@@ -9,8 +9,8 @@ from rest_framework.response import Response
 
 @login_required
 def dashboard(request):
-    """Survey management dashboard"""
-    return render(request, 'surveys/dashboard.html')
+    """Survey management dashboard (Student view)"""
+    return render(request, 'accounts/StudentDashboard.html')
 
 @login_required
 def survey_create(request):
@@ -70,4 +70,5 @@ def api_update_question(request, question_id):
 def api_delete_question(request, question_id):
     """API endpoint to delete a question"""
     return Response({'status': 'success'})
+
 

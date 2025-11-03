@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="StudentDashboard.css">
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Khy' }}">
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn active" aria-label="Home" data-tooltip="Home">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey History" data-tooltip="Survey History">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Enhanced Header -->
+            <div class="header">
+                <!-- Logo in left corner -->
+                <div class="header-logo-section">
+                    <img src="images/logo2.png" alt="EduQuery" class="corner-logo" />
+                </div>
+
+                <!-- User Profile Section -->
+                <div class="header-user-section">
+                    <div class="user-greeting">
+                        <span class="greeting">Hello, <span id="userName">{{ request.user.first_name|default:'Khy' }}</span>!</span>
+                        <span class="sub-greeting">Explore your dashboard and stay informed.</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="search-box">
+                        <label for="search-input" class="visually-hidden">Search</label>
+                        <input id="search-input" type="search" placeholder="Search..." />
+                        <span class="material-icons search-icon">search</span>
+                    </div>
+                    <div class="header-actions">
+                        <button class="header-btn notification-btn" aria-label="Notifications">
+                            <span class="material-icons">notifications</span>
+                        </button>
+                        <div class="notification-text">Notification</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="content-layout">
+                    <!-- Main Section -->
+                    <div class="main-section">
+                        <!-- Stats Cards -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Total Surveys</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Completed</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Pending</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Overdue</div>
+                            </div>
+                        </div>
+
+                        <!-- Survey List -->
+                        <div class="survey-section">
+                            <h2>List of Survey</h2>
+                            <div class="survey-list-container">
+                                <div class="survey-item">
+                                    <div class="survey-info">
+                                        <h3>Survey Title</h3>
+                                        <p>Teacher Name</p>
+                                        <p>Due Date</p>
+                                    </div>
+                                    <div class="survey-actions">
+                                        <div class="survey-status active">Status: Active</div>
+                                        <button class="survey-btn">Take Survey</button>
+                                    </div>
+                                </div>
+                                <div class="survey-item">
+                                    <div class="survey-info">
+                                        <h3>Survey Title</h3>
+                                        <p>Teacher Name</p>
+                                        <p>Due Date</p>
+                                    </div>
+                                    <div class="survey-actions">
+                                        <div class="survey-status closed">Status: Closed</div>
+                                        <button class="survey-btn disabled">Disable</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar -->
+                    <div class="right-sidebar">
+                        <!-- Announcement Card -->
+                        <div class="announcement-card">
+                            <h2>Announcement</h2>
+                            <div class="announcement-item"></div>
+                            <div class="announcement-item"></div>
+                        </div>
+
+                        <!-- Analytics Card -->
+                        <div class="analytics-card">
+                            <h2>Analytics</h2>
+                            <label for="month-select">Month</label>
+                            <select id="month-select">
+                                <option>January</option>
+                                <option>February</option>
+                                <option>March</option>
+                                <option>April</option>
+                                <option>May</option>
+                                <option>June</option>
+                                <option>July</option>
+                                <option>August</option>
+                                <option>September</option>
+                                <option>October</option>
+                                <option>November</option>
+                                <option>December</option>
+                            </select>
+                            <div class="analytics-chart">
+                                <i class="bi bi-graph-up" style="font-size: 48px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set user name from Django context
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const name = (body.getAttribute('data-user-name') || 'Khy').trim();
+            const userNameSpan = document.getElementById('userName');
+
+            if (userNameSpan) userNameSpan.textContent = name || 'Khy';
+
+            // Add click handlers for sidebar buttons
+            const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+            sidebarBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    sidebarBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
