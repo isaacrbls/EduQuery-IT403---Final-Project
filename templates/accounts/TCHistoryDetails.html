@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY - Survey Response Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="TCHistoryDetails.css">
+    <script defer src="TCHistoryDetails.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Teacher' }}">
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn active" aria-label="Survey History" data-tooltip="Survey History" onclick="goToHistory()">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- History Details Content -->
+                <div class="history-details-section">
+                    <div class="section-header">
+                        <div class="header-top">
+                            <button class="back-btn" onclick="goBack()" aria-label="Back to History">
+                                <span class="material-icons">arrow_back</span>
+                            </button>
+                            <img src="images/logo2.png" alt="EduQuery" class="header-logo" />
+                        </div>
+                    </div>
+                    <div class="title-content">
+                        <span class="material-icons section-icon">history</span>
+                        <h2>History Details</h2>
+                    </div>
+
+                    <!-- Survey Details Card -->
+                    <div class="survey-details-card">
+                        <div class="survey-header">
+                            <div class="survey-main-info">
+                                <div class="survey-icon-large">
+                                    <span class="material-icons">assignment</span>
+                                </div>
+                                <div class="survey-basic-info">
+                                    <h3 class="survey-title" id="surveyTitle">Survey Title</h3>
+                                    <div class="survey-meta">
+                                        <span class="section-info">
+                                            <span class="material-icons">class</span>
+                                            <span id="sectionName">Section: </span>
+                                        </span>
+                                        <span class="date-info">
+                                            <span class="material-icons">calendar_today</span>
+                                            <span id="dateCreated">Date Created: </span>
+                                        </span>
+                                        <span class="status-info">
+                                            <span class="material-icons">event</span>
+                                            <span id="dueDate">Due Date: </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="survey-stats">
+                                <div class="chart-container">
+                                    <canvas id="responseChart"></canvas>
+                                    <div class="chart-center">
+                                        <span class="chart-percentage" id="overallPercentage">83%</span>
+                                        <span class="chart-label">Overall Percentage</span>
+                                    </div>
+                                </div>
+                                <button class="download-btn">
+                                    <span class="material-icons">download</span>
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Overview Section -->
+                        <div class="overview-section">
+                            <h4>Overview of the Feedback Form</h4>
+                            <div class="overview-stats">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <span class="material-icons">people</span>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-value" id="totalResponses">25</span>
+                                        <span class="stat-label">Total Responses</span>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <span class="material-icons">check_circle</span>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-value" id="completionRate">92%</span>
+                                        <span class="stat-label">Completion Rate</span>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <span class="material-icons">schedule</span>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-value" id="avgTime">8 min</span>
+                                        <span class="stat-label">Avg. Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Student Responses Section -->
+                        <div class="student-responses">
+                            <div class="responses-header">
+                                <h4>Student Responses</h4>
+                                <div class="search-filter">
+                                    <input type="text" class="search-input" id="studentSearch" placeholder="Search student...">
+                                    <select class="filter-select" id="responseFilter">
+                                        <option value="all">All Students</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="incomplete">Incomplete</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="responses-list" id="responsesList">
+                                <!-- Student Response 1 -->
+                                <div class="response-item completed">
+                                    <div class="student-info">
+                                        <div class="student-avatar">
+                                            <span class="material-icons">person</span>
+                                        </div>
+                                        <div class="student-details">
+                                            <h5 class="student-name">John Doe</h5>
+                                            <span class="student-id">ID: 2021-12345</span>
+                                        </div>
+                                    </div>
+                                    <div class="response-meta">
+                                        <span class="response-date">
+                                            <span class="material-icons">schedule</span>
+                                            Oct 30, 2025 - 2:30 PM
+                                        </span>
+                                        <span class="response-status completed">
+                                            <span class="material-icons">check_circle</span>
+                                            Completed
+                                        </span>
+                                    </div>
+                                    <button class="view-response-btn" onclick="viewStudentResponse(1)">
+                                        <span class="material-icons">visibility</span>
+                                        View Response
+                                    </button>
+                                </div>
+
+                                <!-- Student Response 2 -->
+                                <div class="response-item completed">
+                                    <div class="student-info">
+                                        <div class="student-avatar">
+                                            <span class="material-icons">person</span>
+                                        </div>
+                                        <div class="student-details">
+                                            <h5 class="student-name">Jane Smith</h5>
+                                            <span class="student-id">ID: 2021-12346</span>
+                                        </div>
+                                    </div>
+                                    <div class="response-meta">
+                                        <span class="response-date">
+                                            <span class="material-icons">schedule</span>
+                                            Oct 30, 2025 - 3:15 PM
+                                        </span>
+                                        <span class="response-status completed">
+                                            <span class="material-icons">check_circle</span>
+                                            Completed
+                                        </span>
+                                    </div>
+                                    <button class="view-response-btn" onclick="viewStudentResponse(2)">
+                                        <span class="material-icons">visibility</span>
+                                        View Response
+                                    </button>
+                                </div>
+
+                                <!-- Student Response 3 -->
+                                <div class="response-item completed">
+                                    <div class="student-info">
+                                        <div class="student-avatar">
+                                            <span class="material-icons">person</span>
+                                        </div>
+                                        <div class="student-details">
+                                            <h5 class="student-name">Michael Johnson</h5>
+                                            <span class="student-id">ID: 2021-12347</span>
+                                        </div>
+                                    </div>
+                                    <div class="response-meta">
+                                        <span class="response-date">
+                                            <span class="material-icons">schedule</span>
+                                            Oct 31, 2025 - 10:45 AM
+                                        </span>
+                                        <span class="response-status completed">
+                                            <span class="material-icons">check_circle</span>
+                                            Completed
+                                        </span>
+                                    </div>
+                                    <button class="view-response-btn" onclick="viewStudentResponse(3)">
+                                        <span class="material-icons">visibility</span>
+                                        View Response
+                                    </button>
+                                </div>
+
+                                <!-- Student Response 4 -->
+                                <div class="response-item incomplete">
+                                    <div class="student-info">
+                                        <div class="student-avatar">
+                                            <span class="material-icons">person</span>
+                                        </div>
+                                        <div class="student-details">
+                                            <h5 class="student-name">Emily Davis</h5>
+                                            <span class="student-id">ID: 2021-12348</span>
+                                        </div>
+                                    </div>
+                                    <div class="response-meta">
+                                        <span class="response-date">
+                                            <span class="material-icons">schedule</span>
+                                            Not submitted
+                                        </span>
+                                        <span class="response-status incomplete">
+                                            <span class="material-icons">cancel</span>
+                                            Not Completed
+                                        </span>
+                                    </div>
+                                    <button class="view-response-btn" disabled>
+                                        <span class="material-icons">visibility_off</span>
+                                        No Response
+                                    </button>
+                                </div>
+
+                                <!-- Student Response 5 -->
+                                <div class="response-item completed">
+                                    <div class="student-info">
+                                        <div class="student-avatar">
+                                            <span class="material-icons">person</span>
+                                        </div>
+                                        <div class="student-details">
+                                            <h5 class="student-name">Robert Brown</h5>
+                                            <span class="student-id">ID: 2021-12349</span>
+                                        </div>
+                                    </div>
+                                    <div class="response-meta">
+                                        <span class="response-date">
+                                            <span class="material-icons">schedule</span>
+                                            Oct 31, 2025 - 4:20 PM
+                                        </span>
+                                        <span class="response-status completed">
+                                            <span class="material-icons">check_circle</span>
+                                            Completed
+                                        </span>
+                                    </div>
+                                    <button class="view-response-btn" onclick="viewStudentResponse(5)">
+                                        <span class="material-icons">visibility</span>
+                                        View Response
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Response Modal -->
+    <div class="modal-overlay" id="responseModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="material-icons">person</span>
+                    <h3 id="modalStudentName">Student Response</h3>
+                </div>
+                <button class="modal-close" id="closeModal">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content" id="modalContent">
+                <!-- Student responses will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

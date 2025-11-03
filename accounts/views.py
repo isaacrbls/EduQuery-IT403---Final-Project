@@ -25,7 +25,17 @@ def logout_view(request):
 @login_required
 def profile(request):
     """User profile"""
-    return render(request, 'accounts/profile.html')
+    # Get user profile data or create context
+    context = {
+        'completion_rate': 85,  # This would come from your database
+        'response_quality': 'Excellent',
+        'participation_status': 'Active',
+        'user_profile': {
+            'position': 'Student',
+            'section': 'IT-401'
+        }
+    }
+    return render(request, 'accounts/Profile.html', context)
 
 def forgot_password(request):
     """

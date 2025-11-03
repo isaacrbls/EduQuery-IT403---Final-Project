@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #2F5E53;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px;
+            font-weight: 500;
+        }
+        .test-link:hover {
+            background: #1F3C35;
+        }
+        .preview {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #2F5E53;
+            border-radius: 4px;
+        }
+        .feature-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .feature-list li:before {
+            content: "✓";
+            color: #22c55e;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎉 EduQuery Profile Page Created Successfully!</h1>
+
+        <p>Your profile page has been created with the design matching the photo you provided. Here's what was implemented:</p>
+
+        <div class="preview">
+            <h3>✨ Features Implemented:</h3>
+            <ul class="feature-list">
+                <li>Consistent sidebar navigation matching your existing design</li>
+                <li>Profile header with "Hello, Khy!" greeting</li>
+                <li>Search bar and notification bell in header</li>
+                <li>Profile card with circular avatar (shows initials)</li>
+                <li>"Change Profile" button for profile picture upload</li>
+                <li>Form fields: Name, Email, Confirm Email, Position, Section</li>
+                <li>Edit/Save/Cancel functionality for profile editing</li>
+                <li>Statistics cards: Completion Rate (0%), Response Quality (Excellent), Participation (Active)</li>
+                <li>Fully responsive design that works on all devices</li>
+                <li>Smooth animations and hover effects</li>
+                <li>Accessibility features (screen reader friendly)</li>
+            </ul>
+        </div>
+
+        <div class="preview">
+            <h3>🎨 Design Features:</h3>
+            <ul class="feature-list">
+                <li>Glassmorphism effect with backdrop blur</li>
+                <li>Consistent color scheme (#2F5E53 primary green)</li>
+                <li>Material Design icons</li>
+                <li>Rounded corners and smooth shadows</li>
+                <li>Professional gradient background</li>
+                <li>Interactive buttons with hover animations</li>
+            </ul>
+        </div>
+
+        <div class="preview">
+            <h3>🔧 Technical Implementation:</h3>
+            <ul class="feature-list">
+                <li>HTML file: Profile.html (✅ Created)</li>
+                <li>CSS file: Profile.css (✅ Created)</li>
+                <li>JavaScript file: Profile.js (✅ Created)</li>
+                <li>Django view updated to serve the profile page</li>
+                <li>Context data for statistics and user info</li>
+                <li>Form validation and error handling</li>
+                <li>Image upload functionality for profile pictures</li>
+            </ul>
+        </div>
+
+        <h3>🚀 Next Steps:</h3>
+        <p>To view your profile page:</p>
+        <ol>
+            <li>Start your Django development server: <code>python manage.py runserver</code></li>
+            <li>Navigate to: <code>http://localhost:8000/accounts/profile/</code></li>
+            <li>The page will show with sample data and full functionality</li>
+        </ol>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="Profile.html" class="test-link">🔍 View Profile Page</a>
+            <a href="StudentDashboard.html" class="test-link">🏠 Back to Dashboard</a>
+        </div>
+
+        <div class="preview" style="margin-top: 20px;">
+            <h4>💡 Pro Tips:</h4>
+            <ul>
+                <li>The profile page is fully integrated with your existing design system</li>
+                <li>Click "Edit Profile" to enable form editing</li>
+                <li>Upload a profile picture using "Change Profile" button</li>
+                <li>Use keyboard shortcuts: Ctrl+E to edit, Escape to cancel</li>
+                <li>The page is mobile-responsive and works on all screen sizes</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+

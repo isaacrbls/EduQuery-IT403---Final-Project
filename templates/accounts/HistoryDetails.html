@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY - History Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="HistoryDetails.css">
+    <script defer src="HistoryDetails.js"></script>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Khy' }}">
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn active" aria-label="Survey History" data-tooltip="Survey History" onclick="goToHistory()">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- History Details Content -->
+                <div class="history-details-section">
+                    <div class="section-header">
+                        <div class="header-left">
+                            <button class="back-btn" onclick="goBack()" aria-label="Back to History">
+                                <span class="material-icons">arrow_back</span>
+                            </button>
+                            <img src="images/logo2.png" alt="EduQuery" class="header-logo" />
+                        </div>
+                        <div class="title-content">
+                            <span class="material-icons section-icon">history</span>
+                            <h2>History Details</h2>
+                        </div>
+                    </div>
+
+                    <!-- Survey Details Card -->
+                    <div class="survey-details-card">
+        <div class="survey-header">
+            <div class="survey-main-info">
+                <div class="survey-icon-large">
+                    <span class="material-icons">assignment_turned_in</span>
+                </div>
+                <div class="survey-basic-info">
+                    <h3 class="survey-title" id="surveyTitle">IT403 Final Project Evaluation</h3>
+                    <div class="survey-meta">
+                        <span class="teacher-info">
+                            <span class="material-icons">person</span>
+                            <span id="teacherName">Prof. Rodriguez</span>
+                        </span>
+                        <span class="completion-info">
+                            <span class="material-icons">check_circle</span>
+                            <span id="completionDate">Completed: Nov 1, 2025</span>
+                        </span>
+                        <span class="status-info">
+                            <span class="material-icons">task_alt</span>
+                            <span id="submissionStatus">Submitted at 2:30 PM</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="survey-percentage">
+                <div class="chart-with-legend">
+                    <div class="pie-chart" id="responseChart">
+                        <div class="chart-center">
+                            <span class="chart-percentage" id="headerPercentage">91%</span>
+                        </div>
+                    </div>
+                    <div class="chart-legend-mini">
+                        <div class="legend-mini-item">
+                            <div class="legend-mini-color excellent"></div>
+                            <span>Excellent (76%)</span>
+                        </div>
+                        <div class="legend-mini-item">
+                            <div class="legend-mini-color good"></div>
+                            <span>Good (18%)</span>
+                        </div>
+                        <div class="legend-mini-item">
+                            <div class="legend-mini-color average"></div>
+                            <span>Average (6%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Survey Answers Section -->
+        <div class="survey-answers">
+            <div class="survey-answers-header">
+                <h4>Survey Responses</h4>
+            </div>
+            <div class="answers-list">
+                <div class="answer-item">
+                    <div class="question">How would you rate the overall course content?</div>
+                    <div class="answer excellent-text">Excellent - The course content was comprehensive and well-structured.</div>
+                </div>
+                <div class="answer-item">
+                    <div class="question">What aspects of the course did you find most valuable?</div>
+                    <div class="answer excellent-text">The practical projects and hands-on coding exercises really helped solidify the concepts.</div>
+                </div>
+                <div class="answer-item">
+                    <div class="question">How effective was the instructor's teaching method?</div>
+                    <div class="answer good-text">Very effective - Clear explanations and good use of examples.</div>
+                </div>
+                <div class="answer-item">
+                    <div class="question">Would you recommend this course to other students?</div>
+                    <div class="answer excellent-text">Yes, definitely! It's a well-designed course with practical applications.</div>
+                </div>
+                <div class="answer-item">
+                    <div class="question">Any suggestions for improvement?</div>
+                    <div class="answer average-text">More time for the final project would be helpful.</div>
+                </div>
+            </div>
+        </div>
+
+
+                    </div>
+
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <button class="action-btn primary" onclick="downloadResults()">
+                            <span class="material-icons">download</span>
+                            Download Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

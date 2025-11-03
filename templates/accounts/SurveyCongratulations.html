@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY - Survey Submitted Successfully</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="SurveyCongratulations.css">
+    <script defer src="SurveyCongratulations.js"></script>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Khy' }}">
+    <div class="dashboard-container">
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Simple Header with Logo Only -->
+            <div class="header">
+                <img src="images/logo2.png" alt="EduQuery" class="main-logo" />
+            </div>
+
+            <!-- Congratulations Content -->
+            <div class="content-area">
+                <!-- Success Animation with Image -->
+                <div class="success-animation">
+                    <img src="images/congratulation.png" alt="Congratulations" class="congratulation-image" />
+                </div>
+
+                <!-- Congratulations Content -->
+                <div class="congratulations-content">
+                        <h1 class="congratulations-title">Congratulations!</h1>
+                        <p class="congratulations-subtitle">Submitted Successfully</p>
+
+                        <div class="success-message">
+                            <p>Your survey response has been submitted successfully. Thank you for taking the time to provide your valuable feedback!</p>
+                        </div>
+
+                        <!-- Survey Details -->
+                        <div class="submission-details">
+                            <div class="detail-card">
+                                <div class="detail-icon">
+                                    <span class="material-icons">assignment_turned_in</span>
+                                </div>
+                                <div class="detail-info">
+                                    <h3>Survey Completed</h3>
+                                    <p>IT403 Final Project Evaluation</p>
+                                </div>
+                            </div>
+
+                            <div class="detail-card">
+                                <div class="detail-icon">
+                                    <span class="material-icons">schedule</span>
+                                </div>
+                                <div class="detail-info">
+                                    <h3>Submitted On</h3>
+                                    <p id="submissionDate"></p>
+                                </div>
+                            </div>
+
+                            <div class="detail-card">
+                                <div class="detail-icon">
+                                    <span class="material-icons">timer</span>
+                                </div>
+                                <div class="detail-info">
+                                    <h3>Time Taken</h3>
+                                    <p>8 minutes 32 seconds</p>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn-secondary" onclick="goToSurveyList()">
+                                <span class="material-icons">list_alt</span>
+                                View All Surveys
+                            </button>
+                            <button class="btn-primary" onclick="goToHome()">
+                                <span class="material-icons">home</span>
+                                Go to Dashboard
+                            </button>
+                        </div>
+
+                </div>
+        </div>
+    </div>
+
+    <!-- Floating particles for extra celebration effect -->
+    <div class="floating-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+</body>
+</html>

@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDUQUERY Dashboard</title>
+    <title>EDUQUERY - Teacher Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="StudentDashboard.css">
-    <script defer src="StudentDashboard.js"></script>
+    <link rel="stylesheet" href="TeacherDashboard.css">
+    <script defer src="TeacherDashboard.js"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Khy' }}">
     <div class="dashboard-container">
         <!-- Enhanced Sidebar -->
         <div class="sidebar">
-
             <!-- Navigation Section -->
             <nav class="sidebar-nav" role="navigation">
                 <button class="sidebar-btn active" aria-label="Home" data-tooltip="Home">
                     <span class="material-icons">home</span>
                 </button>
-                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
                 </button>
-                <button class="sidebar-btn" aria-label="Survey History" data-tooltip="Survey History">
+                <button class="sidebar-btn" aria-label="History" data-tooltip="History">
                     <span class="material-icons">history</span>
                 </button>
                 <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
@@ -80,11 +79,10 @@
                         <div class="notification-container">
                             <button class="header-btn notification-btn" aria-label="Notifications">
                                 <span class="material-icons">notifications</span>
-                                <span class="notification-badge">3</span>
+                                <span class="notification-badge">5</span>
                             </button>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -99,44 +97,44 @@
                                 <div class="stat-icon">
                                     <span class="material-icons">assignment</span>
                                 </div>
-                                <div class="stat-value">5</div>
-                                <div class="stat-label">Total Surveys</div>
+                                <div class="stat-value" id="totalSurveys">0</div>
+                                <div class="stat-label">Total Surveys Created</div>
                                 <div class="stat-trend">
                                     <span class="material-icons">trending_up</span>
-                                    <span>+2 this month</span>
+                                    <span>+3 this month</span>
                                 </div>
                             </div>
-                            <div class="stat-card" data-stat="completed">
+                            <div class="stat-card" data-stat="active">
                                 <div class="stat-icon success">
                                     <span class="material-icons">check_circle</span>
                                 </div>
-                                <div class="stat-value">3</div>
-                                <div class="stat-label">Completed</div>
+                                <div class="stat-value" id="activeSurveys">0</div>
+                                <div class="stat-label">Active Survey</div>
                                 <div class="stat-trend">
                                     <span class="material-icons">trending_up</span>
-                                    <span>60% rate</span>
+                                    <span>Currently open</span>
                                 </div>
                             </div>
                             <div class="stat-card" data-stat="pending">
                                 <div class="stat-icon warning">
-                                    <span class="material-icons">hourglass_empty</span>
+                                    <span class="material-icons">rate_review</span>
                                 </div>
-                                <div class="stat-value">1</div>
-                                <div class="stat-label">Pending</div>
+                                <div class="stat-value" id="pendingReviews">0</div>
+                                <div class="stat-label">Pending Reviews</div>
                                 <div class="stat-trend">
                                     <span class="material-icons">schedule</span>
-                                    <span>Due soon</span>
+                                    <span>Awaiting responses</span>
                                 </div>
                             </div>
-                            <div class="stat-card" data-stat="overdue">
-                                <div class="stat-icon error">
-                                    <span class="material-icons">warning</span>
+                            <div class="stat-card" data-stat="completed">
+                                <div class="stat-icon info">
+                                    <span class="material-icons">task_alt</span>
                                 </div>
-                                <div class="stat-value">1</div>
-                                <div class="stat-label">Overdue</div>
+                                <div class="stat-value" id="completedSurveys">0</div>
+                                <div class="stat-label">Completed Survey</div>
                                 <div class="stat-trend">
-                                    <span class="material-icons">trending_down</span>
-                                    <span>Action needed</span>
+                                    <span class="material-icons">trending_up</span>
+                                    <span>Finished</span>
                                 </div>
                             </div>
                         </div>
@@ -146,108 +144,137 @@
                             <div class="section-header">
                                 <div class="section-title">
                                     <span class="material-icons section-icon">assignment</span>
-                                    <h2>Recent Surveys</h2>
+                                    <h2>List of Survey</h2>
                                 </div>
-                                <button class="view-all-btn">
-                                    View All
-                                    <span class="material-icons">arrow_forward</span>
+                                <button class="create-survey-btn">
+                                    <span class="material-icons">add</span>
+                                    Create Survey
                                 </button>
                             </div>
 
-
                             <div class="survey-list-container">
-                                <!-- Active Survey Card -->
-                                <div class="survey-card active-survey">
+                                <!-- Survey Card 1 -->
+                                <div class="survey-card teacher-survey-card">
                                     <div class="survey-card-main">
                                         <div class="survey-icon">
                                             <span class="material-icons">assignment</span>
                                         </div>
                                         <div class="survey-info">
-                                            <h3 class="survey-title">IT403 Final Project Evaluation</h3>
+                                            <h3 class="survey-title">Survey Title</h3>
                                             <div class="survey-meta">
-                                                <span class="teacher-info">
-                                                    <span class="material-icons">person</span>
-                                                    Prof. Rodriguez
+                                                <span class="date-info">
+                                                    <span class="material-icons">event</span>
+                                                    Date Created: Nov 1, 2025
                                                 </span>
                                                 <span class="due-info">
                                                     <span class="material-icons">schedule</span>
-                                                    Due: Nov 15, 2025
+                                                    Due Date: Nov 15, 2025
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="survey-actions">
+                                    <div class="survey-middle">
+                                        <div class="response-info">
+                                            <span class="material-icons">people</span>
+                                            <span class="response-count">Responses: <strong>50</strong></span>
+                                        </div>
                                         <div class="survey-status-badge active">
                                             <span class="status-dot"></span>
-                                            ACTIVE
+                                            Status: Active
                                         </div>
-                                        <button class="survey-action-btn primary">
-                                            <span class="material-icons">play_arrow</span>
-                                            Take Survey
+                                    </div>
+                                    <div class="survey-actions">
+                                        <button class="survey-action-btn edit-btn">
+                                            <span class="material-icons">edit</span>
+                                            Edit
+                                        </button>
+                                        <button class="survey-action-btn delete-btn">
+                                            <span class="material-icons">delete</span>
+                                            Delete
                                         </button>
                                     </div>
                                 </div>
 
-                                <!-- Completed Survey Card -->
-                                <div class="survey-card completed-survey">
+                                <!-- Survey Card 2 -->
+                                <div class="survey-card teacher-survey-card">
+                                    <div class="survey-card-main">
+                                        <div class="survey-icon">
+                                            <span class="material-icons">assignment</span>
+                                        </div>
+                                        <div class="survey-info">
+                                            <h3 class="survey-title">Survey Title</h3>
+                                            <div class="survey-meta">
+                                                <span class="date-info">
+                                                    <span class="material-icons">event</span>
+                                                    Date Created: Oct 28, 2025
+                                                </span>
+                                                <span class="due-info">
+                                                    <span class="material-icons">schedule</span>
+                                                    Due Date: Nov 12, 2025
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="survey-middle">
+                                        <div class="response-info">
+                                            <span class="material-icons">people</span>
+                                            <span class="response-count">Responses: <strong>50</strong></span>
+                                        </div>
+                                        <div class="survey-status-badge active">
+                                            <span class="status-dot"></span>
+                                            Status: Active
+                                        </div>
+                                    </div>
+                                    <div class="survey-actions">
+                                        <button class="survey-action-btn edit-btn">
+                                            <span class="material-icons">edit</span>
+                                            Edit
+                                        </button>
+                                        <button class="survey-action-btn delete-btn">
+                                            <span class="material-icons">delete</span>
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Survey Card 3 -->
+                                <div class="survey-card teacher-survey-card">
                                     <div class="survey-card-main">
                                         <div class="survey-icon completed">
                                             <span class="material-icons">assignment_turned_in</span>
                                         </div>
                                         <div class="survey-info">
-                                            <h3 class="survey-title">Database Design Assessment</h3>
+                                            <h3 class="survey-title">Survey Title</h3>
                                             <div class="survey-meta">
-                                                <span class="teacher-info">
-                                                    <span class="material-icons">person</span>
-                                                    Prof. Martinez
+                                                <span class="date-info">
+                                                    <span class="material-icons">event</span>
+                                                    Date Created: Oct 20, 2025
                                                 </span>
                                                 <span class="due-info">
                                                     <span class="material-icons">check_circle</span>
-                                                    Completed: Oct 28, 2025
+                                                    Due Date: Oct 31, 2025
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="survey-actions">
+                                    <div class="survey-middle">
+                                        <div class="response-info">
+                                            <span class="material-icons">people</span>
+                                            <span class="response-count">Responses: <strong>42</strong></span>
+                                        </div>
                                         <div class="survey-status-badge completed">
                                             <span class="status-dot"></span>
-                                            CLOSED
-                                        </div>
-                                        <button class="survey-action-btn completed">
-                                            <span class="material-icons">check_circle</span>
-                                            Completed
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Upcoming Survey Card -->
-                                <div class="survey-card upcoming-survey">
-                                    <div class="survey-card-main">
-                                        <div class="survey-icon upcoming">
-                                            <span class="material-icons">schedule</span>
-                                        </div>
-                                        <div class="survey-info">
-                                            <h3 class="survey-title">Web Development Final Review</h3>
-                                            <div class="survey-meta">
-                                                <span class="teacher-info">
-                                                    <span class="material-icons">person</span>
-                                                    Prof. Johnson
-                                                </span>
-                                                <span class="due-info">
-                                                    <span class="material-icons">schedule</span>
-                                                    Opens: Nov 20, 2025
-                                                </span>
-                                            </div>
+                                            Status: Closed
                                         </div>
                                     </div>
                                     <div class="survey-actions">
-                                        <div class="survey-status-badge upcoming">
-                                            <span class="status-dot"></span>
-                                            UPCOMING
-                                        </div>
-                                        <button class="survey-action-btn disabled">
-                                            <span class="material-icons">access_time</span>
-                                            Pending
+                                        <button class="survey-action-btn view-btn">
+                                            <span class="material-icons">visibility</span>
+                                            View
+                                        </button>
+                                        <button class="survey-action-btn delete-btn">
+                                            <span class="material-icons">delete</span>
+                                            Delete
                                         </button>
                                     </div>
                                 </div>
@@ -321,31 +348,30 @@
                                 </select>
                             </div>
                             <div class="analytics-content">
-                                <div class="analytics-stats">
-                                    <div class="stat-mini">
-                                        <span class="stat-mini-value">75%</span>
-                                        <span class="stat-mini-label">Completion Rate</span>
-                                    </div>
-                                    <div class="stat-mini">
-                                        <span class="stat-mini-value">4.2</span>
-                                        <span class="stat-mini-label">Avg. Rating</span>
-                                    </div>
-                                </div>
                                 <div class="analytics-chart">
+                                    <canvas id="analyticsChart"></canvas>
                                     <div class="chart-placeholder">
-                                        <div class="chart-bars">
-                                            <div class="bar" style="height: 60%"></div>
-                                            <div class="bar" style="height: 80%"></div>
-                                            <div class="bar" style="height: 45%"></div>
-                                            <div class="bar" style="height: 90%"></div>
-                                            <div class="bar" style="height: 70%"></div>
-                                            <div class="bar" style="height: 55%"></div>
-                                            <div class="bar" style="height: 85%"></div>
+                                        <div class="chart-line-graph">
+                                            <svg viewBox="0 0 200 100" class="line-chart">
+                                                <polyline
+                                                    points="0,60 50,80 100,45 150,30 200,50"
+                                                    fill="none"
+                                                    stroke="var(--primary-500)"
+                                                    stroke-width="3"
+                                                />
+                                                <circle cx="0" cy="60" r="4" fill="var(--primary-500)" />
+                                                <circle cx="50" cy="80" r="4" fill="var(--primary-500)" />
+                                                <circle cx="100" cy="45" r="4" fill="var(--primary-500)" />
+                                                <circle cx="150" cy="30" r="4" fill="var(--primary-500)" />
+                                                <circle cx="200" cy="50" r="4" fill="var(--primary-500)" />
+                                            </svg>
                                         </div>
-                                        <p class="chart-coming-soon">
-                                            <span class="material-icons">show_chart</span>
-                                            Analytics Coming Soon
-                                        </p>
+                                        <div class="chart-labels">
+                                            <span>0</span>
+                                            <span>1</span>
+                                            <span>2</span>
+                                            <span>3</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -356,5 +382,7 @@
         </div>
     </div>
 
+
 </body>
 </html>
+

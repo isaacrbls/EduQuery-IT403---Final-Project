@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY - Create Survey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="TCSurveyForm.css">
+    <script defer src="TCSurveyForm.js"></script>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Teacher' }}">
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn" aria-label="History" data-tooltip="History">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <button class="back-btn" onclick="goBack()" aria-label="Back to Survey List">
+                        <span class="material-icons">arrow_back</span>
+                    </button>
+                    <h1>Create New Survey</h1>
+                </div>
+                <div class="header-right">
+                    <span class="user-greeting">Hello, <span id="userName">Teacher</span>!</span>
+                </div>
+            </div>
+
+            <!-- Survey Form Content -->
+            <div class="content-area">
+                <div class="survey-form-container">
+                    <!-- Color Theme Selector - Top Right -->
+                    <div class="color-theme-selector">
+                        <button type="button" class="theme-dropdown-btn" id="themeDropdownBtn">
+                            <span class="material-icons">palette</span>
+                            <span class="theme-label">Theme</span>
+                            <span class="material-icons arrow">expand_more</span>
+                        </button>
+                        <div class="theme-dropdown-menu" id="themeDropdownMenu">
+                            <div class="theme-option" data-section="default">
+                                <div class="theme-radio active">
+                                    <div class="radio-circle section-default-color"></div>
+                                </div>
+                                <span class="theme-name">White</span>
+                            </div>
+                            <div class="theme-option" data-section="a">
+                                <div class="theme-radio">
+                                    <div class="radio-circle section-a-color"></div>
+                                </div>
+                                <span class="theme-name">Green</span>
+                            </div>
+                            <div class="theme-option" data-section="b">
+                                <div class="theme-radio">
+                                    <div class="radio-circle section-b-color"></div>
+                                </div>
+                                <span class="theme-name">Blue</span>
+                            </div>
+                            <div class="theme-option" data-section="c">
+                                <div class="theme-radio">
+                                    <div class="radio-circle section-c-color"></div>
+                                </div>
+                                <span class="theme-name">Orange</span>
+                            </div>
+                            <div class="theme-option" data-section="d">
+                                <div class="theme-radio">
+                                    <div class="radio-circle section-d-color"></div>
+                                </div>
+                                <span class="theme-name">Purple</span>
+                            </div>
+                            <div class="theme-option" data-section="all">
+                                <div class="theme-radio">
+                                    <div class="radio-circle section-all-color"></div>
+                                </div>
+                                <span class="theme-name">Pink</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Survey Form -->
+                    <form class="survey-form" id="surveyForm" novalidate>
+                        <!-- Survey Basic Information -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <h2>Survey Information</h2>
+                                <p>Fill in the basic details for your survey</p>
+                            </div>
+
+                            <!-- Survey Title -->
+                            <div class="question-group">
+                                <label class="question-label" for="surveyTitle">
+                                    <span class="question-text">Survey Title</span>
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       id="surveyTitle"
+                                       name="surveyTitle"
+                                       class="form-input"
+                                       placeholder="e.g., IT403 Final Project Evaluation"
+                                       required>
+                                <div class="error-message" id="surveyTitle-error"></div>
+                            </div>
+
+                            <!-- Survey Description -->
+                            <div class="question-group">
+                                <label class="question-label" for="surveyDescription">
+                                    <span class="question-text">Description</span>
+                                    <span class="required">*</span>
+                                </label>
+                                <textarea id="surveyDescription"
+                                         name="surveyDescription"
+                                         class="form-textarea"
+                                         placeholder="Provide a brief description of this survey..."
+                                         rows="3"
+                                         required></textarea>
+                                <div class="character-count">
+                                    <span id="description-count">0</span> / 500 characters
+                                </div>
+                                <div class="error-message" id="surveyDescription-error"></div>
+                            </div>
+
+                            <!-- Course and Section -->
+                            <div class="question-group">
+                                <div class="question-row">
+                                    <div class="question-col">
+                                        <label class="question-label" for="course">
+                                            <span class="question-text">Course</span>
+                                            <span class="required">*</span>
+                                        </label>
+                                        <select id="course" name="course" class="form-select" required>
+                                            <option value="">Select Course</option>
+                                            <option value="IT403">IT403 - Database Systems</option>
+                                            <option value="CS301">CS301 - Database Design</option>
+                                            <option value="WEB201">WEB201 - Web Development</option>
+                                            <option value="SE401">SE401 - Software Engineering</option>
+                                            <option value="CS302">CS302 - Algorithms</option>
+                                        </select>
+                                        <div class="error-message" id="course-error"></div>
+                                    </div>
+                                    <div class="question-col">
+                                        <label class="question-label" for="section">
+                                            <span class="question-text">Section</span>
+                                            <span class="required">*</span>
+                                        </label>
+                                        <select id="section" name="section" class="form-select" required>
+                                            <option value="">Select Section</option>
+                                            <option value="A">Section A</option>
+                                            <option value="B">Section B</option>
+                                            <option value="C">Section C</option>
+                                            <option value="D">Section D</option>
+                                            <option value="ALL">All Sections</option>
+                                        </select>
+                                        <div class="error-message" id="section-error"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Due Date -->
+                            <div class="question-group">
+                                <label class="question-label" for="dueDate">
+                                    <span class="question-text">Due Date</span>
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="datetime-local"
+                                       id="dueDate"
+                                       name="dueDate"
+                                       class="form-input"
+                                       required>
+                                <div class="error-message" id="dueDate-error"></div>
+                            </div>
+                        </div>
+
+                        <!-- Survey Questions Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <h2>Survey Questions</h2>
+                                <p>Add questions for your survey</p>
+                            </div>
+
+                            <!-- Questions Container -->
+                            <div id="questionsContainer">
+                                <!-- Questions will be dynamically added here -->
+                            </div>
+
+                            <!-- Add Question Button -->
+                            <button type="button" class="btn-add-question" id="addQuestionBtn">
+                                <span class="material-icons">add_circle</span>
+                                Add Question
+                            </button>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="goBack()">
+                                <span class="material-icons">close</span>
+                                Cancel
+                            </button>
+                            <div class="action-buttons">
+                                <button type="button" class="btn-outline" id="saveDraftBtn">
+                                    <span class="material-icons">save</span>
+                                    Save as Draft
+                                </button>
+                                <button type="button" class="btn-primary" id="publishBtn">
+                                    <span class="material-icons">publish</span>
+                                    Publish Survey
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Question Modal -->
+    <div class="modal-overlay" id="addQuestionModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Add Question</h3>
+                <button class="modal-close" id="closeQuestionModal">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-form">
+                    <!-- Question Type -->
+                    <div class="form-group">
+                        <label for="questionType">Question Type</label>
+                        <select id="questionType" class="form-select">
+                            <option value="text">Short Answer</option>
+                            <option value="textarea">Long Answer</option>
+                            <option value="radio">Multiple Choice (Single)</option>
+                            <option value="checkbox">Multiple Choice (Multiple)</option>
+                            <option value="rating">Rating Scale</option>
+                            <option value="star">Star Rating</option>
+                        </select>
+                    </div>
+
+                    <!-- Question Text -->
+                    <div class="form-group">
+                        <label for="questionText">Question Text</label>
+                        <textarea id="questionText" class="form-textarea" rows="2" placeholder="Enter your question..."></textarea>
+                    </div>
+
+                    <!-- Required Toggle -->
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="questionRequired">
+                            <span class="checkmark"></span>
+                            Required Question
+                        </label>
+                    </div>
+
+                    <!-- Options (for radio/checkbox) -->
+                    <div class="form-group" id="optionsGroup" style="display: none;">
+                        <label>Answer Options</label>
+                        <div id="optionsContainer">
+                            <div class="option-input-group">
+                                <input type="text" class="form-input option-input" placeholder="Option 1">
+                                <button type="button" class="btn-icon remove-option" style="display: none;">
+                                    <span class="material-icons">close</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-text" id="addOptionBtn">
+                            <span class="material-icons">add</span>
+                            Add Option
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cancelQuestionBtn">Cancel</button>
+                <button class="btn-primary" id="saveQuestionBtn">
+                    <span class="material-icons">check</span>
+                    Add Question
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Confirm Publication</h3>
+                <button class="modal-close" id="closeConfirmModal">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="confirmation-content">
+                    <div class="confirmation-icon">
+                        <span class="material-icons">check_circle</span>
+                    </div>
+                    <p>Are you sure you want to publish this survey? Students will be able to see and respond to it.</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cancelPublish">Cancel</button>
+                <button class="btn-primary" id="confirmPublish">
+                    <span class="material-icons">publish</span>
+                    Yes, Publish
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
