@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY - Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="Profile.css">
+    <script defer src="Profile.js"></script>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Khy' }}">
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey History" data-tooltip="Survey History" onclick="goToHistory()">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn active" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout" onclick="handleLogout()">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header Section -->
+            <div class="header-section">
+                <!-- EduQuery Logo Branding -->
+                <div class="branding">
+                    <div class="brand-logo-container">
+                        <img src="images/logo2.png" alt="EDUQUERY" class="brand-logo-img">
+                    </div>
+                </div>
+
+                <!-- Welcome Message -->
+                <div class="welcome-section">
+                    <div class="welcome-content">
+                        <h2 class="welcome-title">Hello, <span class="user-name">{{ request.user.first_name|default:'Khy' }}</span>!</h2>
+                        <p class="welcome-subtitle">Manage your profile information and preferences.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <h3 class="section-title">Profile</h3>
+                    </div>
+
+                    <div class="profile-content">
+                        <!-- Profile Picture Section -->
+                        <div class="profile-picture-section">
+                            <div class="profile-picture">
+                                <div class="avatar-circle">
+                                    <span class="avatar-text">{{ request.user.first_name.0|default:'K' }}{{ request.user.last_name.0|default:'H' }}</span>
+                                </div>
+                            </div>
+                            <button class="change-profile-btn">Change Profile</button>
+                        </div>
+
+                        <!-- Profile Form -->
+                        <div class="profile-form-section">
+                            <form class="profile-form" id="profileForm">
+                                <div class="form-group">
+                                    <label for="name" class="form-label">Name</label>
+                                    <input type="text" id="name" name="name" class="form-input"
+                                           value="{{ request.user.get_full_name|default:'Khy User' }}" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" id="email" name="email" class="form-input"
+                                           value="{{ request.user.email|default:'khy@example.com' }}" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="confirmEmail" class="form-label">Confirm Email</label>
+                                    <input type="email" id="confirmEmail" name="confirmEmail" class="form-input"
+                                           value="{{ request.user.email|default:'khy@example.com' }}" readonly>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group half-width">
+                                        <label for="position" class="form-label">Position</label>
+                                        <input type="text" id="position" name="position" class="form-input"
+                                               value="{{ user_profile.position|default:'Student' }}" readonly>
+                                    </div>
+                                    <div class="form-group half-width">
+                                        <label for="section" class="form-label">Section</label>
+                                        <input type="text" id="section" name="section" class="form-input"
+                                               value="{{ user_profile.section|default:'IT-401' }}" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="button" class="edit-profile-btn" id="editProfileBtn">
+                                        <span class="btn-icon material-icons">edit</span>
+                                        Edit Profile
+                                    </button>
+                                    <button type="submit" class="save-profile-btn" id="saveProfileBtn" style="display: none;">
+                                        <span class="btn-icon material-icons">save</span>
+                                        Save Changes
+                                    </button>
+                                    <button type="button" class="cancel-edit-btn" id="cancelEditBtn" style="display: none;">
+                                        <span class="btn-icon material-icons">close</span>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="statistics-section">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h4 class="stat-title">Completion Rate</h4>
+                        </div>
+                        <div class="stat-value">{{ completion_rate|default:'85' }}%</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h4 class="stat-title">Response Quality</h4>
+                        </div>
+                        <div class="stat-value excellent">{{ response_quality|default:'Excellent' }}</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h4 class="stat-title">Participation</h4>
+                        </div>
+                        <div class="stat-value active">{{ participation_status|default:'Active' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

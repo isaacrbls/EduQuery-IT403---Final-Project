@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY - Survey History</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="TCHistory.css">
+    <script defer src="TCHistory.js"></script>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Teacher' }}">
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn active" aria-label="Survey History" data-tooltip="Survey History">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- History Content -->
+                <div class="history-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="material-icons section-icon">history</span>
+                            <h2>History</h2>
+                        </div>
+                        <div class="header-controls">
+                            <!-- Filter Controls -->
+                            <div class="history-controls">
+                                <div class="filter-section">
+                                    <select id="date-filter" class="filter-select">
+                                        <option value="all">All Time</option>
+                                        <option value="week">This Week</option>
+                                        <option value="month">This Month</option>
+                                        <option value="semester">This Semester</option>
+                                    </select>
+                                </div>
+                                <div class="sort-section">
+                                    <select id="sort-select" class="filter-select">
+                                        <option value="date-created">Sort by Date Created</option>
+                                        <option value="title">Sort by Title</option>
+                                        <option value="responses">Sort by Responses</option>
+                                        <option value="status">Sort by Status</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- History Cards Grid -->
+                    <div class="history-grid" id="history-container">
+                        <!-- Closed Survey 1 -->
+                        <div class="history-card" data-date="2025-11-01" data-status="closed">
+                            <div class="history-card-main">
+                                <div class="survey-icon closed">
+                                    <span class="material-icons">assignment</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">IT403 Final Project Evaluation</h3>
+                                    <div class="survey-meta">
+                                        <span class="date-info">
+                                            <span class="material-icons">calendar_today</span>
+                                            Date Created: Oct 15, 2025
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">event</span>
+                                            Due Date: Nov 1, 2025
+                                        </span>
+                                        <span class="section-info">
+                                            <span class="material-icons">class</span>
+                                            Section: A
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="history-actions">
+                                <div class="response-count">
+                                    <span class="material-icons">people</span>
+                                    <span class="count">25 Responses</span>
+                                </div>
+                                <div class="status-badge closed">
+                                    <span class="status-dot"></span>
+                                    CLOSED
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="action-btn view-details" onclick="viewDetails(1)">
+                                        <span class="material-icons">visibility</span>
+                                        View Details
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <span class="material-icons">delete</span>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Closed Survey 2 -->
+                        <div class="history-card" data-date="2025-10-20" data-status="closed">
+                            <div class="history-card-main">
+                                <div class="survey-icon closed">
+                                    <span class="material-icons">assignment</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">Database Design Mid-term Feedback</h3>
+                                    <div class="survey-meta">
+                                        <span class="date-info">
+                                            <span class="material-icons">calendar_today</span>
+                                            Date Created: Oct 1, 2025
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">event</span>
+                                            Due Date: Oct 20, 2025
+                                        </span>
+                                        <span class="section-info">
+                                            <span class="material-icons">class</span>
+                                            Section: B
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="history-actions">
+                                <div class="response-count">
+                                    <span class="material-icons">people</span>
+                                    <span class="count">18 Responses</span>
+                                </div>
+                                <div class="status-badge closed">
+                                    <span class="status-dot"></span>
+                                    CLOSED
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="action-btn view-details" onclick="viewDetails(2)">
+                                        <span class="material-icons">visibility</span>
+                                        View Details
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <span class="material-icons">delete</span>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Closed Survey 3 -->
+                        <div class="history-card" data-date="2025-09-30" data-status="closed">
+                            <div class="history-card-main">
+                                <div class="survey-icon closed">
+                                    <span class="material-icons">assignment</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">Web Development Course Evaluation</h3>
+                                    <div class="survey-meta">
+                                        <span class="date-info">
+                                            <span class="material-icons">calendar_today</span>
+                                            Date Created: Sep 15, 2025
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">event</span>
+                                            Due Date: Sep 30, 2025
+                                        </span>
+                                        <span class="section-info">
+                                            <span class="material-icons">class</span>
+                                            Section: C
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="history-actions">
+                                <div class="response-count">
+                                    <span class="material-icons">people</span>
+                                    <span class="count">30 Responses</span>
+                                </div>
+                                <div class="status-badge closed">
+                                    <span class="status-dot"></span>
+                                    CLOSED
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="action-btn view-details" onclick="viewDetails(3)">
+                                        <span class="material-icons">visibility</span>
+                                        View Details
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <span class="material-icons">delete</span>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Closed Survey 4 -->
+                        <div class="history-card" data-date="2025-09-15" data-status="closed">
+                            <div class="history-card-main">
+                                <div class="survey-icon closed">
+                                    <span class="material-icons">assignment</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">Software Engineering Practice Evaluation</h3>
+                                    <div class="survey-meta">
+                                        <span class="date-info">
+                                            <span class="material-icons">calendar_today</span>
+                                            Date Created: Aug 28, 2025
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">event</span>
+                                            Due Date: Sep 15, 2025
+                                        </span>
+                                        <span class="section-info">
+                                            <span class="material-icons">class</span>
+                                            Section: A
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="history-actions">
+                                <div class="response-count">
+                                    <span class="material-icons">people</span>
+                                    <span class="count">22 Responses</span>
+                                </div>
+                                <div class="status-badge closed">
+                                    <span class="status-dot"></span>
+                                    CLOSED
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="action-btn view-details" onclick="viewDetails(4)">
+                                        <span class="material-icons">visibility</span>
+                                        View Details
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <span class="material-icons">delete</span>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="material-icons modal-icon">warning</span>
+                <h3>Confirm Deletion</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this survey from your history?</p>
+                <p class="modal-survey-title"></p>
+                <p class="modal-warning">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel-btn">Cancel</button>
+                <button class="modal-btn confirm-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

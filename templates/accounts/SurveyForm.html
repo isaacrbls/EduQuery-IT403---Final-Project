@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY - Survey Form</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="SurveyForm.css">
+    <script defer src="SurveyForm.js"></script>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Khy' }}">
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey History" data-tooltip="Survey History">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Simplified Header -->
+            <div class="header">
+                <!-- Logo and Back Button -->
+                <div class="header-logo-section">
+                    <button class="back-btn" onclick="goBack()" aria-label="Back to Survey List">
+                        <span class="material-icons">arrow_back</span>
+                    </button>
+                    <img src="images/logo2.png" alt="EduQuery" class="main-logo" />
+                </div>
+            </div>
+
+            <!-- Survey Form Content -->
+            <div class="content-area">
+                <div class="survey-form-container">
+                    <div class="survey-form-header">
+                        <div class="form-title-section">
+                            <h1 class="form-title">EduQuery Form</h1>
+                            <div class="survey-info">
+                                <div class="survey-meta-item">
+                                    <span class="material-icons">assignment</span>
+                                    <span>IT403 Final Project Evaluation</span>
+                                </div>
+                                <div class="survey-meta-item">
+                                    <span class="material-icons">person</span>
+                                    <span>Prof. Rodriguez</span>
+                                </div>
+                                <div class="survey-meta-item">
+                                    <span class="material-icons">schedule</span>
+                                    <span>Due: November 15, 2025</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-info">
+                                <span class="progress-text">Progress: <span id="progressPercent">0</span>% Complete</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressBar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Survey Form -->
+                    <form class="survey-form" id="surveyForm" novalidate>
+                        <!-- Question 1 -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <h2>Survey Questions</h2>
+                                <p>Please provide your honest feedback to help us improve</p>
+                            </div>
+
+                            <!-- Text Input Question -->
+                            <div class="question-group">
+                                <label class="question-label" for="name">
+                                    <span class="question-number">1.</span>
+                                    <span class="question-text">Name</span>
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       id="name"
+                                       name="name"
+                                       class="form-input"
+                                       placeholder="Enter your full name"
+                                       required>
+                                <div class="error-message" id="name-error"></div>
+                            </div>
+
+                            <!-- Course and Section -->
+                            <div class="question-group">
+                                <div class="question-row">
+                                    <div class="question-col">
+                                        <label class="question-label" for="course">
+                                            <span class="question-number">2.</span>
+                                            <span class="question-text">Course</span>
+                                            <span class="required">*</span>
+                                        </label>
+                                        <select id="course" name="course" class="form-select" required>
+                                            <option value="">Select Course</option>
+                                            <option value="IT403">IT403 - Database Systems</option>
+                                            <option value="CS301">CS301 - Database Design</option>
+                                            <option value="WEB201">WEB201 - Web Development</option>
+                                            <option value="SE401">SE401 - Software Engineering</option>
+                                            <option value="CS302">CS302 - Algorithms</option>
+                                        </select>
+                                        <div class="error-message" id="course-error"></div>
+                                    </div>
+                                    <div class="question-col">
+                                        <label class="question-label" for="section">
+                                            <span class="question-number">3.</span>
+                                            <span class="question-text">Section</span>
+                                            <span class="required">*</span>
+                                        </label>
+                                        <select id="section" name="section" class="form-select" required>
+                                            <option value="">Select Section</option>
+                                            <option value="A">Section A</option>
+                                            <option value="B">Section B</option>
+                                            <option value="C">Section C</option>
+                                            <option value="D">Section D</option>
+                                        </select>
+                                        <div class="error-message" id="section-error"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rating Questions -->
+                            <div class="question-group">
+                                <label class="question-label">
+                                    <span class="question-number">4.</span>
+                                    <span class="question-text">Rate the overall course content quality</span>
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="rating-group">
+                                    <div class="rating-option">
+                                        <input type="radio" id="content_poor" name="content_quality" value="poor" required>
+                                        <label for="content_poor">
+                                            <span class="rating-icon">😞</span>
+                                            <span>Poor</span>
+                                        </label>
+                                    </div>
+                                    <div class="rating-option">
+                                        <input type="radio" id="content_fair" name="content_quality" value="fair">
+                                        <label for="content_fair">
+                                            <span class="rating-icon">😐</span>
+                                            <span>Fair</span>
+                                        </label>
+                                    </div>
+                                    <div class="rating-option">
+                                        <input type="radio" id="content_good" name="content_quality" value="good">
+                                        <label for="content_good">
+                                            <span class="rating-icon">🙂</span>
+                                            <span>Good</span>
+                                        </label>
+                                    </div>
+                                    <div class="rating-option">
+                                        <input type="radio" id="content_excellent" name="content_quality" value="excellent">
+                                        <label for="content_excellent">
+                                            <span class="rating-icon">😊</span>
+                                            <span>Excellent</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="error-message" id="content_quality-error"></div>
+                            </div>
+
+                            <!-- Star Rating Question -->
+                            <div class="question-group">
+                                <label class="question-label">
+                                    <span class="question-number">5.</span>
+                                    <span class="question-text">Rate the instructor's teaching effectiveness</span>
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="star-rating" data-rating="0">
+                                    <div class="star" data-value="1">★</div>
+                                    <div class="star" data-value="2">★</div>
+                                    <div class="star" data-value="3">★</div>
+                                    <div class="star" data-value="4">★</div>
+                                    <div class="star" data-value="5">★</div>
+                                </div>
+                                <input type="hidden" name="instructor_rating" id="instructor_rating" required>
+                                <div class="error-message" id="instructor_rating-error"></div>
+                            </div>
+
+                            <!-- Textarea Question -->
+                            <div class="question-group">
+                                <label class="question-label" for="feedback">
+                                    <span class="question-number">6.</span>
+                                    <span class="question-text">What aspects of the course could be improved? Please provide specific suggestions.</span>
+                                </label>
+                                <textarea id="feedback"
+                                         name="feedback"
+                                         class="form-textarea"
+                                         placeholder="Share your thoughts and suggestions for improvement..."
+                                         rows="4"></textarea>
+                                <div class="character-count">
+                                    <span id="feedback-count">0</span> / 500 characters
+                                </div>
+                            </div>
+
+                            <!-- Multiple Choice Question -->
+                            <div class="question-group">
+                                <label class="question-label">
+                                    <span class="question-number">7.</span>
+                                    <span class="question-text">Which learning materials were most helpful? (Select all that apply)</span>
+                                </label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-option">
+                                        <input type="checkbox" id="materials_lectures" name="helpful_materials" value="lectures">
+                                        <label for="materials_lectures">
+                                            <span class="checkmark"></span>
+                                            Lecture presentations
+                                        </label>
+                                    </div>
+                                    <div class="checkbox-option">
+                                        <input type="checkbox" id="materials_assignments" name="helpful_materials" value="assignments">
+                                        <label for="materials_assignments">
+                                            <span class="checkmark"></span>
+                                            Practical assignments
+                                        </label>
+                                    </div>
+                                    <div class="checkbox-option">
+                                        <input type="checkbox" id="materials_examples" name="helpful_materials" value="examples">
+                                        <label for="materials_examples">
+                                            <span class="checkmark"></span>
+                                            Code examples
+                                        </label>
+                                    </div>
+                                    <div class="checkbox-option">
+                                        <input type="checkbox" id="materials_resources" name="helpful_materials" value="resources">
+                                        <label for="materials_resources">
+                                            <span class="checkmark"></span>
+                                            Additional resources
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- File Upload Question -->
+                            <div class="question-group">
+                                <label class="question-label">
+                                    <span class="question-number">8.</span>
+                                    <span class="question-text">Upload any supporting documents or screenshots (Optional)</span>
+                                </label>
+                                <div class="file-upload-area" id="fileUploadArea">
+                                    <input type="file" id="file_upload" name="file_upload" multiple accept="image/*,.pdf,.doc,.docx" hidden>
+                                    <div class="upload-content">
+                                        <span class="material-icons upload-icon">cloud_upload</span>
+                                        <p class="upload-text">Click to upload files or drag and drop</p>
+                                        <p class="upload-subtext">Supports: Images, PDF, DOC, DOCX (Max 10MB each)</p>
+                                    </div>
+                                </div>
+                                <div class="uploaded-files" id="uploadedFiles"></div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="goBack()">
+                                <span class="material-icons">arrow_back</span>
+                                Back
+                            </button>
+                            <div class="action-buttons">
+                                <button type="button" class="btn-outline" id="saveBtn">
+                                    <span class="material-icons">save</span>
+                                    Save Draft
+                                </button>
+                                <button type="submit" class="btn-primary" id="submitBtn">
+                                    <span class="material-icons">send</span>
+                                    Submit Survey
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Confirm Submission</h3>
+                <button class="modal-close" id="closeConfirmModal">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="confirmation-content">
+                    <div class="confirmation-icon">
+                        <span class="material-icons">help_outline</span>
+                    </div>
+                    <p>Are you sure you want to submit this survey? You won't be able to edit your responses after submission.</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cancelSubmit">Cancel</button>
+                <button class="btn-primary" id="confirmSubmit">
+                    <span class="material-icons">check_circle</span>
+                    Yes, Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

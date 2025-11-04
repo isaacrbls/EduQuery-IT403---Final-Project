@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY - Survey List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="SurveyListdashboard.css">
+    <script defer src="SurveyListdashboard.js"></script>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Khy' }}">
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey History" data-tooltip="Survey History">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Survey List Content -->
+                <div class="survey-list-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="material-icons section-icon">view_list</span>
+                            <h2>List of Survey</h2>
+                        </div>
+                        <div class="header-controls">
+                            <!-- Filter and Sort Controls -->
+                            <div class="survey-controls">
+                                <div class="filter-section">
+                                    <select id="status-filter" class="filter-select">
+                                        <option value="all">All Status</option>
+                                        <option value="active">Active</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="overdue">Overdue</option>
+                                        <option value="upcoming">Upcoming</option>
+                                    </select>
+                                </div>
+                                <div class="sort-section">
+                                    <select id="sort-select" class="filter-select">
+                                        <option value="due-date">Sort by Due Date</option>
+                                        <option value="created-date">Sort by Created Date</option>
+                                        <option value="title">Sort by Title</option>
+                                        <option value="teacher">Sort by Teacher</option>
+                                        <option value="status">Sort by Status</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Survey Cards Grid -->
+                    <div class="surveys-grid" id="surveys-container">
+                        <!-- Active Survey -->
+                        <div class="survey-card active" data-status="active" data-due="2025-11-15">
+                            <div class="survey-card-main">
+                                <div class="survey-icon">
+                                    <span class="material-icons">assignment</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">IT403 Final Project Evaluation</h3>
+                                    <div class="survey-meta">
+                                        <span class="teacher-info">
+                                            <span class="material-icons">person</span>
+                                            Prof. Rodriguez
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">schedule</span>
+                                            Due: Nov 15, 2025
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="survey-actions">
+                                <div class="survey-status-badge active">
+                                    <span class="status-dot"></span>
+                                    ACTIVE
+                                </div>
+                                <button class="survey-action-btn primary">
+                                    <span class="material-icons">play_arrow</span>
+                                    Take Survey
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Completed Survey -->
+                        <div class="survey-card completed" data-status="completed" data-due="2025-10-28">
+                            <div class="survey-card-main">
+                                <div class="survey-icon completed">
+                                    <span class="material-icons">assignment_turned_in</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">Database Design Assessment</h3>
+                                    <div class="survey-meta">
+                                        <span class="teacher-info">
+                                            <span class="material-icons">person</span>
+                                            Prof. Martinez
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">check_circle</span>
+                                            Completed: Oct 28, 2025
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="survey-actions">
+                                <div class="survey-status-badge completed">
+                                    <span class="status-dot"></span>
+                                    CLOSED
+                                </div>
+                                <button class="survey-action-btn completed">
+                                    <span class="material-icons">check_circle</span>
+                                    Completed
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Overdue Survey -->
+                        <div class="survey-card overdue" data-status="overdue" data-due="2025-10-30">
+                            <div class="survey-card-main">
+                                <div class="survey-icon overdue">
+                                    <span class="material-icons">warning</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">Web Development Mid-term Evaluation</h3>
+                                    <div class="survey-meta">
+                                        <span class="teacher-info">
+                                            <span class="material-icons">person</span>
+                                            Prof. Johnson
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">warning</span>
+                                            Overdue since: Oct 30, 2025
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="survey-actions">
+                                <div class="survey-status-badge overdue">
+                                    <span class="status-dot"></span>
+                                    OVERDUE
+                                </div>
+                                <button class="survey-action-btn urgent">
+                                    <span class="material-icons">priority_high</span>
+                                    Overdue
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Survey -->
+                        <div class="survey-card upcoming" data-status="upcoming" data-due="2025-11-20">
+                            <div class="survey-card-main">
+                                <div class="survey-icon upcoming">
+                                    <span class="material-icons">schedule</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">Web Development Final Review</h3>
+                                    <div class="survey-meta">
+                                        <span class="teacher-info">
+                                            <span class="material-icons">person</span>
+                                            Prof. Johnson
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">schedule</span>
+                                            Opens: Nov 20, 2025
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="survey-actions">
+                                <div class="survey-status-badge upcoming">
+                                    <span class="status-dot"></span>
+                                    UPCOMING
+                                </div>
+                                <button class="survey-action-btn disabled">
+                                    <span class="material-icons">access_time</span>
+                                    Pending
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Active Survey 2 -->
+                        <div class="survey-card active" data-status="active" data-due="2025-11-18">
+                            <div class="survey-card-main">
+                                <div class="survey-icon">
+                                    <span class="material-icons">assignment</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">Software Engineering Practice Evaluation</h3>
+                                    <div class="survey-meta">
+                                        <span class="teacher-info">
+                                            <span class="material-icons">person</span>
+                                            Prof. Chen
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">schedule</span>
+                                            Due: Nov 18, 2025
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="survey-actions">
+                                <div class="survey-status-badge active">
+                                    <span class="status-dot"></span>
+                                    ACTIVE
+                                </div>
+                                <button class="survey-action-btn primary">
+                                    <span class="material-icons">play_arrow</span>
+                                    Take Survey
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Completed Survey 2 -->
+                        <div class="survey-card completed" data-status="completed" data-due="2025-10-25">
+                            <div class="survey-card-main">
+                                <div class="survey-icon completed">
+                                    <span class="material-icons">assignment_turned_in</span>
+                                </div>
+                                <div class="survey-info">
+                                    <h3 class="survey-title">Algorithm Design Course Feedback</h3>
+                                    <div class="survey-meta">
+                                        <span class="teacher-info">
+                                            <span class="material-icons">person</span>
+                                            Prof. Williams
+                                        </span>
+                                        <span class="due-info">
+                                            <span class="material-icons">check_circle</span>
+                                            Completed: Oct 25, 2025
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="survey-actions">
+                                <div class="survey-status-badge completed">
+                                    <span class="status-dot"></span>
+                                    CLOSED
+                                </div>
+                                <button class="survey-action-btn completed">
+                                    <span class="material-icons">check_circle</span>
+                                    Completed
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submission View Modal -->
+    <div class="modal-overlay" id="submissionModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modalTitle">Survey Submission</h3>
+                <button class="modal-close" id="closeModal">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content" id="modalContent">
+                <!-- Content will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>

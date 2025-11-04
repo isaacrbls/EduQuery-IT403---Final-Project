@@ -1,5 +1,5 @@
 /* ============================================
-   EduQuery Student Dashboard - Enhanced Styles
+   EduQuery Teacher Dashboard - Enhanced Styles
    ============================================ */
 
 /* CSS Variables for Design System */
@@ -431,12 +431,6 @@ body {
     animation: pulse 2s infinite;
 }
 
-.notification-label {
-    font-size: 0.75rem;
-    color: var(--primary-600);
-    font-weight: 500;
-}
-
 /* Enhanced Search Box */
 .search-box {
     position: relative;
@@ -490,7 +484,7 @@ body {
 
 .main-section {
     flex: 1;
-    min-width: 0; /* Ensure proper flex behavior */
+    min-width: 0;
 }
 
 .right-sidebar {
@@ -578,6 +572,11 @@ body {
     color: var(--error);
 }
 
+.stat-icon.info {
+    background: var(--info-bg);
+    color: var(--info);
+}
+
 .stat-icon .material-icons {
     font-size: 28px;
 }
@@ -611,18 +610,6 @@ body {
 
 .stat-trend .material-icons {
     font-size: 16px;
-}
-
-.stat-card[data-stat="completed"] .stat-trend {
-    color: var(--success);
-}
-
-.stat-card[data-stat="pending"] .stat-trend {
-    color: var(--warning);
-}
-
-.stat-card[data-stat="overdue"] .stat-trend {
-    color: var(--error);
 }
 
 /* ============================================
@@ -664,85 +651,52 @@ body {
     margin: 0;
 }
 
-.view-all-btn {
+.create-survey-btn {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    background: transparent;
-    border: 1px solid var(--primary-500);
+    padding: var(--space-3) var(--space-5);
+    background: var(--primary-500);
+    border: none;
     border-radius: var(--radius-lg);
-    color: var(--primary-500);
-    font-weight: 500;
+    color: white;
+    font-weight: 600;
     cursor: pointer;
     transition: all var(--duration-normal) var(--ease-out);
+    box-shadow: var(--shadow-md);
 }
 
-.view-all-btn:hover {
-    background: var(--primary-500);
-    color: white;
-    transform: translateY(-1px);
+.create-survey-btn:hover {
+    background: var(--primary-700);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
-/* Survey Summary Stats */
-.survey-summary {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: var(--space-6);
+.create-survey-btn .material-icons {
+    font-size: 20px;
 }
 
-.summary-stat {
-    text-align: center;
-    padding: var(--space-3);
-    background: white;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--gray-200);
-    flex: 1;
-    margin: 0 var(--space-2);
-}
-
-.summary-stat:first-child {
-    margin-left: 0;
-}
-
-.summary-stat:last-child {
-    margin-right: 0;
-}
-
-.summary-value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-600);
-    margin-bottom: var(--space-1);
-}
-
-.summary-label {
-    font-size: 0.75rem;
-    color: var(--gray-500);
-    font-weight: 500;
-}
-
-/* Enhanced Survey Cards */
+/* Enhanced Survey Cards - Teacher Version */
 .survey-list-container {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
 }
 
-.survey-card {
+.teacher-survey-card {
     background: white;
     border-radius: var(--radius-xl);
     border: 1px solid var(--gray-200);
-    padding: var(--space-4);
+    padding: var(--space-5);
     transition: all var(--duration-normal) var(--ease-out);
     box-shadow: var(--shadow-sm);
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr;
     gap: var(--space-4);
+    align-items: center;
 }
 
-.survey-card:hover {
+.teacher-survey-card:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-lg);
     border-color: var(--primary-300);
@@ -752,7 +706,6 @@ body {
     display: flex;
     align-items: center;
     gap: var(--space-4);
-    flex: 1;
 }
 
 .survey-icon {
@@ -772,11 +725,6 @@ body {
     color: var(--success);
 }
 
-.survey-icon.upcoming {
-    background: var(--warning-bg);
-    color: var(--warning);
-}
-
 .survey-info {
     flex: 1;
 }
@@ -791,40 +739,63 @@ body {
 
 .survey-meta {
     display: flex;
-    gap: var(--space-4);
+    flex-direction: column;
+    gap: var(--space-1);
 }
 
-.teacher-info,
+.date-info,
 .due-info {
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: var(--gray-600);
 }
 
-.teacher-info .material-icons,
+.date-info .material-icons,
 .due-info .material-icons {
-    font-size: 16px;
+    font-size: 14px;
 }
 
-.survey-actions {
+.survey-middle {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
     gap: var(--space-3);
+    align-items: center;
+}
+
+.response-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    color: var(--gray-700);
+}
+
+.response-info .material-icons {
+    font-size: 18px;
+    color: var(--primary-500);
+}
+
+.response-count strong {
+    color: var(--primary-700);
+    font-weight: 700;
 }
 
 .survey-status-badge {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    padding: var(--space-1) var(--space-3);
+    padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-full);
     font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    white-space: nowrap;
 }
 
 .survey-status-badge.active {
@@ -837,11 +808,6 @@ body {
     color: var(--gray-600);
 }
 
-.survey-status-badge.upcoming {
-    background: var(--warning-bg);
-    color: var(--warning);
-}
-
 .status-dot {
     width: 6px;
     height: 6px;
@@ -849,9 +815,16 @@ body {
     background: currentColor;
 }
 
+.survey-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
 .survey-action-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-lg);
@@ -860,29 +833,44 @@ body {
     font-size: 0.875rem;
     cursor: pointer;
     transition: all var(--duration-normal) var(--ease-out);
+    white-space: nowrap;
 }
 
-.survey-action-btn.primary {
+.survey-action-btn .material-icons {
+    font-size: 18px;
+}
+
+.edit-btn {
     background: var(--primary-500);
     color: white;
 }
 
-.survey-action-btn.primary:hover {
-    background: var(--primary-600);
+.edit-btn:hover {
+    background: var(--primary-700);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
 
-.survey-action-btn.completed {
-    background: var(--success-bg);
-    color: var(--success);
-    cursor: default;
+.delete-btn {
+    background: var(--error);
+    color: white;
 }
 
-.survey-action-btn.disabled {
-    background: var(--gray-200);
-    color: var(--gray-500);
-    cursor: not-allowed;
+.delete-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.view-btn {
+    background: var(--info);
+    color: white;
+}
+
+.view-btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
 }
 
 /* ============================================
@@ -899,10 +887,6 @@ body {
     box-shadow: var(--shadow-lg);
     margin-bottom: var(--space-6);
     min-height: 280px;
-}
-
-.analytics-card {
-    min-height: 320px;
 }
 
 .card-header {
@@ -996,8 +980,18 @@ body {
 }
 
 /* ============================================
-   Analytics Section
+   Analytics Card
    ============================================ */
+
+.analytics-card {
+    background: var(--surface-50);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-lg);
+    min-height: 320px;
+}
 
 .analytics-controls {
     margin-bottom: var(--space-4);
@@ -1034,32 +1028,6 @@ body {
     gap: var(--space-4);
 }
 
-.analytics-stats {
-    display: flex;
-    justify-content: space-between;
-}
-
-.stat-mini {
-    text-align: center;
-    padding: var(--space-3);
-    background: white;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--gray-200);
-}
-
-.stat-mini-value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-600);
-}
-
-.stat-mini-label {
-    font-size: 0.75rem;
-    color: var(--gray-500);
-    font-weight: 500;
-}
-
 .analytics-chart {
     background: white;
     border-radius: var(--radius-lg);
@@ -1072,42 +1040,33 @@ body {
 }
 
 .chart-placeholder {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: var(--space-4);
-    width: 100%;
-}
-
-.chart-bars {
-    display: flex;
-    align-items: end;
     justify-content: center;
     gap: var(--space-2);
-    height: 100px;
+}
+
+.chart-line-graph {
     width: 100%;
+    height: 120px;
 }
 
-.bar {
-    width: 12px;
-    background: linear-gradient(to top, var(--primary-500), var(--primary-400));
-    border-radius: var(--radius-xs);
-    transition: all var(--duration-normal) var(--ease-out);
+.line-chart {
+    width: 100%;
+    height: 100%;
 }
 
-.bar:hover {
-    background: linear-gradient(to top, var(--primary-600), var(--primary-500));
-    transform: scaleY(1.1);
-}
-
-.chart-coming-soon {
+.chart-labels {
     display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 0.875rem;
+    justify-content: space-between;
+    padding: 0 var(--space-2);
+    font-size: 0.75rem;
     color: var(--gray-500);
     font-weight: 500;
 }
+
 
 /* ============================================
    Animations & Effects
@@ -1140,7 +1099,6 @@ body {
     pointer-events: none;
 }
 
-/* Button styles for ripple effect */
 button {
     position: relative;
     overflow: hidden;
@@ -1158,8 +1116,7 @@ button {
 }
 
 .stat-card,
-.survey-item,
-.announcement-item {
+.teacher-survey-card {
     animation: fadeInUp 0.6s ease-out;
 }
 
@@ -1178,6 +1135,17 @@ button {
 
     .right-sidebar {
         width: 100%;
+    }
+
+    .teacher-survey-card {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+
+    .survey-middle,
+    .survey-actions {
+        flex-direction: row;
+        justify-content: space-between;
     }
 }
 
@@ -1202,14 +1170,8 @@ button {
         width: 200px;
     }
 
-    .survey-meta {
-        flex-direction: column;
-        gap: var(--space-2);
-    }
-
-    .survey-actions {
-        flex-direction: row;
-        align-items: center;
+    .teacher-survey-card {
+        padding: var(--space-4);
     }
 }
 
@@ -1218,18 +1180,17 @@ button {
         padding: var(--space-4);
     }
 
-    .survey-item {
-        flex-direction: column;
-        text-align: center;
-    }
-
     .survey-actions {
         flex-direction: column;
         width: 100%;
     }
 
-    .survey-btn {
+    .survey-action-btn {
         width: 100%;
-        justify-content: center;
+    }
+
+    .modal-content {
+        width: 95%;
     }
 }
+
