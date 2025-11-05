@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="Profile.css">
-    <script defer src="Profile.js"></script>
+    <link rel="stylesheet" href="{% static 'css/accounts/Profile.css' %}">
+    <script defer src="{% static 'js/accounts/Profile.js' %}"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Khy' }}">
@@ -54,7 +55,7 @@
                 <!-- EduQuery Logo Branding -->
                 <div class="branding">
                     <div class="brand-logo-container">
-                        <img src="images/logo2.png" alt="EDUQUERY" class="brand-logo-img">
+                        <img src=\"{% static 'images/accounts/logo2.png' %}\" alt="EDUQUERY" class="brand-logo-img">
                     </div>
                 </div>
 

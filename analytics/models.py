@@ -54,10 +54,17 @@ class ActivityLog(models.Model):
         ('survey_created', 'Survey Created'),
         ('survey_published', 'Survey Published'),
         ('survey_closed', 'Survey Closed'),
+        ('survey_started', 'Survey Started'),
+        ('survey_submitted', 'Survey Submitted'),
         ('response_started', 'Response Started'),
         ('response_submitted', 'Response Submitted'),
+        ('response_deleted', 'Response Deleted'),
+        ('responses_exported', 'Responses Exported'),
         ('user_registered', 'User Registered'),
         ('user_login', 'User Login'),
+        ('user_logout', 'User Logout'),
+        ('profile_updated', 'Profile Updated'),
+        ('password_changed', 'Password Changed'),
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='activities', null=True, blank=True)

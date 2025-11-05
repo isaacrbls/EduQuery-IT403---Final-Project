@@ -1,41 +1,29 @@
+## Django Backend Setup
 
-## Prerequisites
 
-Before starting, make sure you have installed:
-- Python 3.8 or higher
-- Node.js 16 or higher
-- npm (comes with Node.js)
+### Step 1: Activate Virtual Environment
 
----
+**The virtual environment is already created as `.venv`**
 
-## Part 1: Django Backend Setup
-
-### Step 1: Create Virtual Environment
-
-```bash
-# Create virtual environment
-python -m venv venv
-
-# OR on some systems
-python3 -m venv venv
-```
-
----
-
-### Step 2: Activate Virtual Environment
 
 **On Windows (Command Prompt):**
 ```cmd
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
-**You should see `(venv)` at the start of your terminal prompt**
+
+**On Windows (PowerShell):**
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+**You should see `(.venv)` at the start of your terminal prompt**
 
 ---
 
-### Step 3: Install Python Dependencies
+### Step 3: Install Python Dependencies (If Needed)
 
 ```bash
-# Make sure virtual environment is activated (venv)
+# Make sure virtual environment is activated (.venv)
 pip install -r requirements.txt
 ```
 
@@ -45,12 +33,23 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+**Note:** Dependencies are likely already installed. Skip this if the next steps work.
+
 ---
 
-### Step 4: Set Up Database
+### Step 4: Set Up Database (If Not Already Done)
 
-**Use the Automated Script:**
+**Check if database exists:**
 ```bash
+ls db.sqlite3
+```
+
+If the file doesn't exist, run:
+```bash
+# Apply migrations
+python manage.py migrate
+
+# Create sample data
 python setup_db.py
 ```
 
@@ -71,9 +70,13 @@ You should see:
 
 ---
 
-### Step 6: Start Django Backend Server
+### Step 6: Start Django Development Server
 
 ```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run the development server
 python manage.py runserver
 ```
 
@@ -82,55 +85,24 @@ You should see:
 Starting development server at http://127.0.0.1:8000/
 ```
 
-**Keep this terminal running!** Django backend runs on port 8000.
-
----
-
-## Part 2: React Frontend Setup
-
-### Step 7: Open a NEW Terminal
-
-**Important:** Keep the Django server running in the first terminal.
-Open a **second terminal** for the React frontend.
-
----
-
-### Step 8: Navigate to Frontend Directory
-
-```bash
-cd frontend
-```
-
----
-
-### Step 9: Install Node.js Dependencies
-
-```bash
-npm install
-```
----
-
-### Step 10: Start React Development Server
-
-```bash
-npm run dev
-```
-
-You should see:
-```
-➜  Local:   http://localhost:5173/
-```
-
-**Keep this terminal running too!**
+**The server is now running!** 
 
 ---
 
 ## Access the Application
 
-### React Frontend (Main Application):
-**URL:** http://localhost:5173
+### Main Application (Django Templates):
+**URL:** http://127.0.0.1:8000/
 
 This is your main application where users will interact.
+
+**Key URLs:**
+- Landing Page: http://127.0.0.1:8000/
+- Login: http://127.0.0.1:8000/login/
+- Signup: http://127.0.0.1:8000/signup/
+- Student Dashboard: http://127.0.0.1:8000/student/dashboard/
+- Survey List: http://127.0.0.1:8000/surveys/
+- Profile: http://127.0.0.1:8000/profile/
 
 ### Django Admin Panel:
 **URL:** http://127.0.0.1:8000/admin/
@@ -141,6 +113,8 @@ Use this to manage data directly.
 
 ### Django API:
 **URL:** http://127.0.0.1:8000/api/
+
+API endpoints for programmatic access.
 
 
 ---
@@ -155,3 +129,5 @@ Use this to manage data directly.
 | Student | student1 | student123 | Can take surveys |
 | Student | student2 | student123 | Can take surveys |
 | ... | student3-10 | student123 | More test accounts |
+
+---

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="SurveyCongratulations.css">
-    <script defer src="SurveyCongratulations.js"></script>
+    <link rel="stylesheet" href="{%static 'css/accounts/SurveyCongratulations.css' %}">
+    <script defer src="{%static 'js/accounts/SurveyCongratulations.js' %}"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Khy' }}">
@@ -18,14 +19,14 @@
         <div class="main-content">
             <!-- Simple Header with Logo Only -->
             <div class="header">
-                <img src="images/logo2.png" alt="EduQuery" class="main-logo" />
+                <img src=\"{% static 'images/accounts/logo2.png' %}\" alt="EduQuery" class="main-logo" />
             </div>
 
             <!-- Congratulations Content -->
             <div class="content-area">
                 <!-- Success Animation with Image -->
                 <div class="success-animation">
-                    <img src="images/congratulation.png" alt="Congratulations" class="congratulation-image" />
+                    <img src=\"{% static 'images/accounts/congratulation.png' %}\" alt="Congratulations" class="congratulation-image" />
                 </div>
 
                 <!-- Congratulations Content -->

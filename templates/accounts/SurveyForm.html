@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="SurveyForm.css">
-    <script defer src="SurveyForm.js"></script>
+    <link rel="stylesheet" href="{%static 'css/accounts/SurveyForm.css' %}">
+    <script defer src="{%static 'js/accounts/SurveyForm.js' %}"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Khy' }}">
@@ -56,7 +57,7 @@
                     <button class="back-btn" onclick="goBack()" aria-label="Back to Survey List">
                         <span class="material-icons">arrow_back</span>
                     </button>
-                    <img src="images/logo2.png" alt="EduQuery" class="main-logo" />
+                    <img src=\"{% static 'images/accounts/logo2.png' %}\" alt="EduQuery" class="main-logo" />
                 </div>
             </div>
 
