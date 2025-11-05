@@ -10,6 +10,10 @@ function goToHistory() {
     window.location.href = '/surveys/history/';
 }
 
+function goToAnalytics() {
+    window.location.href = '/analytics/';
+}
+
 function goToProfile() {
     window.location.href = '/profile/';
 }
@@ -19,9 +23,18 @@ function goToSettings() {
 }
 
 function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        window.location.href = '/logout/';
-    }
+    Modal.show({
+        title: 'Logout Confirmation',
+        message: 'Are you sure you want to logout? You will be redirected to the login page.',
+        type: 'warning',
+        icon: 'warning',
+        confirmText: 'Logout',
+        cancelText: 'Cancel',
+        confirmDanger: true,
+        onConfirm: () => {
+            window.location.href = '/logout/';
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -42,6 +55,8 @@ function initializeSidebarNavigation() {
                 goToSurveyList();
             } else if (label === 'Survey History') {
                 goToHistory();
+            } else if (label === 'Analytics') {
+                goToAnalytics();
             } else if (label === 'Profile') {
                 goToProfile();
             } else if (label === 'Settings') {
@@ -136,16 +151,23 @@ function goToSurveyList() {
 
 function goToHistory() {
     console.log('Navigating to History...');
-    // Add your navigation logic here
     window.location.href = '/surveys/history/';
 }
 
 function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        console.log('Logging out...');
-        // Add your logout logic here
-        window.location.href = '/logout/';
-    }
+    Modal.show({
+        title: 'Logout Confirmation',
+        message: 'Are you sure you want to logout? You will be redirected to the login page.',
+        type: 'warning',
+        icon: 'warning',
+        confirmText: 'Logout',
+        cancelText: 'Cancel',
+        confirmDanger: true,
+        onConfirm: () => {
+            console.log('Logging out...');
+            window.location.href = '/logout/';
+        }
+    });
 }
 
 /* ============================================

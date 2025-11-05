@@ -27,8 +27,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeForm() {
-    // Set user name from Django context
-    const body = document.body;
+    // Set user name from Django contefunction saveDraft() {
+    const surveyData = collectFormData();
+    surveyData.status = 'draft';
+
+    console.log('Saving draft:', surveyData);
+
+    Modal.alert({
+        title: 'Success',
+        message: 'Survey saved as draft successfully!',
+        type: 'success',
+        icon: 'success'
+    });
+
+    localStorage.setItem('surveyDraft', JSON.stringify(surveyData));
+}
+
+function publishSurvey() {y = document.body;
     const name = (body.getAttribute('data-user-name') || 'Teacher').trim();
     const userNameSpan = document.getElementById('userName');
 
@@ -372,7 +387,12 @@ function addQuestion() {
     const questionRequired = document.getElementById('questionRequired').checked;
 
     if (!questionText) {
-        alert('Please enter a question text');
+        Modal.alert({
+            title: 'Validation Error',
+            message: 'Please enter a question text',
+            type: 'warning',
+            icon: 'warning'
+        });
         return;
     }
 
@@ -384,7 +404,12 @@ function addQuestion() {
             .filter(value => value !== '');
 
         if (options.length < 2) {
-            alert('Please provide at least 2 options');
+            Modal.alert({
+                title: 'Validation Error',
+                message: 'Please provide at least 2 options',
+                type: 'warning',
+                icon: 'warning'
+            });
             return;
         }
     }
@@ -550,14 +575,18 @@ function validateForm() {
     });
 
     if (questions.length === 0) {
-        alert('Please add at least one question to the survey');
+        Modal.alert({
+            title: 'Validation Error',
+            message: 'Please add at least one question to the survey',
+            type: 'warning',
+            icon: 'warning'
+        });
         isValid = false;
     }
 
     return isValid;
 }
 
-// Save Draft
 function saveDraft() {
     const surveyData = collectFormData();
     surveyData.status = 'draft';
@@ -593,15 +622,18 @@ function publishSurvey() {
 
     console.log('Publishing survey:', surveyData);
 
-    // Here you would send the data to your backend
-    // For now, we'll simulate a successful publish
     closePublishConfirmation();
 
-    // Show success message
     setTimeout(() => {
-        alert('Survey published successfully!');
-        // Redirect to survey list
-        goToSurveyList();
+        Modal.alert({
+            title: 'Success',
+            message: 'Survey published successfully!',
+            type: 'success',
+            icon: 'success',
+            onClose: () => {
+                goToSurveyList();
+            }
+        });
     }, 300);
 }
 

@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUQUERY - Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/accounts/Analytics.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'js/modal.js' %}"></script>
+    <script defer src="{% static 'js/accounts/Analytics.js' %}"></script>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Student' }}">
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="nav-shell">
+                <nav class="nav-track" role="navigation">
+                    <div class="nav-indicator"></div>
+                    <button class="nav-btn" aria-label="Home" data-tooltip="Home">
+                        <span class="material-icons">home</span>
+                    </button>
+                    <button class="nav-btn" aria-label="Survey List" data-tooltip="Survey List">
+                        <span class="material-icons">list_alt</span>
+                    </button>
+                    <button class="nav-btn" aria-label="Survey History" data-tooltip="Survey History">
+                        <span class="material-icons">history</span>
+                    </button>
+                    <button class="nav-btn active" aria-label="Analytics" data-tooltip="Analytics">
+                        <span class="material-icons">analytics</span>
+                    </button>
+                    <button class="nav-btn" aria-label="Profile" data-tooltip="Profile">
+                        <span class="material-icons">person</span>
+                    </button>
+                    <button class="nav-btn" aria-label="Settings" data-tooltip="Settings">
+                        <span class="material-icons">settings</span>
+                    </button>
+                </nav>
+
+                <div class="nav-spacer"></div>
+
+                <div class="nav-bottom">
+                    <button class="nav-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                        <span class="material-icons">logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="welcome-message">
+                    <div class="welcome-avatar">
+                        <span class="material-icons">person</span>
+                    </div>
+                    <div class="welcome-text">
+                        <h3>Hello, Student!</h3>
+                        <p>Explore your analytics dashboard and track your progress.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <span class="material-icons">assignment</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ total_surveys }}</h3>
+                            <p class="stat-label">Total Surveys</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <span class="material-icons">check_circle</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ completed_surveys }}</h3>
+                            <p class="stat-label">Completed</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <span class="material-icons">pending</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ pending_surveys }}</h3>
+                            <p class="stat-label">Pending</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <span class="material-icons">trending_up</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ completion_rate }}%</h3>
+                            <p class="stat-label">Completion Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Survey Completion Over Time</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="completionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Survey Status Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-section">
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <h3 class="activity-title">Recent Activity</h3>
+                        </div>
+                        <div class="activity-list">
+                            {% for activity in recent_activities %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <span class="material-icons">{{ activity.icon }}</span>
+                                </div>
+                                <div class="activity-info">
+                                    <p class="activity-text">{{ activity.description }}</p>
+                                    <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="empty-state">
+                                <span class="material-icons">inbox</span>
+                                <p>No recent activity</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -34,9 +34,18 @@ function goToSettings() {
 }
 
 function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        window.location.href = '/logout/';
-    }
+    Modal.show({
+        title: 'Logout Confirmation',
+        message: 'Are you sure you want to logout? You will be redirected to the login page.',
+        type: 'warning',
+        icon: 'warning',
+        confirmText: 'Logout',
+        cancelText: 'Cancel',
+        confirmDanger: true,
+        onConfirm: () => {
+            window.location.href = '/logout/';
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {

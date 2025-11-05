@@ -10,6 +10,10 @@ function goToHistory() {
     window.location.href = '/surveys/history/';
 }
 
+function goToAnalytics() {
+    window.location.href = '/analytics/';
+}
+
 function goToProfile() {
     window.location.href = '/profile/';
 }
@@ -19,9 +23,18 @@ function goToSettings() {
 }
 
 function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        window.location.href = '/logout/';
-    }
+    Modal.show({
+        title: 'Logout Confirmation',
+        message: 'Are you sure you want to logout? You will be redirected to the login page.',
+        type: 'warning',
+        icon: 'warning',
+        confirmText: 'Logout',
+        cancelText: 'Cancel',
+        confirmDanger: true,
+        onConfirm: () => {
+            window.location.href = '/logout/';
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -40,6 +53,8 @@ function initializeSidebarNavigation() {
                 goToSurveyList();
             } else if (label === 'Survey History') {
                 goToHistory();
+            } else if (label === 'Analytics') {
+                goToAnalytics();
             } else if (label === 'Profile') {
                 goToProfile();
             } else if (label === 'Settings') {
@@ -286,12 +301,16 @@ function goToHistory() {
 function downloadResults() {
     console.log('Downloading survey results...');
 
-    // Mock download functionality
     const surveyTitle = document.getElementById('surveyTitle').textContent;
     const filename = `${surveyTitle.replace(/\s+/g, '_')}_Results.pdf`;
 
-    // In real implementation, this would trigger actual download
-    alert(`Downloading: ${filename}\n\nThis would download a PDF report of the survey results.`);
+    Modal.alert({
+        title: 'Download Started',
+        message: `Downloading: ${filename}\n\nThis would download a PDF report of the survey results.`,
+        type: 'info',
+        icon: 'info',
+        okText: 'OK'
+    });
 
     // Example of actual download implementation:
     /*

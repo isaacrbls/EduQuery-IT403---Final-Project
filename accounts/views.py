@@ -112,9 +112,6 @@ def login_view(request):
                 description=f'User logged in'
             )
 
-            messages.success(request, f'Welcome back, {user.first_name or user.username}!')
-
-            # Redirect based on user type
             next_url = request.GET.get('next')
             if next_url:
                 return redirect(next_url)
@@ -139,7 +136,6 @@ def logout_view(request):
         description=f'User logged out'
     )
     logout(request)
-    messages.success(request, 'You have been logged out successfully.')
     return redirect('accounts:login')
 
 
@@ -368,3 +364,51 @@ def teacher_dashboard(request):
 
     return render(request, 'accounts/TeacherDashboard.html', context)
 
+
+@login_required
+def analytics_view(request):
+    """Analytics dashboard for students"""
+    user = request.user
+    
+    if not user.is_student:
+        return redirect('accounts:index')
+    
+    total_surveys = Survey.objects.filter(
+        sections__students=user,
+        status='published'
+    ).distinct().count()
+    
+    completed_surveys = Response.objects.filter(
+        respondent=user,
+        status='submitted'
+    ).count()
+    
+    pending_surveys = total_surveys - completed_surveys
+    
+    completion_rate = round((completed_surveys / total_surveys * 100) if total_surveys > 0 else 0, 1)
+    
+    recent_activities = ActivityLog.objects.filter(
+        user=user
+    ).order_by('-timestamp')[:10]
+    
+    for activity in recent_activities:
+        if activity.action == 'survey_completed':
+            activity.icon = 'check_circle'
+        elif activity.action == 'survey_started':
+            activity.icon = 'play_circle'
+        elif activity.action == 'user_login':
+            activity.icon = 'login'
+        elif activity.action == 'profile_updated':
+            activity.icon = 'person'
+        else:
+            activity.icon = 'info'
+    
+    context = {
+        'total_surveys': total_surveys,
+        'completed_surveys': completed_surveys,
+        'pending_surveys': pending_surveys,
+        'completion_rate': completion_rate,
+        'recent_activities': recent_activities,
+    }
+    
+    return render(request, 'accounts/Analytics.html', context)
