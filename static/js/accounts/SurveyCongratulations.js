@@ -5,61 +5,83 @@
 
 // Navigation functions
 function goToHome() {
-    window.location.href = 'StudentDashboard.html';
+    window.location.href = '/student/dashboard/';
 }
 
 function goToSurveyList() {
-    window.location.href = 'SurveyListdashboard.html';
+    window.location.href = '/surveys/';
 }
 
 // Main initialization
+function goToHome() {
+    window.location.href = '/student/dashboard/';
+}
+
+function goToSurveyList() {
+    window.location.href = '/surveys/';
+}
+
+function goToHistory() {
+    window.location.href = '/surveys/history/';
+}
+
+function goToProfile() {
+    window.location.href = '/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/settings/';
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout/';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    initializePage();
-    setupEventListeners();
-    startCelebration();
-    displaySubmissionDetails();
+    initializeCongratulationsPage();
+    initializeSidebarNavigation();
 });
 
-function initializePage() {
-    // Set user name from Django context
-    const body = document.body;
-    const name = (body.getAttribute('data-user-name') || 'Khy').trim();
-    const userNameSpan = document.getElementById('userName');
-
-    if (userNameSpan) userNameSpan.textContent = name || 'Khy';
-
-    // Add sidebar functionality
+function initializeSidebarNavigation() {
     const sidebarBtns = document.querySelectorAll('.sidebar-btn');
     sidebarBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-            sidebarBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'Survey History') {
+                goToHistory();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
         });
     });
-
-    console.log('Congratulations page initialized');
 }
 
-function setupEventListeners() {
-    // Add ripple effect to all buttons
-    document.querySelectorAll('button').forEach(button => {
-        button.addEventListener('click', createRipple);
-    });
+function initializeCongratulationsPage() {
+    createConfetti();
+    setupButtonHandlers();
+}
 
-    // Add hover effects to detail cards
-    const detailCards = document.querySelectorAll('.detail-card');
-    detailCards.forEach((card, index) => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-6px) scale(1.02)';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0) scale(1)';
-        });
-
-        // Stagger the animation
-        card.style.animationDelay = `${0.5 + (index * 0.2)}s`;
-    });
+function setupButtonHandlers() {
+    const surveysBtn = document.querySelector('.surveys-btn');
+    const homeBtn = document.querySelector('.home-btn');
+    
+    if (surveysBtn) {
+        surveysBtn.addEventListener('click', goToSurveyList);
+    }
+    
+    if (homeBtn) {
+        homeBtn.addEventListener('click', goToHome);
+    }
 }
 
 function startCelebration() {

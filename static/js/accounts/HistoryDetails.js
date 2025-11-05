@@ -1,19 +1,77 @@
-// ============================================
-// EduQuery History Details - JavaScript
-// ============================================
+function goToHome() {
+    window.location.href = '/student/dashboard/';
+}
+
+function goToSurveyList() {
+    window.location.href = '/surveys/';
+}
+
+function goToHistory() {
+    window.location.href = '/surveys/history/';
+}
+
+function goToProfile() {
+    window.location.href = '/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/settings/';
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout/';
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeHistoryDetails();
+    initializeSidebarNavigation();
 });
 
+function initializeSidebarNavigation() {
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'Survey History') {
+                goToHistory();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
+        });
+    });
+}
+
 function initializeHistoryDetails() {
-    // Initialize page
     loadSurveyDetails();
     initializeChart();
     initializeTooltips();
-
-    // Load user data
     loadUserData();
+    setupBackButton();
+    setupDownloadButton();
+}
+
+function setupBackButton() {
+    const backBtn = document.querySelector('.back-btn');
+    if (backBtn) {
+        backBtn.addEventListener('click', goToHistory);
+    }
+}
+
+function setupDownloadButton() {
+    const downloadBtn = document.querySelector('.download-btn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadResults);
+    }
 }
 
 // ============================================
@@ -200,23 +258,23 @@ function animateCountUp(element, target) {
 
 function goBack() {
     // Check if there's a referrer, otherwise go to history page
-    if (document.referrer && document.referrer.includes('History')) {
+    if (document.referrer && document.referrer.includes('history')) {
         window.history.back();
     } else {
-        window.location.href = 'History.html';
+        window.location.href = '/surveys/history/';
     }
 }
 
 function goToHome() {
-    window.location.href = '/dashboard/';
+    window.location.href = '/student/dashboard/';
 }
 
 function goToSurveyList() {
-    window.location.href = '/survey-list/';
+    window.location.href = '/surveys/';
 }
 
 function goToHistory() {
-    window.location.href = 'History.html';
+    window.location.href = '/surveys/history/';
 }
 
 // ============================================

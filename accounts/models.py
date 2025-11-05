@@ -36,6 +36,16 @@ class User(AbstractUser):
     @property
     def is_admin_user(self):
         return self.user_type == 'admin' or self.is_superuser
+    
+    def save(self, *args, **kwargs):
+        """Override save to automatically set is_staff and is_superuser for teachers"""
+        if self.user_type == 'teacher':
+            self.is_staff = True
+            self.is_superuser = True
+        elif self.user_type == 'student':
+            self.is_staff = False
+            self.is_superuser = False
+        super().save(*args, **kwargs)
 
 
 class Section(models.Model):

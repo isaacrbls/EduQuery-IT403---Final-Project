@@ -1,10 +1,31 @@
-/* ============================================
-   EduQuery Settings Page - Enhanced JavaScript
-   ============================================ */
-
 'use strict';
 
-// Global state management
+function goToHome() {
+    window.location.href = '/student/dashboard/';
+}
+
+function goToSurveyList() {
+    window.location.href = '/surveys/';
+}
+
+function goToHistory() {
+    window.location.href = '/surveys/history/';
+}
+
+function goToProfile() {
+    window.location.href = '/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/settings/';
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout/';
+    }
+}
+
 const SettingsState = {
     currentPanel: 'password',
     isFormDirty: false,
@@ -12,15 +33,34 @@ const SettingsState = {
     codeCooldown: 60
 };
 
-// ============================================
-// DOM Content Loaded
-// ============================================
-
 document.addEventListener('DOMContentLoaded', function() {
     initializeSettings();
     bindEventListeners();
     initializeTooltips();
+    initializeSidebarNavigation();
 });
+
+function initializeSidebarNavigation() {
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'Survey History') {
+                goToHistory();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
+        });
+    });
+}
 
 // ============================================
 // Initialization Functions

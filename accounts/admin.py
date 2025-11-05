@@ -2,6 +2,11 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, Section
 
+# Customize admin site
+admin.site.site_header = "EduQuery Administration"
+admin.site.site_title = "EduQuery Admin"
+admin.site.index_title = "Welcome to EduQuery Admin Panel"
+
 # Register your models here.
 
 @admin.register(User)
@@ -21,6 +26,14 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('user_type', 'student_id', 'email')
         }),
     )
+    
+    def get_queryset(self, request):
+        """Teachers can only see users in their sections"""
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        # For now, teachers can see all users (you can customize this later)
+        return qs
 
 
 @admin.register(Section)

@@ -87,7 +87,7 @@ function showNotification(message, type = 'info') {
 
 // Navigation Functions
 function goToHome() {
-    window.location.href = 'TeacherDashboard.html';
+    window.location.href = '/teacher/dashboard/';
 }
 
 // Modal Functions

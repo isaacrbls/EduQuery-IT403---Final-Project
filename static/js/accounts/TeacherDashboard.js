@@ -117,6 +117,7 @@ function initializeSurveyActions() {
     const editBtns = document.querySelectorAll('.edit-btn');
     editBtns.forEach(btn => {
         btn.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
             const surveyTitle = this.closest('.teacher-survey-card').querySelector('.survey-title').textContent;
             showNotification(`Editing survey: ${surveyTitle}`, 'info');
@@ -128,6 +129,7 @@ function initializeSurveyActions() {
     deleteBtns.forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
+            const surveyId = this.getAttribute('data-survey-id');
             const surveyTitle = this.closest('.teacher-survey-card').querySelector('.survey-title').textContent;
             if (confirm(`Are you sure you want to delete "${surveyTitle}"?`)) {
                 showNotification('Survey deleted successfully', 'success');

@@ -18,12 +18,11 @@
     <div class="dashboard-container">
         <!-- Enhanced Sidebar -->
         <div class="sidebar">
-            <!-- Navigation Section -->
             <nav class="sidebar-nav" role="navigation">
-                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                     <span class="material-icons">home</span>
                 </button>
-                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
                 </button>
                 <button class="sidebar-btn" aria-label="Survey History" data-tooltip="Survey History">
@@ -50,11 +49,9 @@
 
         <!-- Main Content -->
         <div class="main-content">
-            <!-- Simplified Header -->
             <div class="header">
-                <!-- Logo and Back Button -->
                 <div class="header-logo-section">
-                    <button class="back-btn" onclick="goBack()" aria-label="Back to Survey List">
+                    <button class="back-btn" aria-label="Back to Survey List">
                         <span class="material-icons">arrow_back</span>
                     </button>
                     <img src=\"{% static 'images/accounts/logo2.png' %}\" alt="EduQuery" class="main-logo" />
@@ -284,9 +281,8 @@
                             </div>
                         </div>
 
-                        <!-- Form Actions -->
                         <div class="form-actions">
-                            <button type="button" class="btn-secondary" onclick="goBack()">
+                            <button type="button" class="btn-secondary back-button">
                                 <span class="material-icons">arrow_back</span>
                                 Back
                             </button>

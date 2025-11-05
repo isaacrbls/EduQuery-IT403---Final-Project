@@ -1,5 +1,29 @@
+function goToHome() {
+    window.location.href = '/student/dashboard/';
+}
 
-// Utility functions
+function goToSurveyList() {
+    window.location.href = '/surveys/';
+}
+
+function goToHistory() {
+    window.location.href = '/surveys/history/';
+}
+
+function goToProfile() {
+    window.location.href = '/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/settings/';
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout/';
+    }
+}
+
 function createRipple(event) {
     const button = event.currentTarget;
     const ripple = document.createElement('span');
@@ -73,12 +97,33 @@ function showNotification(message, type = 'info') {
 
     setTimeout(() => {
         notification.style.transform = 'translateX(400px)';
-        setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
 
-// Initialize results count on load
+function initializeSidebarNavigation() {
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'Survey History') {
+                goToHistory();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    initializeSidebarNavigation();
     setTimeout(updateResultsCount, 100);
 });
 /**
@@ -142,7 +187,7 @@ const submissionData = {
 
 // Navigation functions
 function goToHome() {
-    window.location.href = 'StudentDashboard.html';
+    window.location.href = '/student/dashboard/';
 }
 
 // Main dashboard functionality

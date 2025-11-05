@@ -1,28 +1,56 @@
-/**
- * EduQuery Student Dashboard JavaScript
- * Enhanced interactivity and functionality for the student dashboard
- */
-
-// Navigation function to survey list
-function goToSurveyList() {
-    window.location.href = 'SurveyListdashboard.html'; // Navigate to survey list page
+function goToHome() {
+    window.location.href = '/student/dashboard/';
 }
 
-// Main dashboard functionality
+function goToSurveyList() {
+    window.location.href = '/surveys/';
+}
+
+function goToHistory() {
+    window.location.href = '/surveys/history/';
+}
+
+function goToProfile() {
+    window.location.href = '/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/settings/';
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout/';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Set user name from Django context
     const body = document.body;
     const name = (body.getAttribute('data-user-name') || 'Khy').trim();
     const userNameSpan = document.getElementById('userName');
 
     if (userNameSpan) userNameSpan.textContent = name || 'Khy';
 
-    // Add click handlers for sidebar buttons
     const sidebarBtns = document.querySelectorAll('.sidebar-btn');
-    sidebarBtns.forEach(btn => {
+    sidebarBtns.forEach((btn, index) => {
         btn.addEventListener('click', function() {
             sidebarBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
+            
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'Survey History') {
+                goToHistory();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
         });
     });
 

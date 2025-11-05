@@ -1,22 +1,33 @@
-/**
- * EduQuery Survey Form JavaScript
- * Enhanced functionality for survey form validation and submission
- */
-
-// Navigation functions
 function goToHome() {
-    window.location.href = 'StudentDashboard.html';
+    window.location.href = '/student/dashboard/';
 }
 
 function goToSurveyList() {
-    window.location.href = 'SurveyListdashboard.html';
+    window.location.href = '/surveys/';
+}
+
+function goToHistory() {
+    window.location.href = '/surveys/history/';
+}
+
+function goToProfile() {
+    window.location.href = '/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/settings/';
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout/';
+    }
 }
 
 function goBack() {
     window.history.back();
 }
 
-// Form data and progress tracking
 let formProgress = 0;
 const totalQuestions = 8;
 const formData = {};
@@ -28,22 +39,43 @@ document.addEventListener('DOMContentLoaded', function() {
     setupFileUpload();
     setupStarRating();
     updateProgress();
+    setupBackButtons();
 });
 
+function setupBackButtons() {
+    const backBtns = document.querySelectorAll('.back-btn, .back-button');
+    backBtns.forEach(btn => {
+        btn.addEventListener('click', goToSurveyList);
+    });
+}
+
 function initializeForm() {
-    // Set user name from Django context
     const body = document.body;
     const name = (body.getAttribute('data-user-name') || 'Khy').trim();
     const userNameSpan = document.getElementById('userName');
 
     if (userNameSpan) userNameSpan.textContent = name || 'Khy';
 
-    // Add sidebar functionality
     const sidebarBtns = document.querySelectorAll('.sidebar-btn');
     sidebarBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             sidebarBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
+            
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'Survey History') {
+                goToHistory();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
         });
     });
 
@@ -448,8 +480,13 @@ function processFormSubmission() {
             timeSpent: calculateTimeSpent()
         }));
 
-        // Redirect to congratulations page
-        window.location.href = 'SurveyCongratulations.html';
+        // Redirect to congratulations page - use Django URL if response_id is available
+        const responseId = document.body.getAttribute('data-response-id');
+        if (responseId) {
+            window.location.href = `/surveys/congratulations/${responseId}/`;
+        } else {
+            window.location.href = '/surveys/history/';
+        }
 
     }, 2000);
 }

@@ -54,7 +54,7 @@
             <div class="header">
                 <!-- Logo in left corner -->
                 <div class="header-logo-section">
-                    <img src=\"{% static 'images/accounts/logo2.png' %}\" alt="EduQuery" class="corner-logo" />
+                    <img src="{% static 'images/accounts/logo2.png' %}" alt="EduQuery" class="corner-logo" />
                 </div>
 
                 <!-- User Profile Section -->
@@ -98,19 +98,19 @@
                                 <div class="stat-icon">
                                     <span class="material-icons">assignment</span>
                                 </div>
-                                <div class="stat-value" id="totalSurveys">0</div>
+                                <div class="stat-value" id="totalSurveys">{{ total_surveys }}</div>
                                 <div class="stat-label">Total Surveys Created</div>
                                 <div class="stat-trend">
                                     <span class="material-icons">trending_up</span>
-                                    <span>+3 this month</span>
+                                    <span>All time</span>
                                 </div>
                             </div>
                             <div class="stat-card" data-stat="active">
                                 <div class="stat-icon success">
                                     <span class="material-icons">check_circle</span>
                                 </div>
-                                <div class="stat-value" id="activeSurveys">0</div>
-                                <div class="stat-label">Active Survey</div>
+                                <div class="stat-value" id="activeSurveys">{{ published_surveys }}</div>
+                                <div class="stat-label">Active Surveys</div>
                                 <div class="stat-trend">
                                     <span class="material-icons">trending_up</span>
                                     <span>Currently open</span>
@@ -120,22 +120,22 @@
                                 <div class="stat-icon warning">
                                     <span class="material-icons">rate_review</span>
                                 </div>
-                                <div class="stat-value" id="pendingReviews">0</div>
-                                <div class="stat-label">Pending Reviews</div>
+                                <div class="stat-value" id="pendingReviews">{{ draft_surveys }}</div>
+                                <div class="stat-label">Draft Surveys</div>
                                 <div class="stat-trend">
-                                    <span class="material-icons">schedule</span>
-                                    <span>Awaiting responses</span>
+                                    <span class="material-icons">edit</span>
+                                    <span>Not published</span>
                                 </div>
                             </div>
                             <div class="stat-card" data-stat="completed">
                                 <div class="stat-icon info">
                                     <span class="material-icons">task_alt</span>
                                 </div>
-                                <div class="stat-value" id="completedSurveys">0</div>
-                                <div class="stat-label">Completed Survey</div>
+                                <div class="stat-value" id="completedSurveys">{{ total_responses }}</div>
+                                <div class="stat-label">Total Responses</div>
                                 <div class="stat-trend">
-                                    <span class="material-icons">trending_up</span>
-                                    <span>Finished</span>
+                                    <span class="material-icons">people</span>
+                                    <span>From students</span>
                                 </div>
                             </div>
                         </div>
@@ -154,22 +154,27 @@
                             </div>
 
                             <div class="survey-list-container">
-                                <!-- Survey Card 1 -->
+                                {% for survey in surveys %}
+                                <!-- Survey Card -->
                                 <div class="survey-card teacher-survey-card">
                                     <div class="survey-card-main">
-                                        <div class="survey-icon">
-                                            <span class="material-icons">assignment</span>
+                                        <div class="survey-icon {% if survey.status == 'published' %}{% else %}completed{% endif %}">
+                                            <span class="material-icons">{% if survey.status == 'published' %}assignment{% else %}assignment_turned_in{% endif %}</span>
                                         </div>
                                         <div class="survey-info">
-                                            <h3 class="survey-title">Survey Title</h3>
+                                            <h3 class="survey-title">{{ survey.title }}</h3>
                                             <div class="survey-meta">
                                                 <span class="date-info">
                                                     <span class="material-icons">event</span>
-                                                    Date Created: Nov 1, 2025
+                                                    Created: {{ survey.created_at|date:"M d, Y" }}
                                                 </span>
                                                 <span class="due-info">
                                                     <span class="material-icons">schedule</span>
-                                                    Due Date: Nov 15, 2025
+                                                    {% if survey.due_date %}
+                                                        Due: {{ survey.due_date|date:"M d, Y" }}
+                                                    {% else %}
+                                                        No due date
+                                                    {% endif %}
                                                 </span>
                                             </div>
                                         </div>
@@ -177,108 +182,34 @@
                                     <div class="survey-middle">
                                         <div class="response-info">
                                             <span class="material-icons">people</span>
-                                            <span class="response-count">Responses: <strong>50</strong></span>
+                                            <span class="response-count">Responses: <strong>{{ survey.response_count|default:0 }}</strong></span>
                                         </div>
-                                        <div class="survey-status-badge active">
+                                        <div class="survey-status-badge {% if survey.status == 'published' %}active{% else %}completed{% endif %}">
                                             <span class="status-dot"></span>
-                                            Status: Active
+                                            Status: {{ survey.get_status_display }}
                                         </div>
                                     </div>
                                     <div class="survey-actions">
-                                        <button class="survey-action-btn edit-btn">
+                                        <a href="#" class="survey-action-btn edit-btn">
                                             <span class="material-icons">edit</span>
                                             Edit
-                                        </button>
-                                        <button class="survey-action-btn delete-btn">
+                                        </a>
+                                        <button class="survey-action-btn delete-btn" data-survey-id="{{ survey.id }}">
                                             <span class="material-icons">delete</span>
                                             Delete
                                         </button>
                                     </div>
                                 </div>
-
-                                <!-- Survey Card 2 -->
-                                <div class="survey-card teacher-survey-card">
-                                    <div class="survey-card-main">
-                                        <div class="survey-icon">
-                                            <span class="material-icons">assignment</span>
-                                        </div>
-                                        <div class="survey-info">
-                                            <h3 class="survey-title">Survey Title</h3>
-                                            <div class="survey-meta">
-                                                <span class="date-info">
-                                                    <span class="material-icons">event</span>
-                                                    Date Created: Oct 28, 2025
-                                                </span>
-                                                <span class="due-info">
-                                                    <span class="material-icons">schedule</span>
-                                                    Due Date: Nov 12, 2025
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="survey-middle">
-                                        <div class="response-info">
-                                            <span class="material-icons">people</span>
-                                            <span class="response-count">Responses: <strong>50</strong></span>
-                                        </div>
-                                        <div class="survey-status-badge active">
-                                            <span class="status-dot"></span>
-                                            Status: Active
-                                        </div>
-                                    </div>
-                                    <div class="survey-actions">
-                                        <button class="survey-action-btn edit-btn">
-                                            <span class="material-icons">edit</span>
-                                            Edit
-                                        </button>
-                                        <button class="survey-action-btn delete-btn">
-                                            <span class="material-icons">delete</span>
-                                            Delete
-                                        </button>
-                                    </div>
+                                {% empty %}
+                                <div class="empty-state">
+                                    <span class="material-icons">assignment</span>
+                                    <p>No surveys created yet</p>
+                                    <button class="create-survey-btn">
+                                        <span class="material-icons">add</span>
+                                        Create Your First Survey
+                                    </button>
                                 </div>
-
-                                <!-- Survey Card 3 -->
-                                <div class="survey-card teacher-survey-card">
-                                    <div class="survey-card-main">
-                                        <div class="survey-icon completed">
-                                            <span class="material-icons">assignment_turned_in</span>
-                                        </div>
-                                        <div class="survey-info">
-                                            <h3 class="survey-title">Survey Title</h3>
-                                            <div class="survey-meta">
-                                                <span class="date-info">
-                                                    <span class="material-icons">event</span>
-                                                    Date Created: Oct 20, 2025
-                                                </span>
-                                                <span class="due-info">
-                                                    <span class="material-icons">check_circle</span>
-                                                    Due Date: Oct 31, 2025
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="survey-middle">
-                                        <div class="response-info">
-                                            <span class="material-icons">people</span>
-                                            <span class="response-count">Responses: <strong>42</strong></span>
-                                        </div>
-                                        <div class="survey-status-badge completed">
-                                            <span class="status-dot"></span>
-                                            Status: Closed
-                                        </div>
-                                    </div>
-                                    <div class="survey-actions">
-                                        <button class="survey-action-btn view-btn">
-                                            <span class="material-icons">visibility</span>
-                                            View
-                                        </button>
-                                        <button class="survey-action-btn delete-btn">
-                                            <span class="material-icons">delete</span>
-                                            Delete
-                                        </button>
-                                    </div>
-                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>

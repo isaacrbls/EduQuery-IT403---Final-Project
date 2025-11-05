@@ -104,10 +104,6 @@ This is your main application where users will interact.
 - Survey List: http://127.0.0.1:8000/surveys/
 - Profile: http://127.0.0.1:8000/profile/
 
-### Django Admin Panel:
-**URL:** http://127.0.0.1:8000/admin/
-- Username: `admin`
-- Password: `admin123`
 
 Use this to manage data directly.
 

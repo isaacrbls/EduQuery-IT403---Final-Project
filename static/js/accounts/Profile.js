@@ -1,13 +1,57 @@
-/* ============================================
-   EduQuery Profile Page - JavaScript Functionality
-   ============================================ */
+function goToHome() {
+    window.location.href = '/student/dashboard/';
+}
+
+function goToSurveyList() {
+    window.location.href = '/surveys/';
+}
+
+function goToHistory() {
+    window.location.href = '/surveys/history/';
+}
+
+function goToProfile() {
+    window.location.href = '/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/settings/';
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout/';
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the profile page
     initializeProfile();
     initializeEventListeners();
     initializeAnimations();
+    initializeSidebarNavigation();
 });
+
+function initializeSidebarNavigation() {
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'Survey History') {
+                goToHistory();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
+        });
+    });
+}
 
 /* ============================================
    Profile Initialization
@@ -81,26 +125,26 @@ function initializeEventListeners() {
 function goToHome() {
     console.log('Navigating to Home...');
     // Add your navigation logic here
-    window.location.href = 'StudentDashboard.html';
+    window.location.href = '/student/dashboard/';
 }
 
 function goToSurveyList() {
     console.log('Navigating to Survey List...');
     // Add your navigation logic here
-    window.location.href = 'SurveyListdashboard.html';
+    window.location.href = '/surveys/';
 }
 
 function goToHistory() {
     console.log('Navigating to History...');
     // Add your navigation logic here
-    window.location.href = 'History.html';
+    window.location.href = '/surveys/history/';
 }
 
 function handleLogout() {
     if (confirm('Are you sure you want to logout?')) {
         console.log('Logging out...');
         // Add your logout logic here
-        // window.location.href = 'SignIn.html';
+        window.location.href = '/logout/';
     }
 }
 

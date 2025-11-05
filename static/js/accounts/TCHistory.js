@@ -5,15 +5,15 @@
 
 // Navigation functions
 function goToHome() {
-    window.location.href = 'TeacherDashboard.html';
+    window.location.href = '/teacher/dashboard/';
 }
 
 function goToSurveyList() {
-    window.location.href = 'TCsurveyList.html';
+    window.location.href = '/teacher/surveys/';
 }
 
 function viewDetails(surveyId) {
-    window.location.href = `TCHistoryDetails.html?id=${surveyId}`;
+    window.location.href = `/surveys/response/${surveyId}/`;
 }
 
 // Initialize

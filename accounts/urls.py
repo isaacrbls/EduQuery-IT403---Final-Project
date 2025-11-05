@@ -1,11 +1,12 @@
 from django.urls import path
+from django.shortcuts import redirect
 from . import views
 
 app_name = 'accounts'
 
 urlpatterns = [
     # Home and authentication URLs
-    path('', views.index, name='index'),
+    path('', lambda request: redirect('accounts:login'), name='index'),
     path('signup/', views.signup_view, name='signup'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

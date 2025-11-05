@@ -18,12 +18,11 @@
     <div class="dashboard-container">
         <!-- Enhanced Sidebar -->
         <div class="sidebar">
-            <!-- Navigation Section -->
             <nav class="sidebar-nav" role="navigation">
-                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                     <span class="material-icons">home</span>
                 </button>
-                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
                 </button>
                 <button class="sidebar-btn active" aria-label="Survey History" data-tooltip="Survey History">
@@ -37,10 +36,8 @@
                 </button>
             </nav>
 
-            <!-- Spacer -->
             <div class="sidebar-spacer"></div>
 
-            <!-- User Section -->
             <div class="sidebar-user">
                 <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
@@ -78,28 +75,32 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
                     </div>
 
-                    <!-- History Cards Grid -->
                     <div class="history-grid" id="history-container">
-                        <!-- Completed Survey 1 -->
-                        <div class="history-card" data-completion="2025-11-01">
+                        {% for response in responses %}
+                        <div class="history-card" data-completion="{{ response.submitted_at|date:'Y-m-d' }}">
                             <div class="history-card-main">
                                 <div class="survey-icon">
                                     <span class="material-icons">assignment_turned_in</span>
                                 </div>
                                 <div class="survey-info">
-                                    <h3 class="survey-title">IT403 Final Project Evaluation</h3>
+                                    <h3 class="survey-title">{{ response.survey.title }}</h3>
                                     <div class="survey-meta">
                                         <span class="teacher-info">
                                             <span class="material-icons">person</span>
-                                            Prof. Rodriguez
+                                            {{ response.survey.creator.get_full_name|default:response.survey.creator.username }}
                                         </span>
                                         <span class="completion-info">
                                             <span class="material-icons">check_circle</span>
-                                            Completed: Nov 1, 2025
+                                            Completed: {{ response.submitted_at|date:"M d, Y" }}
                                         </span>
+                                        {% if response.completion_time_minutes %}
+                                        <span class="time-info">
+                                            <span class="material-icons">schedule</span>
+                                            {{ response.completion_time_minutes }} min
+                                        </span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -109,208 +110,25 @@
                                     COMPLETED
                                 </div>
                                 <div class="action-buttons">
-                                    <button class="action-btn view-details">
+                                    <a href="{% url 'surveys:survey_detail' response.id %}" class="action-btn view-details">
                                         <span class="material-icons">visibility</span>
                                         View Details
-                                    </button>
-                                    <button class="action-btn delete-btn">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Completed Survey 2 -->
-                        <div class="history-card" data-completion="2025-10-28">
-                            <div class="history-card-main">
-                                <div class="survey-icon">
-                                    <span class="material-icons">assignment_turned_in</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Database Design Assessment</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Martinez
-                                        </span>
-                                        <span class="completion-info">
-                                            <span class="material-icons">check_circle</span>
-                                            Completed: Oct 28, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="history-actions">
-                                <div class="status-badge completed">
-                                    <span class="status-dot"></span>
-                                    COMPLETED
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn view-details">
-                                        <span class="material-icons">visibility</span>
-                                        View Details
-                                    </button>
-                                    <button class="action-btn delete-btn">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
+                        {% empty %}
+                        <div class="empty-state">
+                            <span class="material-icons">assignment</span>
+                            <p>No completed surveys yet</p>
+                            <a href="{% url 'surveys:survey_list' %}" class="primary-btn">
+                                <span class="material-icons">list_alt</span>
+                                Browse Surveys
+                            </a>
                         </div>
-
-                        <!-- Completed Survey 3 -->
-                        <div class="history-card" data-completion="2025-10-25">
-                            <div class="history-card-main">
-                                <div class="survey-icon">
-                                    <span class="material-icons">assignment_turned_in</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Algorithm Design Course Feedback</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Williams
-                                        </span>
-                                        <span class="completion-info">
-                                            <span class="material-icons">check_circle</span>
-                                            Completed: Oct 25, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="history-actions">
-                                <div class="status-badge completed">
-                                    <span class="status-dot"></span>
-                                    COMPLETED
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn view-details">
-                                        <span class="material-icons">visibility</span>
-                                        View Details
-                                    </button>
-                                    <button class="action-btn delete-btn">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Completed Survey 4 -->
-                        <div class="history-card" data-completion="2025-10-20">
-                            <div class="history-card-main">
-                                <div class="survey-icon">
-                                    <span class="material-icons">assignment_turned_in</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Software Engineering Practice Evaluation</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Chen
-                                        </span>
-                                        <span class="completion-info">
-                                            <span class="material-icons">check_circle</span>
-                                            Completed: Oct 20, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="history-actions">
-                                <div class="status-badge completed">
-                                    <span class="status-dot"></span>
-                                    COMPLETED
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn view-details">
-                                        <span class="material-icons">visibility</span>
-                                        View Details
-                                    </button>
-                                    <button class="action-btn delete-btn">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Completed Survey 5 -->
-                        <div class="history-card" data-completion="2025-10-15">
-                            <div class="history-card-main">
-                                <div class="survey-icon">
-                                    <span class="material-icons">assignment_turned_in</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Web Development Mid-term Assessment</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Johnson
-                                        </span>
-                                        <span class="completion-info">
-                                            <span class="material-icons">check_circle</span>
-                                            Completed: Oct 15, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="history-actions">
-                                <div class="status-badge completed">
-                                    <span class="status-dot"></span>
-                                    COMPLETED
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn view-details">
-                                        <span class="material-icons">visibility</span>
-                                        View Details
-                                    </button>
-                                    <button class="action-btn delete-btn">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Completed Survey 6 -->
-                        <div class="history-card" data-completion="2025-10-10">
-                            <div class="history-card-main">
-                                <div class="survey-icon">
-                                    <span class="material-icons">assignment_turned_in</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Computer Networks Course Evaluation</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Davis
-                                        </span>
-                                        <span class="completion-info">
-                                            <span class="material-icons">check_circle</span>
-                                            Completed: Oct 10, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="history-actions">
-                                <div class="status-badge completed">
-                                    <span class="status-dot"></span>
-                                    COMPLETED
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn view-details">
-                                        <span class="material-icons">visibility</span>
-                                        View Details
-                                    </button>
-                                    <button class="action-btn delete-btn">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
+                </div>
                 </div>
             </div>
         </div>
