@@ -1,0 +1,27 @@
+{% extends 'survey/base.html' %}
+{% block content %}
+<h3>{{ survey.title }}</h3>
+<p>{{ survey.description }}</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <h5>Drag & Drop Questions</h5>
+        <ul id="question-list" class="list-group mb-3">
+            {% for q in questions %}
+            <li class="list-group-item" data-type="{{ q.question_type }}">{{ q.text }}</li>
+            {% endfor %}
+        </ul>
+        <div class="d-flex gap-2">
+            <button id="add-question" class="btn btn-primary btn-sm">Add Question</button>
+            <button id="save-questions" class="btn btn-success btn-sm">Save Survey</button>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <h5>Live Preview</h5>
+        <div id="live-preview" class="border rounded p-3 bg-white"></div>
+    </div>
+</div>
+
+<script src="{% static 'survey/js/survey_builder.js' %}"></script>
+{% endblock %}

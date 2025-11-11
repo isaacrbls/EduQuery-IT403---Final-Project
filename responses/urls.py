@@ -6,6 +6,7 @@ app_name = 'responses'
 urlpatterns = [
     # Response management URLs
     path('', views.response_list, name='response_list'),
+    path('viewer/', views.response_viewer, name='response_viewer'),
     path('<int:response_id>/', views.response_detail, name='response_detail'),
     path('<int:response_id>/delete/', views.delete_response, name='delete_response'),
 

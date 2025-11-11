@@ -1,0 +1,36 @@
+{% extends 'survey/base.html' %}
+{% block content %}
+<h3>Assign Survey to Section</h3>
+
+<div class="mb-3">
+    <label class="form-label">Survey:</label>
+    <select id="survey-select" class="form-select">
+        {% for s in surveys %}
+        <option value="{{ s.id }}">{{ s.title }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Section:</label>
+    <select id="section-select" class="form-select">
+        {% for sec in sections %}
+        <option value="{{ sec.id }}">{{ sec.name }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<button id="assign-btn" class="btn btn-primary">Assign</button>
+
+<script>
+$('#assign-btn').click(function() {
+    const survey_id = $('#survey-select').val();
+    const section_id = $('#section-select').val();
+    fetch('/assign/save/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+        body: JSON.stringify({survey_id, section_id})
+    }).then(res => res.json()).then(data => alert(data.message));
+});
+</script>
+{% endblock %}

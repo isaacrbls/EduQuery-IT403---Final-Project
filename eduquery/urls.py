@@ -29,6 +29,7 @@ urlpatterns = [
     # API endpoints
     path('api/accounts/', include('accounts.api_urls')),
     path('api/surveys/', include('surveys.api_urls')),
+    path('api/responses/', include('responses.api_urls')),
     path('api/auth/', include('rest_framework.urls')),
 ]
 
