@@ -6,12 +6,309 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q, Count, Prefetch
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 import json
 from datetime import datetime
 
-from .models import Survey, Question, QuestionOption, LikertScale
+from .models import Survey, Question, QuestionOption, LikertScale, MatchingPair
+from .forms import SurveyForm, QuestionForm
 from responses.models import Response, Answer
 from analytics.models import ActivityLog
+from accounts.models import Section
+
+
+@login_required
+def create_survey(request):
+    if not request.user.is_teacher:
+        messages.error(request, 'Access denied. Teachers only.')
+        return redirect('accounts:index')
+    
+    if request.method == 'POST':
+        form = SurveyForm(request.POST, user=request.user)
+        if form.is_valid():
+            survey = form.save(commit=False)
+            survey.creator = request.user
+            survey.save()
+            form.save_m2m()
+            
+            messages.success(request, f'Survey "{survey.title}" created successfully!')
+            return redirect('surveys:edit_survey', survey_id=survey.id)
+    else:
+        form = SurveyForm(user=request.user)
+    
+    context = {
+        'form': form,
+        'action': 'Create'
+    }
+    return render(request, 'surveys/create_survey.html', context)
+
+
+@login_required
+def edit_survey(request, survey_id):
+    if not request.user.is_teacher:
+        messages.error(request, 'Access denied. Teachers only.')
+        return redirect('accounts:index')
+    
+    survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+    
+    if request.method == 'POST':
+        form = SurveyForm(request.POST, instance=survey, user=request.user)
+        if form.is_valid():
+            old_title = survey.title
+            old_description = survey.description
+            
+            survey = form.save()
+            
+            if (old_title != survey.title or old_description != survey.description) and survey.response_count > 0:
+                survey.version += 1
+                survey.save()
+                messages.warning(request, f'Survey version incremented to {survey.version}. Students with incomplete responses must retake the survey.')
+            else:
+                messages.success(request, 'Survey settings updated successfully!')
+            
+            return redirect('surveys:edit_survey', survey_id=survey.id)
+    else:
+        form = SurveyForm(instance=survey, user=request.user)
+    
+    questions = survey.questions.filter(is_active=True).order_by('order')
+    
+    context = {
+        'survey': survey,
+        'form': form,
+        'questions': questions,
+        'question_form': QuestionForm(),
+        'response_count': survey.response_count,
+    }
+    return render(request, 'surveys/edit_survey.html', context)
+
+
+def handle_batch_save(request, survey, questions_data):
+    try:
+        with transaction.atomic():
+            existing_count = survey.questions.filter(is_active=True).count()
+            
+            from django.db.models import F
+            survey.questions.filter(is_active=True).update(order=F('order') + len(questions_data))
+            
+            created_questions = []
+            for i, q_data in enumerate(questions_data):
+                question_text = q_data.get('question_text', '').strip()
+                if not question_text:
+                    continue
+                
+                question = Question.objects.create(
+                    survey=survey,
+                    question_text=question_text,
+                    question_type=q_data.get('question_type', 'short_answer'),
+                    is_required=q_data.get('is_required', True),
+                    order=i,
+                    options=q_data.get('options', []),
+                    likert_min=q_data.get('likert_min', 1),
+                    likert_max=q_data.get('likert_max', 5),
+                    likert_labels=q_data.get('likert_labels', []),
+                )
+                created_questions.append(question)
+            
+            version_incremented = False
+            if survey.response_count > 0:
+                survey.version += 1
+                survey.save()
+                version_incremented = True
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Successfully saved {len(created_questions)} question(s)',
+                'version_incremented': version_incremented,
+                'new_version': survey.version if version_incremented else None,
+                'questions': [{'id': q.id, 'order': q.order} for q in created_questions]
+            })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error saving questions: {str(e)}'
+        }, status=400)
+
+
+@login_required
+def add_question(request, survey_id):
+    if not request.user.is_teacher:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+    
+    survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+    
+    if request.method == 'POST':
+        if request.content_type == 'application/json':
+            try:
+                data = json.loads(request.body)
+                
+                if data.get('batch_save'):
+                    questions_data = data.get('questions', [])
+                    return handle_batch_save(request, survey, questions_data)
+                
+            except json.JSONDecodeError:
+                return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+        
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            with transaction.atomic():
+                from django.db.models import F
+                survey.questions.filter(is_active=True).update(order=F('order') + 1)
+                
+                question = form.save(commit=False)
+                question.survey = survey
+                question.order = 0
+                question.save()
+                
+                if survey.response_count > 0:
+                    survey.version += 1
+                    survey.save()
+                    messages.warning(request, f'Survey version incremented to {survey.version}.')
+                
+                messages.success(request, 'Question added successfully!')
+            return redirect('surveys:edit_survey', survey_id=survey.id)
+    else:
+        form = QuestionForm()
+    
+    context = {
+        'survey': survey,
+        'form': form,
+        'action': 'Add'
+    }
+    return render(request, 'surveys/question_form.html', context)
+
+
+@login_required
+def edit_question(request, question_id):
+    if not request.user.is_teacher:
+        messages.error(request, 'Access denied. Teachers only.')
+        return redirect('accounts:index')
+    
+    question = get_object_or_404(Question, id=question_id, survey__creator=request.user)
+    survey = question.survey
+    
+    if request.method == 'POST':
+        form = QuestionForm(request.POST, instance=question)
+        if form.is_valid():
+            old_text = question.question_text
+            old_type = question.question_type
+            old_options = question.options
+            
+            question = form.save()
+            
+            if (old_text != question.question_text or 
+                old_type != question.question_type or 
+                old_options != question.options) and survey.response_count > 0:
+                survey.version += 1
+                survey.save()
+                messages.warning(request, f'Survey version incremented to {survey.version}.')
+            
+            messages.success(request, 'Question updated successfully!')
+            return redirect('surveys:edit_survey', survey_id=survey.id)
+    else:
+        form = QuestionForm(instance=question)
+    
+    context = {
+        'survey': survey,
+        'question': question,
+        'form': form,
+        'action': 'Edit'
+    }
+    return render(request, 'surveys/question_form.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def delete_question(request, question_id):
+    if not request.user.is_teacher:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+    
+    question = get_object_or_404(Question, id=question_id, survey__creator=request.user)
+    survey = question.survey
+    
+    question.is_active = False
+    question.save()
+    
+    if survey.response_count > 0:
+        survey.version += 1
+        survey.save()
+        messages.warning(request, f'Question deactivated. Survey version incremented to {survey.version}.')
+    else:
+        messages.success(request, 'Question deactivated successfully!')
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'message': 'Question deactivated'})
+    
+    return redirect('surveys:edit_survey', survey_id=survey.id)
+
+
+@login_required
+@require_http_methods(["POST"])
+def restore_question(request, question_id):
+    if not request.user.is_teacher:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+    
+    question = get_object_or_404(Question, id=question_id, survey__creator=request.user)
+    survey = question.survey
+    
+    question.is_active = True
+    question.save()
+    
+    if survey.response_count > 0:
+        survey.version += 1
+        survey.save()
+        messages.warning(request, f'Question restored. Survey version incremented to {survey.version}.')
+    else:
+        messages.success(request, 'Question restored successfully!')
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'message': 'Question restored'})
+    
+    return redirect('surveys:edit_survey', survey_id=survey.id)
+
+
+@login_required
+@require_http_methods(["POST"])
+def reorder_questions(request, survey_id):
+    if not request.user.is_teacher:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+    
+    survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+    
+    try:
+        data = json.loads(request.body)
+        order_updates = data.get('orders', [])
+        
+        with transaction.atomic():
+            for item in order_updates:
+                question_id = item.get('question_id')
+                new_order = item.get('order')
+                
+                question = Question.objects.get(id=question_id, survey=survey)
+                question.order = new_order
+                question.save()
+        
+        return JsonResponse({'success': True, 'message': 'Question order updated'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required
+def survey_builder(request, survey_id=None):
+    """
+    Legacy survey builder view - redirects to the new form-based builder.
+    For creating new surveys, redirect to create_survey.
+    For editing existing surveys, redirect to edit_survey.
+    """
+    if not request.user.is_teacher:
+        messages.error(request, 'Access denied. Teachers only.')
+        return redirect('accounts:index')
+    
+    if survey_id:
+        # Editing existing survey - redirect to edit_survey
+        return redirect('surveys:edit_survey', survey_id=survey_id)
+    else:
+        # Creating new survey - redirect to create_survey
+        return redirect('surveys:create_survey')
 
 
 @login_required

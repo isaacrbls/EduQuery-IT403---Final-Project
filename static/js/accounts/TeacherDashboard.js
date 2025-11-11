@@ -59,10 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', createRipple);
     });
 
-    // Welcome message
-    setTimeout(() => {
-        showNotification('Welcome to your Teacher Dashboard! 🎓', 'success');
-    }, 1000);
+    // Welcome message removed
 });
 
 /**

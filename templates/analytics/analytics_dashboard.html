@@ -1,0 +1,178 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - EduQuery</title>
+    <link rel="stylesheet" href="{% static 'css/accounts/Analytics.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn" aria-label="History" data-tooltip="History" onclick="goToHistory()">
+                    <span class="material-icons">history</span>
+                </button>
+                <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-btn active" aria-label="Analytics" data-tooltip="Analytics">
+                    <span class="material-icons">analytics</span>
+                </a>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile" onclick="goToProfile()">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings" onclick="goToSettings()">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1>Analytics Dashboard</h1>
+                <p class="header-subtitle">Survey Analytics & Insights</p>
+            </header>
+
+            <div class="analytics-overview">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">poll</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Surveys</h3>
+                            <p class="stat-value" id="totalSurveys">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">people</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Responses</h3>
+                            <p class="stat-value" id="totalResponses">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">trending_up</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Response Rate</h3>
+                            <p class="stat-value" id="responseRate">0%</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">schedule</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Active Surveys</h3>
+                            <p class="stat-value" id="activeSurveys">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-content">
+                <div class="chart-container">
+                    <h2>Survey Performance</h2>
+                    <p class="section-description">Overview of survey completion and engagement metrics</p>
+                    <div id="performanceChart" class="chart-placeholder">
+                        <span class="material-icons">insert_chart</span>
+                        <p>Chart data will be loaded here</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h2>Response Timeline</h2>
+                    <p class="section-description">Track responses over time</p>
+                    <div id="timelineChart" class="chart-placeholder">
+                        <span class="material-icons">timeline</span>
+                        <p>Timeline data will be loaded here</p>
+                    </div>
+                </div>
+
+                <div class="survey-list-section">
+                    <h2>Recent Surveys</h2>
+                    <p class="section-description">Click on a survey to view detailed analytics</p>
+                    <div class="survey-list" id="surveyList">
+                        <div class="empty-state">
+                            <span class="material-icons">folder_open</span>
+                            <p>No surveys available yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{% static 'js/accounts/Analytics.js' %}"></script>
+    <script>
+        // Navigation functions
+        function goToHome() {
+            {% if user.role == 'teacher' %}
+                window.location.href = '{% url "accounts:teacher_dashboard" %}';
+            {% else %}
+                window.location.href = '{% url "accounts:student_dashboard" %}';
+            {% endif %}
+        }
+
+        function goToSurveyList() {
+            // Placeholder - implement when survey list view is ready
+            console.log('Navigate to survey list');
+        }
+
+        function goToHistory() {
+            // Placeholder - implement when history view is ready
+            console.log('Navigate to history');
+        }
+
+        function goToProfile() {
+            window.location.href = '{% url "accounts:profile" %}';
+        }
+
+        function goToSettings() {
+            window.location.href = '{% url "accounts:settings" %}';
+        }
+
+        // Load survey data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAnalyticsData();
+        });
+
+        function loadAnalyticsData() {
+            // Placeholder for AJAX call to load analytics data
+            console.log('Loading analytics data...');
+            
+            // Example: Update stats
+            document.getElementById('totalSurveys').textContent = '0';
+            document.getElementById('totalResponses').textContent = '0';
+            document.getElementById('responseRate').textContent = '0%';
+            document.getElementById('activeSurveys').textContent = '0';
+        }
+    </script>
+</body>
+</html>

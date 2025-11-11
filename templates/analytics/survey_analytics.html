@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Analytics - EduQuery</title>
+    <link rel="stylesheet" href="{% static 'css/accounts/Analytics.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn" aria-label="History" data-tooltip="History" onclick="goToHistory()">
+                    <span class="material-icons">history</span>
+                </button>
+                <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-btn active" aria-label="Analytics" data-tooltip="Analytics">
+                    <span class="material-icons">analytics</span>
+                </a>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile" onclick="goToProfile()">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings" onclick="goToSettings()">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="header-top">
+                    <button class="back-btn" onclick="window.location.href='{% url 'analytics:analytics_dashboard' %}'">
+                        <span class="material-icons">arrow_back</span>
+                        Back to Dashboard
+                    </button>
+                </div>
+                <h1>Survey Analytics</h1>
+                <p class="header-subtitle">Detailed insights for this survey</p>
+            </header>
+
+            <div class="analytics-overview">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">people</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Responses</h3>
+                            <p class="stat-value" id="surveyResponses">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">schedule</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Avg. Completion Time</h3>
+                            <p class="stat-value" id="avgTime">0 min</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">check_circle</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Completion Rate</h3>
+                            <p class="stat-value" id="completionRate">0%</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">star</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Avg. Rating</h3>
+                            <p class="stat-value" id="avgRating">0.0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-content">
+                <div class="chart-container">
+                    <h2>Question-by-Question Analysis</h2>
+                    <p class="section-description">Response distribution for each question</p>
+                    <div id="questionCharts" class="chart-placeholder">
+                        <span class="material-icons">bar_chart</span>
+                        <p>Question analytics will be loaded here</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h2>Response Timeline</h2>
+                    <p class="section-description">When responses were submitted</p>
+                    <div id="responseTimeline" class="chart-placeholder">
+                        <span class="material-icons">timeline</span>
+                        <p>Timeline data will be loaded here</p>
+                    </div>
+                </div>
+
+                <div class="text-responses-section">
+                    <h2>Text Responses</h2>
+                    <p class="section-description">Open-ended feedback from respondents</p>
+                    <div id="textResponses" class="empty-state">
+                        <span class="material-icons">notes</span>
+                        <p>No text responses yet</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{% static 'js/accounts/Analytics.js' %}"></script>
+    <script>
+        // Navigation functions
+        function goToHome() {
+            {% if user.role == 'teacher' %}
+                window.location.href = '{% url "accounts:teacher_dashboard" %}';
+            {% else %}
+                window.location.href = '{% url "accounts:student_dashboard" %}';
+            {% endif %}
+        }
+
+        function goToSurveyList() {
+            // Placeholder - implement when survey list view is ready
+            console.log('Navigate to survey list');
+        }
+
+        function goToHistory() {
+            // Placeholder - implement when history view is ready
+            console.log('Navigate to history');
+        }
+
+        function goToProfile() {
+            window.location.href = '{% url "accounts:profile" %}';
+        }
+
+        function goToSettings() {
+            window.location.href = '{% url "accounts:settings" %}';
+        }
+
+        // Load survey-specific analytics data
+        document.addEventListener('DOMContentLoaded', function() {
+            const surveyId = window.location.pathname.split('/')[2]; // Extract survey ID from URL
+            loadSurveyAnalytics(surveyId);
+        });
+
+        function loadSurveyAnalytics(surveyId) {
+            console.log('Loading analytics for survey:', surveyId);
+            
+            // Placeholder for AJAX calls to API endpoints
+            // fetch(`/analytics/api/${surveyId}/summary/`)
+            // fetch(`/analytics/api/${surveyId}/mcq/`)
+            // fetch(`/analytics/api/${surveyId}/likert/`)
+            // fetch(`/analytics/api/${surveyId}/text/`)
+            
+            // Example: Update stats
+            document.getElementById('surveyResponses').textContent = '0';
+            document.getElementById('avgTime').textContent = '0 min';
+            document.getElementById('completionRate').textContent = '0%';
+            document.getElementById('avgRating').textContent = '0.0';
+        }
+    </script>
+</body>
+</html>

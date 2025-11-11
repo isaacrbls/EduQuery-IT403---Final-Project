@@ -421,7 +421,8 @@ function showPasswordTips() {
 // ============================================
 
 function goToHome() {
-    window.location.href = '/accounts/dashboard/';
+    // Go to root; server will redirect to appropriate dashboard
+    window.location.href = '/';
 }
 
 function goToSurveyList() {
@@ -429,11 +430,12 @@ function goToSurveyList() {
 }
 
 function goToHistory() {
-    window.location.href = '/accounts/history/';
+    // History view is served under /surveys/history/
+    window.location.href = '/surveys/history/';
 }
 
 function goToProfile() {
-    window.location.href = '/accounts/profile/';
+    window.location.href = '/profile/';
 }
 
 function handleLogout() {
@@ -446,7 +448,8 @@ function handleLogout() {
         cancelText: 'Cancel',
         confirmDanger: true,
         onConfirm: () => {
-            window.location.href = '/accounts/logout/';
+            // Use the root logout path
+            window.location.href = '/logout/';
         }
     });
 }

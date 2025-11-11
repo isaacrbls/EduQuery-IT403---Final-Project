@@ -11,7 +11,7 @@ function goToHistory() {
 }
 
 function goToAnalytics() {
-    window.location.href = '/analytics/';
+    window.location.href = '/student/analytics/';
 }
 
 function goToProfile() {
@@ -39,47 +39,28 @@ function handleLogout() {
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeSidebarNavigation();
-    updateNavigationIndicator();
     initializeCharts();
 });
 
 function initializeSidebarNavigation() {
-    const navBtns = document.querySelectorAll('.nav-btn');
+    const navBtns = document.querySelectorAll('.sidebar-btn');
     navBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
             const label = this.getAttribute('aria-label');
-            if (label === 'Home') {
-                goToHome();
-            } else if (label === 'Survey List') {
+            
+            // Skip if it's a link (already has href)
+            if (this.tagName === 'A') {
+                return;
+            }
+            
+            // Handle button clicks
+            if (label === 'Survey List') {
                 goToSurveyList();
             } else if (label === 'Survey History') {
                 goToHistory();
-            } else if (label === 'Analytics') {
-                goToAnalytics();
-            } else if (label === 'Profile') {
-                goToProfile();
-            } else if (label === 'Settings') {
-                goToSettings();
-            } else if (label === 'Logout') {
-                handleLogout();
             }
         });
     });
-}
-
-function updateNavigationIndicator() {
-    const activeBtn = document.querySelector('.nav-btn.active');
-    const indicator = document.querySelector('.nav-indicator');
-    
-    if (activeBtn && indicator) {
-        const navTrack = document.querySelector('.nav-track');
-        const btnIndex = Array.from(navTrack.querySelectorAll('.nav-btn:not(.logout-btn)')).indexOf(activeBtn);
-        
-        if (btnIndex !== -1) {
-            const offset = btnIndex * (44 + 14) + 12;
-            indicator.style.transform = `translateY(${offset}px)`;
-        }
-    }
 }
 
 function initializeCharts() {

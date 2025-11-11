@@ -357,11 +357,13 @@ function showDeleteSuccessMessage() {
 // ============================================
 
 function goToHome() {
-    window.location.href = '/dashboard/';
+    // Go to root; server-side view will redirect based on user type
+    window.location.href = '/';
 }
 
 function goToSurveyList() {
-    window.location.href = '/survey-list/';
+    // Surveys list is served under /surveys/ (see surveys.urls)
+    window.location.href = '/surveys/';
 }
 
 // ============================================

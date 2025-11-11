@@ -11,7 +11,7 @@ function goToHistory() {
 }
 
 function goToAnalytics() {
-    window.location.href = '/analytics/';
+    window.location.href = '/student/analytics/';
 }
 
 function goToProfile() {

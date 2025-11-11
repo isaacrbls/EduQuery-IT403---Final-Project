@@ -9,8 +9,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{%static 'css/accounts/TeacherDashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script defer src="{%static 'js/accounts/TeacherDashboard.js' %}"></script>
 </head>
 
@@ -69,22 +71,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="header-right">
-                    <div class="search-box">
-                        <label for="search-input" class="visually-hidden">Search</label>
-                        <input id="search-input" type="search" placeholder="Search..." />
-                        <span class="material-icons search-icon">search</span>
-                    </div>
-                    <div class="header-actions">
-                        <div class="notification-container">
-                            <button class="header-btn notification-btn" aria-label="Notifications">
-                                <span class="material-icons">notifications</span>
-                                <span class="notification-badge">5</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Content Area -->
@@ -138,20 +124,34 @@
                                     <span>From students</span>
                                 </div>
                             </div>
+                            <div class="stat-card" data-stat="sections">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #2F5E53 0%, #1F3C35 100%);">
+                                    <span class="material-icons">class</span>
+                                </div>
+                                <div class="stat-value" id="totalSections">{{ sections.count }}</div>
+                                <div class="stat-label">Total Sections</div>
+                                <div class="stat-trend">
+                                    <span class="material-icons">school</span>
+                                    <span>Teaching classes</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Enhanced Survey List -->
-                        <div class="survey-section">
-                            <div class="section-header">
-                                <div class="section-title">
-                                    <span class="material-icons section-icon">assignment</span>
-                                    <h2>List of Survey</h2>
-                                </div>
-                                <button class="create-survey-btn">
-                                    <span class="material-icons">add</span>
-                                    Create Survey
-                                </button>
-                            </div>
+                        <!-- Bootstrap Grid Layout - Survey Left, Sections Right -->
+                        <div class="row g-4 mt-2">
+                            <!-- Survey List - Left Side (8 columns) -->
+                            <div class="col-lg-8">
+                                <div class="survey-section">
+                                    <div class="section-header">
+                                        <div class="section-title">
+                                            <span class="material-icons section-icon">assignment</span>
+                                            <h2>List of Survey</h2>
+                                        </div>
+                                        <a href="{% url 'surveys:create_survey' %}" class="create-survey-btn">
+                                            <span class="material-icons">add</span>
+                                            Create Survey
+                                        </a>
+                                    </div>
 
                             <div class="survey-list-container">
                                 {% for survey in surveys %}
@@ -190,7 +190,7 @@
                                         </div>
                                     </div>
                                     <div class="survey-actions">
-                                        <a href="#" class="survey-action-btn edit-btn">
+                                        <a href="{% url 'surveys:edit_survey' survey.id %}" class="survey-action-btn edit-btn">
                                             <span class="material-icons">edit</span>
                                             Edit
                                         </a>
@@ -204,117 +204,84 @@
                                 <div class="empty-state">
                                     <span class="material-icons">assignment</span>
                                     <p>No surveys created yet</p>
-                                    <button class="create-survey-btn">
+                                    <a href="{% url 'surveys:create_survey' %}" class="create-survey-btn">
                                         <span class="material-icons">add</span>
                                         Create Your First Survey
-                                    </button>
+                                    </a>
                                 </div>
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Sidebar -->
-                    <div class="right-sidebar">
-                        <!-- Announcement Card -->
-                        <div class="announcement-card">
-                            <div class="card-header">
-                                <h2>Announcements</h2>
-                                <span class="material-icons">campaign</span>
+                    <!-- Sections List - Right Side (4 columns) -->
+                    <div class="col-lg-4">
+                        <div class="sections-card">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <span class="material-icons section-icon">class</span>
+                                    <h2>My Sections</h2>
+                                </div>
+                                <span class="section-count-badge">{{ sections.count }}</span>
                             </div>
-                            <div class="announcement-list">
-                                <div class="announcement-item">
-                                    <div class="announcement-icon">
-                                        <span class="material-icons">info</span>
-                                    </div>
-                                    <div class="announcement-content">
-                                        <h4>Please complete pending evaluations</h4>
-                                        <p>Due date: Nov 15, 2025</p>
-                                        <span class="announcement-time">2 hours ago</span>
-                                    </div>
-                                </div>
-                                <div class="announcement-item">
-                                    <div class="announcement-icon maintenance">
-                                        <span class="material-icons">build</span>
-                                    </div>
-                                    <div class="announcement-content">
-                                        <h4>System maintenance scheduled</h4>
-                                        <p>Nov 10, 2025 at 2:00 AM</p>
-                                        <span class="announcement-time">1 day ago</span>
-                                    </div>
-                                </div>
-                                <div class="announcement-item">
-                                    <div class="announcement-icon success">
-                                        <span class="material-icons">celebration</span>
-                                    </div>
-                                    <div class="announcement-content">
-                                        <h4>New survey features available</h4>
-                                        <p>Check out the enhanced UI</p>
-                                        <span class="announcement-time">3 days ago</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Analytics Card -->
-                        <div class="analytics-card">
-                            <div class="card-header">
-                                <h2>Analytics</h2>
-                                <span class="material-icons">analytics</span>
-                            </div>
-                            <div class="analytics-controls">
-                                <label for="month-select">Month</label>
-                                <select id="month-select" class="month-dropdown">
-                                    <option value="01">January</option>
-                                    <option value="02">February</option>
-                                    <option value="03">March</option>
-                                    <option value="04">April</option>
-                                    <option value="05">May</option>
-                                    <option value="06">June</option>
-                                    <option value="07">July</option>
-                                    <option value="08">August</option>
-                                    <option value="09">September</option>
-                                    <option value="10">October</option>
-                                    <option value="11" selected>November</option>
-                                    <option value="12">December</option>
-                                </select>
-                            </div>
-                            <div class="analytics-content">
-                                <div class="analytics-chart">
-                                    <canvas id="analyticsChart"></canvas>
-                                    <div class="chart-placeholder">
-                                        <div class="chart-line-graph">
-                                            <svg viewBox="0 0 200 100" class="line-chart">
-                                                <polyline
-                                                    points="0,60 50,80 100,45 150,30 200,50"
-                                                    fill="none"
-                                                    stroke="var(--primary-500)"
-                                                    stroke-width="3"
-                                                />
-                                                <circle cx="0" cy="60" r="4" fill="var(--primary-500)" />
-                                                <circle cx="50" cy="80" r="4" fill="var(--primary-500)" />
-                                                <circle cx="100" cy="45" r="4" fill="var(--primary-500)" />
-                                                <circle cx="150" cy="30" r="4" fill="var(--primary-500)" />
-                                                <circle cx="200" cy="50" r="4" fill="var(--primary-500)" />
-                                            </svg>
+                            <div class="survey-list-container">
+                                {% for section in sections %}
+                                <div class="teacher-survey-card section-card">
+                                    <div class="survey-card-main">
+                                        <div class="survey-icon section-icon-bg">
+                                            <span class="material-icons">folder</span>
                                         </div>
-                                        <div class="chart-labels">
-                                            <span>0</span>
-                                            <span>1</span>
-                                            <span>2</span>
-                                            <span>3</span>
+                                        <div class="survey-info">
+                                            <h3 class="survey-title">{{ section.name }}</h3>
+                                            <div class="survey-meta">
+                                                <span class="date-info">
+                                                    <span class="material-icons">tag</span>
+                                                    {{ section.code }}
+                                                </span>
+                                                <span class="due-info">
+                                                    <span class="material-icons">event</span>
+                                                    {{ section.academic_year }}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div class="survey-middle">
+                                        <div class="response-info">
+                                            <span class="material-icons">people</span>
+                                            <span class="response-count">Students: <strong>{{ section.student_count }}</strong></span>
+                                        </div>
+                                        <div class="survey-status-badge active">
+                                            <span class="status-dot"></span>
+                                            {{ section.semester }}
+                                        </div>
+                                    </div>
+                                    <div class="survey-actions section-actions">
+                                        {% if section.description %}
+                                        <span class="section-description-brief">{{ section.description|truncatewords:5 }}</span>
+                                        {% else %}
+                                        <span class="section-description-brief text-muted">No description</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
+                                {% empty %}
+                                <div class="empty-state">
+                                    <span class="material-icons">class</span>
+                                    <p>No sections yet</p>
+                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> <!-- End Bootstrap row -->
             </div>
         </div>
     </div>
+</div>
+</div>
 
 
 </body>
 </html>
+
 

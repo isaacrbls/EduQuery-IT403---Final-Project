@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Question - EduQuery{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Sidebar Navigation -->
+<div class="sidebar">
+    <!-- Navigation Section -->
+    <nav class="sidebar-nav" role="navigation">
+        <a href="{% url 'accounts:teacher_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+            <span class="material-icons">home</span>
+        </a>
+        <button class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
+            <span class="material-icons">list_alt</span>
+        </button>
+        <button class="sidebar-btn" aria-label="History" data-tooltip="History">
+            <span class="material-icons">history</span>
+        </button>
+        <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+            <span class="material-icons">person</span>
+        </a>
+        <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+            <span class="material-icons">settings</span>
+        </button>
+    </nav>
+
+    <!-- Spacer -->
+    <div class="sidebar-spacer"></div>
+
+    <!-- User Section -->
+    <div class="sidebar-user">
+        <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+            <span class="material-icons">logout</span>
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container mt-4 mb-5" style="padding-left: 2rem;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> {{ action }} Question
+                    </h5>
+                    <p class="mb-0 mt-1" style="font-size: 0.9rem; opacity: 0.9;">Survey: {{ survey.title }}</p>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.question_text.id_for_label }}" class="form-label">
+                                Question Text <span class="text-danger">*</span>
+                            </label>
+                            {{ form.question_text }}
+                            {% if form.question_text.errors %}
+                                <div class="text-danger small">{{ form.question_text.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="{{ form.question_type.id_for_label }}" class="form-label">
+                                    Question Type <span class="text-danger">*</span>
+                                </label>
+                                {{ form.question_type }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="form-check">
+                                    {{ form.is_required }}
+                                    <label for="{{ form.is_required.id_for_label }}" class="form-check-label">
+                                        Required
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Note: For advanced question configuration (options, Likert scales), please use the inline editor in the survey edit page.
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'surveys:edit_survey' survey.id %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> {{ action }} Question
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

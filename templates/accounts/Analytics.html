@@ -20,36 +20,33 @@
 <body data-user-name="{{ request.user.first_name|default:'Student' }}">
     <div class="dashboard-container">
         <div class="sidebar">
-            <div class="nav-shell">
-                <nav class="nav-track" role="navigation">
-                    <div class="nav-indicator"></div>
-                    <button class="nav-btn" aria-label="Home" data-tooltip="Home">
-                        <span class="material-icons">home</span>
-                    </button>
-                    <button class="nav-btn" aria-label="Survey List" data-tooltip="Survey List">
-                        <span class="material-icons">list_alt</span>
-                    </button>
-                    <button class="nav-btn" aria-label="Survey History" data-tooltip="Survey History">
-                        <span class="material-icons">history</span>
-                    </button>
-                    <button class="nav-btn active" aria-label="Analytics" data-tooltip="Analytics">
-                        <span class="material-icons">analytics</span>
-                    </button>
-                    <button class="nav-btn" aria-label="Profile" data-tooltip="Profile">
-                        <span class="material-icons">person</span>
-                    </button>
-                    <button class="nav-btn" aria-label="Settings" data-tooltip="Settings">
-                        <span class="material-icons">settings</span>
-                    </button>
-                </nav>
+            <nav class="sidebar-nav" role="navigation">
+                <a href="{% url 'accounts:student_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+                    <span class="material-icons">home</span>
+                </a>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey History" data-tooltip="Survey History">
+                    <span class="material-icons">history</span>
+                </button>
+                <a href="{% url 'accounts:analytics' %}" class="sidebar-btn active" aria-label="Analytics" data-tooltip="Analytics">
+                    <span class="material-icons">analytics</span>
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </a>
+                <a href="{% url 'accounts:settings' %}" class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </a>
+            </nav>
 
-                <div class="nav-spacer"></div>
+            <div class="sidebar-spacer"></div>
 
-                <div class="nav-bottom">
-                    <button class="nav-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
-                        <span class="material-icons">logout</span>
-                    </button>
-                </div>
+            <div class="sidebar-user">
+                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </a>
             </div>
         </div>
 

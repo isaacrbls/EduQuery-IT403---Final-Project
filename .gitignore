@@ -36,6 +36,7 @@ Thumbs.db
 
 # Node modules (if using npm)
 node_modules/
+.vite/
 
 # Coverage reports
 htmlcov/

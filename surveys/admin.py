@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import Survey, Question, QuestionOption, LikertScale
+from .models import Survey, Question, QuestionOption, LikertScale, MatchingPair
 
-# Register your models here.
 
 class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
@@ -14,6 +13,12 @@ class LikertScaleInline(admin.StackedInline):
     max_num = 1
 
 
+class MatchingPairInline(admin.TabularInline):
+    model = MatchingPair
+    extra = 1
+    ordering = ['order']
+
+
 class QuestionInline(admin.StackedInline):
     model = Question
     extra = 1
@@ -22,11 +27,12 @@ class QuestionInline(admin.StackedInline):
 
 @admin.register(Survey)
 class SurveyAdmin(admin.ModelAdmin):
-    list_display = ['title', 'creator', 'status', 'question_count', 'response_count', 'start_date', 'due_date', 'created_at']
-    list_filter = ['status', 'anonymous', 'created_at', 'start_date', 'due_date']
+    list_display = ['title', 'creator', 'status', 'is_active', 'version', 'question_count', 'response_count', 'due_date', 'created_at']
+    list_filter = ['status', 'is_active', 'anonymous', 'created_at', 'due_date']
     search_fields = ['title', 'description', 'creator__username']
     filter_horizontal = ['sections']
     inlines = [QuestionInline]
+    readonly_fields = ['version', 'created_at', 'updated_at']
 
     def question_count(self, obj):
         return obj.question_count
@@ -39,10 +45,11 @@ class SurveyAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['question_text_short', 'survey', 'question_type', 'required', 'order', 'created_at']
-    list_filter = ['question_type', 'required', 'created_at']
+    list_display = ['question_text_short', 'survey', 'question_type', 'is_required', 'is_active', 'order', 'created_at']
+    list_filter = ['question_type', 'is_required', 'is_active', 'created_at']
     search_fields = ['question_text', 'survey__title']
-    inlines = [QuestionOptionInline, LikertScaleInline]
+    inlines = [QuestionOptionInline, LikertScaleInline, MatchingPairInline]
+    readonly_fields = ['created_at', 'updated_at']
 
     def question_text_short(self, obj):
         return obj.question_text[:50] + '...' if len(obj.question_text) > 50 else obj.question_text

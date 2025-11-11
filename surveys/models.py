@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from accounts.models import Section
 
 # Create your models here.
@@ -12,11 +13,13 @@ class Survey(models.Model):
         ('closed', 'Closed'),
     )
 
-    title = models.CharField(max_length=255)
-    description = models.TextField()
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_surveys')
     sections = models.ManyToManyField(Section, related_name='surveys', blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    is_active = models.BooleanField(default=True)
+    version = models.PositiveIntegerField(default=1)
 
     # Survey settings
     anonymous = models.BooleanField(default=False)
@@ -38,20 +41,27 @@ class Survey(models.Model):
 
     @property
     def question_count(self):
-        return self.questions.count()
+        return self.questions.filter(is_active=True).count()
 
     @property
     def response_count(self):
         return self.responses.count()
 
     @property
-    def is_active(self):
-        return self.status == 'published'
+    def is_open(self):
+        if not self.is_active:
+            return False
+        if self.due_date and timezone.now() > self.due_date:
+            return False
+        return True
 
 
 class Question(models.Model):
-    """Model for survey questions"""
     QUESTION_TYPES = (
+        ('multiple_choice', 'Multiple Choice'),
+        ('likert_scale', 'Likert Scale'),
+        ('short_answer', 'Short Answer'),
+        ('long_answer', 'Long Answer'),
         ('text', 'Short Text'),
         ('textarea', 'Long Text'),
         ('mcq', 'Multiple Choice (Single)'),
@@ -61,18 +71,23 @@ class Question(models.Model):
         ('dropdown', 'Dropdown'),
         ('date', 'Date'),
         ('email', 'Email'),
+        ('matching', 'Matching'),
     )
 
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name='questions')
     question_text = models.TextField()
     question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
-    required = models.BooleanField(default=True)
+    is_required = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
-
-    # Additional settings
     help_text = models.CharField(max_length=255, blank=True, null=True)
     placeholder = models.CharField(max_length=100, blank=True, null=True)
-
+    
+    options = models.JSONField(default=list, blank=True)
+    likert_min = models.IntegerField(default=1)
+    likert_max = models.IntegerField(default=5)
+    likert_labels = models.JSONField(default=list, blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -85,7 +100,7 @@ class Question(models.Model):
 
 class QuestionOption(models.Model):
     """Model for multiple choice/dropdown options"""
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='options')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='option_choices')
     option_text = models.CharField(max_length=255)
     order = models.PositiveIntegerField(default=0)
 
@@ -97,7 +112,6 @@ class QuestionOption(models.Model):
 
 
 class LikertScale(models.Model):
-    """Model for Likert scale configuration"""
     question = models.OneToOneField(Question, on_delete=models.CASCADE, related_name='likert_scale')
     min_value = models.IntegerField(default=1)
     max_value = models.IntegerField(default=5)
@@ -106,4 +120,18 @@ class LikertScale(models.Model):
 
     def __str__(self):
         return f"{self.question.question_text[:30]} ({self.min_value}-{self.max_value})"
+
+
+class MatchingPair(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='matching_pairs')
+    left_item = models.CharField(max_length=255)
+    right_item = models.CharField(max_length=255)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['question', 'order']
+
+    def __str__(self):
+        return f"{self.left_item} - {self.right_item}"
+
 

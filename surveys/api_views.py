@@ -3,13 +3,15 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from .models import Survey, Question, QuestionOption
+from django.db import transaction
+from .models import Survey, Question, QuestionOption, LikertScale, MatchingPair
 from .serializers import (
     SurveyListSerializer,
     SurveyDetailSerializer,
     SurveyCreateSerializer,
     QuestionSerializer
 )
+from accounts.models import Section
 
 
 class SurveyViewSet(viewsets.ModelViewSet):
@@ -79,7 +81,6 @@ class SurveyViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def assigned(self, request):
-        """Get surveys assigned to student"""
         if not request.user.is_student:
             return Response(
                 {'error': 'Only students can access assigned surveys'},
@@ -91,6 +92,16 @@ class SurveyViewSet(viewsets.ModelViewSet):
         ).distinct()
         serializer = SurveyListSerializer(surveys, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def assign_sections(self, request, pk=None):
+        survey = self.get_object()
+        if survey.creator != request.user:
+            return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+        section_ids = request.data.get('section_ids', [])
+        sections = Section.objects.filter(id__in=section_ids, teacher=request.user)
+        survey.sections.set(sections)
+        return Response({'message': 'Sections assigned successfully'})
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -98,16 +109,107 @@ class QuestionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Get questions for surveys created by user"""
         survey_id = self.request.query_params.get('survey')
         if survey_id:
             return Question.objects.filter(survey_id=survey_id)
         return Question.objects.filter(survey__creator=self.request.user)
 
-    def perform_create(self, serializer):
-        """Ensure user owns the survey before adding questions"""
-        survey = serializer.validated_data['survey']
-        if survey.creator != self.request.user:
-            raise PermissionError("You cannot add questions to this survey")
-        serializer.save()
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        survey_id = request.data.get('survey_id')
+        survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+        
+        question = Question.objects.create(
+            survey=survey,
+            question_text=request.data.get('question_text'),
+            question_type=request.data.get('question_type'),
+            required=request.data.get('required', True),
+            order=request.data.get('order', 0),
+            help_text=request.data.get('help_text', ''),
+            placeholder=request.data.get('placeholder', '')
+        )
+        
+        if question.question_type in ['mcq', 'checkbox', 'dropdown']:
+            options = request.data.get('options', [])
+            for idx, option_text in enumerate(options):
+                QuestionOption.objects.create(
+                    question=question,
+                    option_text=option_text,
+                    order=idx
+                )
+        
+        elif question.question_type == 'likert':
+            likert_data = request.data.get('likert_scale', {})
+            LikertScale.objects.create(
+                question=question,
+                min_value=likert_data.get('min_value', 1),
+                max_value=likert_data.get('max_value', 5),
+                min_label=likert_data.get('min_label', 'Strongly Disagree'),
+                max_label=likert_data.get('max_label', 'Strongly Agree')
+            )
+        
+        elif question.question_type == 'matching':
+            pairs = request.data.get('matching_pairs', [])
+            for idx, pair in enumerate(pairs):
+                MatchingPair.objects.create(
+                    question=question,
+                    left_item=pair.get('left_item'),
+                    right_item=pair.get('right_item'),
+                    order=idx
+                )
+        
+        serializer = self.get_serializer(question)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        question = self.get_object()
+        
+        question.question_text = request.data.get('question_text', question.question_text)
+        question.question_type = request.data.get('question_type', question.question_type)
+        question.required = request.data.get('required', question.required)
+        question.order = request.data.get('order', question.order)
+        question.help_text = request.data.get('help_text', question.help_text)
+        question.placeholder = request.data.get('placeholder', question.placeholder)
+        question.save()
+        
+        if question.question_type in ['mcq', 'checkbox', 'dropdown']:
+            question.options.all().delete()
+            options = request.data.get('options', [])
+            for idx, option_text in enumerate(options):
+                QuestionOption.objects.create(
+                    question=question,
+                    option_text=option_text,
+                    order=idx
+                )
+        
+        elif question.question_type == 'likert':
+            likert_data = request.data.get('likert_scale', {})
+            likert, created = LikertScale.objects.get_or_create(question=question)
+            likert.min_value = likert_data.get('min_value', likert.min_value)
+            likert.max_value = likert_data.get('max_value', likert.max_value)
+            likert.min_label = likert_data.get('min_label', likert.min_label)
+            likert.max_label = likert_data.get('max_label', likert.max_label)
+            likert.save()
+        
+        elif question.question_type == 'matching':
+            question.matching_pairs.all().delete()
+            pairs = request.data.get('matching_pairs', [])
+            for idx, pair in enumerate(pairs):
+                MatchingPair.objects.create(
+                    question=question,
+                    left_item=pair.get('left_item'),
+                    right_item=pair.get('right_item'),
+                    order=idx
+                )
+        
+        serializer = self.get_serializer(question)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['post'])
+    def reorder(self, request):
+        question_orders = request.data.get('questions', [])
+        for item in question_orders:
+            Question.objects.filter(id=item['id']).update(order=item['order'])
+        return Response({'message': 'Questions reordered successfully'})
 
