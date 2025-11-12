@@ -22,28 +22,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2">
     {% block extra_css %}{% endblock %}
-
-    <style>
-        :root {
-            --black: #000000;
-            --green-700: #007B3B;
-            --deep-forest: #1F3C35;
-            --sage: #597868;
-            --sage-500: #7D998A;
-            --zinc-300: #D9D9D9;
-            --stone-200: #EAE9E4;
-            --white: #FFFFFF;
-            --brand: #2F5E53;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--zinc-300) 0%, var(--sage) 100%);
-            min-height: 100vh;
-        }
-    </style>
 </head>
 <body>
     <!-- Messages -->

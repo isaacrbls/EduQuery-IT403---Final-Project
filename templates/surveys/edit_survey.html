@@ -6,319 +6,394 @@
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/surveys/create_survey.css' %}?v=6">
 {% endblock %}
 
 {% block content %}
-<!-- Sidebar Navigation -->
-<div class="sidebar">
-    <!-- Navigation Section -->
-    <nav class="sidebar-nav" role="navigation">
-        <a href="{% url 'accounts:teacher_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
-            <span class="material-icons">home</span>
-        </a>
-        <button class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
-            <span class="material-icons">list_alt</span>
-        </button>
-        <button class="sidebar-btn" aria-label="History" data-tooltip="History">
-            <span class="material-icons">history</span>
-        </button>
-        <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
-            <span class="material-icons">person</span>
-        </a>
-        <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
-            <span class="material-icons">settings</span>
-        </button>
-    </nav>
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <!-- Navigation Section -->
+        <nav class="sidebar-nav" role="navigation">
+            <a href="{% url 'accounts:teacher_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+                <span class="material-icons">home</span>
+            </a>
+            <button class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
+                <span class="material-icons">list_alt</span>
+            </button>
+            <button class="sidebar-btn" aria-label="History" data-tooltip="History">
+                <span class="material-icons">history</span>
+            </button>
+            <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                <span class="material-icons">person</span>
+            </a>
+            <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                <span class="material-icons">settings</span>
+            </button>
+        </nav>
 
-    <!-- Spacer -->
-    <div class="sidebar-spacer"></div>
+        <!-- Spacer -->
+        <div class="sidebar-spacer"></div>
 
-    <!-- User Section -->
-    <div class="sidebar-user">
-        <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
-            <span class="material-icons">logout</span>
-        </a>
+        <!-- User Section -->
+        <div class="sidebar-user">
+            <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <span class="material-icons">logout</span>
+            </a>
+        </div>
     </div>
-</div>
 
-<!-- Main Content -->
-<div class="container-fluid px-4 mb-5" style="padding-left: 2rem; padding-top: 1rem;">
-    <div class="row">
-        <!-- Left Column: Survey Settings & Stats -->
-        <div class="col-lg-4 mb-4">
-            <!-- Survey Settings Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-gear"></i> Survey Settings
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form method="post" id="surveySettingsForm">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.title.id_for_label }}" class="form-label">
-                                {{ form.title.label }} <span class="text-danger">*</span>
-                            </label>
-                            {{ form.title }}
-                            {% if form.title.errors %}
-                                <div class="text-danger small">{{ form.title.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.description.id_for_label }}" class="form-label">
-                                {{ form.description.label }}
-                            </label>
-                            {{ form.description }}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.due_date.id_for_label }}" class="form-label">
-                                {{ form.due_date.label }} <span class="text-danger">*</span>
-                            </label>
-                            {{ form.due_date }}
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">{{ form.sections.label }}</label>
-                            <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
-                                {{ form.sections }}
-                            </div>
-                        </div>
-
-                        <div class="form-check mb-3">
-                            {{ form.is_active }}
-                            <label for="{{ form.is_active.id_for_label }}" class="form-check-label">
-                                {{ form.is_active.label }}
-                            </label>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-check-circle"></i> Update Settings
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Statistics Card -->
-            <div class="card shadow">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0">
-                        <i class="bi bi-bar-chart"></i> Statistics
-                    </h6>
-                </div>
-                <div class="card-body text-center">
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <h3 class="text-primary mb-0">{{ questions.count }}</h3>
-                            <small class="text-muted">Questions</small>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <h3 class="text-success mb-0">{{ response_count }}</h3>
-                            <small class="text-muted">Responses</small>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <h4 class="text-secondary mb-0">v{{ survey.version }}</h4>
-                            <small class="text-muted">Version</small>
-                        </div>
-                    </div>
-                </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <!-- Logo in left corner -->
+            <div class="header-logo-section">
+                <img src="{% static 'images/logo.png' %}" alt="EduQuery" class="corner-logo" />
             </div>
         </div>
 
-        <!-- Right Column: Questions Management -->
-        <div class="col-lg-8">
-            <!-- Action Buttons -->
-            <div class="card shadow mb-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">
-                            <i class="bi bi-list-task"></i> Questions
-                        </h4>
-                        <div>
-                            <button id="addQuestionBtn" class="btn btn-primary">
-                                <i class="bi bi-plus-circle"></i> Add Question
-                            </button>
-                            <button id="saveAllQuestionsBtn" class="btn btn-success" style="display: none;">
-                                <i class="bi bi-check-all"></i> Save All Questions
-                                <span id="tempQuestionCount" class="badge bg-white text-success ms-1">0</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Page Title Section -->
+            <div class="page-title-section">
+                <h1>
+                    <i class="bi bi-pencil-square"></i>
+                    Edit Survey
+                </h1>
+                <p>Update survey details on the left, manage questions on the right.</p>
             </div>
 
-            <!-- Inline Question Form (Hidden by Default) -->
-            <div id="inlineQuestionForm" class="card shadow mb-3" style="display: none;">
-                <div class="card-header bg-success text-white">
-                    <h6 class="mb-0">
-                        <i class="bi bi-pencil-square"></i> Create Question
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form id="questionFormElement">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="{{ question_form.question_text.id_for_label }}" class="form-label">
-                                Question Text <span class="text-danger">*</span>
-                            </label>
-                            {{ question_form.question_text }}
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-8 mb-3">
-                                <label for="{{ question_form.question_type.id_for_label }}" class="form-label">
-                                    Question Type <span class="text-danger">*</span>
-                                </label>
-                                {{ question_form.question_type }}
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">&nbsp;</label>
-                                <div class="form-check">
-                                    {{ question_form.is_required }}
-                                    <label for="{{ question_form.is_required.id_for_label }}" class="form-check-label">
-                                        Required
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Multiple Choice Options Container -->
-                        <div id="multipleChoiceOptions" style="display: none;">
-                            <label class="form-label">Options <span class="text-danger">*</span></label>
-                            <div id="optionsContainer" class="mb-2"></div>
-                            <button type="button" id="addOption" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-plus"></i> Add Option
-                            </button>
-                            {{ question_form.options }}
-                        </div>
-
-                        <!-- Likert Scale Settings -->
-                        <div id="likertSettings" style="display: none;">
-                            <label class="form-label">Likert Scale Configuration</label>
-                            <div class="row mb-2">
-                                <div class="col-md-12 mb-2">
-                                    <label class="form-label small">Template</label>
-                                    <select id="likertTemplate" class="form-select form-select-sm">
-                                        <option value="custom">Custom</option>
-                                        <option value="agreement" selected>Agreement (Strongly Disagree - Strongly Agree)</option>
-                                        <option value="satisfaction">Satisfaction (Very Dissatisfied - Very Satisfied)</option>
-                                        <option value="frequency">Frequency (Never - Always)</option>
-                                        <option value="quality">Quality (Poor - Excellent)</option>
-                                        <option value="likelihood">Likelihood (Very Unlikely - Very Likely)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <label for="{{ question_form.likert_min.id_for_label }}" class="form-label small">
-                                        Min Value
-                                    </label>
-                                    {{ question_form.likert_min }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="{{ question_form.likert_max.id_for_label }}" class="form-label small">
-                                        Max Value
-                                    </label>
-                                    {{ question_form.likert_max }}
-                                </div>
-                            </div>
-                            <div id="likertLabelsContainer" class="mb-2"></div>
-                            {{ question_form.likert_labels }}
-                        </div>
-
-                        <!-- Preview Card -->
-                        <div id="previewCard" class="card bg-light mt-3" style="display: none;">
-                            <div class="card-header">
-                                <h6 class="mb-0">Preview</h6>
-                            </div>
-                            <div class="card-body" id="previewContent"></div>
-                        </div>
-
-                        <hr class="my-3">
-
-                        <div class="d-flex justify-content-between">
-                            <button type="button" id="cancelQuestionBtn" class="btn btn-outline-secondary">
-                                Cancel
-                            </button>
-                            <button type="button" id="addToListBtn" class="btn btn-success">
-                                <i class="bi bi-plus-square"></i> Add to List
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Temporary Questions List -->
-            <div id="temporaryQuestionsList" class="mb-3" style="display: none;">
-                <div class="card border-warning shadow">
-                    <div class="card-header bg-warning text-dark">
-                        <h6 class="mb-0">
-                            <i class="bi bi-clock-history"></i> Pending Questions (Not Saved)
-                        </h6>
-                    </div>
-                    <div class="card-body" id="temporaryQuestionsContainer"></div>
-                </div>
-            </div>
-
-            <!-- Existing Questions List -->
-            <div id="existingQuestionsList">
-                {% if questions %}
-                    {% for question in questions %}
-                    <div class="card shadow mb-3 draggable-question" data-question-id="{{ question.id }}" data-order="{{ question.order }}" draggable="true">
-                        <div class="card-body">
-                            <div class="d-flex align-items-start">
-                                <div class="drag-handle me-3" style="cursor: move;">
-                                    <i class="bi bi-grip-vertical fs-4 text-muted"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div>
-                                            <span class="badge bg-secondary me-2">Q{{ question.order|add:1 }}</span>
-                                            <span class="badge bg-info">{{ question.get_question_type_display }}</span>
-                                            {% if question.is_required %}
-                                                <span class="badge bg-danger">Required</span>
-                                            {% endif %}
-                                        </div>
-                                        <div>
-                                            <a href="{% url 'surveys:edit_question' question.id %}" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <button class="btn btn-sm btn-outline-danger delete-question-btn" data-question-id="{{ question.id }}">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <p class="mb-2"><strong>{{ question.question_text }}</strong></p>
-                                    
-                                    {% if question.question_type == 'multiple_choice' or question.question_type == 'mcq' or question.question_type == 'checkbox' %}
-                                        <small class="text-muted">
-                                            <strong>Options:</strong> 
-                                            {% for option in question.options %}
-                                                {{ option }}{% if not forloop.last %}, {% endif %}
-                                            {% endfor %}
-                                        </small>
-                                    {% elif question.question_type == 'likert_scale' or question.question_type == 'likert' %}
-                                        <small class="text-muted">
-                                            <strong>Scale:</strong> {{ question.likert_min }} to {{ question.likert_max }}
-                                        </small>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No questions added yet. Click "Add Question" to create your first question.
+            <!-- Two Column Layout -->
+            <div class="survey-layout">
+                <!-- Left Side: Survey Form -->
+                <div class="survey-form-column">
+                    <div class="survey-card">
+                        <div class="survey-body">
+                            <form method="post" novalidate>
+                                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        {{ form.non_field_errors }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 {% endif %}
+
+                <div class="form-section">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">
+                        <i class="bi bi-card-heading"></i> Survey Title <span class="text-danger">*</span>
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="text-danger">
+                            <i class="bi bi-exclamation-circle"></i> {{ form.title.errors }}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i> A clear, descriptive title
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label for="{{ form.due_date.id_for_label }}" class="form-label">
+                        <i class="bi bi-calendar-event"></i> Due Date <span class="text-danger">*</span>
+                    </label>
+                    {{ form.due_date }}
+                    {% if form.due_date.errors %}
+                        <div class="text-danger">
+                            <i class="bi bi-exclamation-circle"></i> {{ form.due_date.errors }}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i> Deadline for responses
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">
+                        <i class="bi bi-card-text"></i> Description <span style="color: #9ca3af; font-weight: 400;">(Optional)</span>
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="text-danger">
+                            <i class="bi bi-exclamation-circle"></i> {{ form.description.errors }}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i> Provide context or instructions for students
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">
+                        <i class="bi bi-people-fill"></i> Assign to Sections <span class="text-danger">*</span>
+                    </label>
+                    <div class="section-dropdown-wrapper">
+                        <button type="button" class="section-dropdown-toggle" id="sectionDropdownToggle">
+                            <span id="sectionDropdownLabel">Select sections...</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="section-checkbox-container" id="sectionCheckboxContainer">
+                            {{ form.sections }}
+                        </div>
+                    </div>
+                    {% if form.sections.errors %}
+                        <div class="text-danger">
+                            <i class="bi bi-exclamation-circle"></i> {{ form.sections.errors }}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i> Select one or more sections to assign this survey
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-check is-active-check">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}" class="form-check-label">
+                            Make survey active immediately
+                        </label>
+                    </div>
+                    {% if form.is_active.errors %}
+                        <div class="text-danger">
+                            <i class="bi bi-exclamation-circle"></i> {{ form.is_active.errors }}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i> Students can start responding once the survey is active
+                    </div>
+                </div>
+
+                <!-- Survey Stats Section -->
+                <div class="form-section" style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); padding: 1.5rem; border-radius: 12px; margin-top: 2rem;">
+                    <label class="form-label" style="margin-bottom: 1rem;">
+                        <i class="bi bi-bar-chart-fill"></i> Survey Statistics
+                    </label>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <div style="text-align: center; background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <div style="font-size: 1.75rem; font-weight: 700; color: var(--primary-600);">{{ questions.count }}</div>
+                            <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">Questions</div>
+                        </div>
+                        <div style="text-align: center; background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <div style="font-size: 1.75rem; font-weight: 700; color: #10b981;">{{ response_count }}</div>
+                            <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">Responses</div>
+                        </div>
+                        <div style="text-align: center; background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <div style="font-size: 1.75rem; font-weight: 700; color: #8b5cf6;">v{{ survey.version }}</div>
+                            <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">Version</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="{% url 'accounts:teacher_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle-fill"></i> Update Survey
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+                </div>
+
+                <!-- Right Side: Question Builder -->
+                <div class="questions-column">
+                    <div class="questions-card">
+                        <div class="questions-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3><i class="bi bi-list-check"></i> Manage Questions</h3>
+                                    <p>Add, edit, or reorder questions for this survey</p>
+                                </div>
+                                <div>
+                                    <button id="addQuestionBtn" class="btn btn-light">
+                                        <i class="bi bi-plus-circle"></i> Add Question
+                                    </button>
+                                    <button id="saveAllQuestionsBtn" class="btn btn-success" style="display: none;">
+                                        <i class="bi bi-check-all"></i> Save All
+                                        <span id="tempQuestionCount" class="badge bg-white text-success ms-1">0</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="questions-body">
+                            <!-- Inline Question Form (Hidden by Default) -->
+                            <div id="inlineQuestionForm" class="mb-3" style="display: none;">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">
+                                            <i class="bi bi-pencil-square"></i> Create Question
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="questionFormElement">
+                                            {% csrf_token %}
+                                            
+                                            <div class="mb-3">
+                                                <label for="{{ question_form.question_text.id_for_label }}" class="form-label">
+                                                    Question Text <span class="text-danger">*</span>
+                                                </label>
+                                                {{ question_form.question_text }}
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-8 mb-3">
+                                                    <label for="{{ question_form.question_type.id_for_label }}" class="form-label">
+                                                        Question Type <span class="text-danger">*</span>
+                                                    </label>
+                                                    {{ question_form.question_type }}
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label">&nbsp;</label>
+                                                    <div class="form-check">
+                                                        {{ question_form.is_required }}
+                                                        <label for="{{ question_form.is_required.id_for_label }}" class="form-check-label">
+                                                            Required
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Multiple Choice Options Container -->
+                                            <div id="multipleChoiceOptions" style="display: none;">
+                                                <label class="form-label">Options <span class="text-danger">*</span></label>
+                                                <div id="optionsContainer" class="mb-2"></div>
+                                                <button type="button" id="addOption" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-plus"></i> Add Option
+                                                </button>
+                                                {{ question_form.options }}
+                                            </div>
+
+                                            <!-- Likert Scale Settings -->
+                                            <div id="likertSettings" style="display: none;">
+                                                <label class="form-label">Likert Scale Configuration</label>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-12 mb-2">
+                                                        <label class="form-label small">Template</label>
+                                                        <select id="likertTemplate" class="form-select form-select-sm">
+                                                            <option value="custom">Custom</option>
+                                                            <option value="agreement" selected>Agreement (Strongly Disagree - Strongly Agree)</option>
+                                                            <option value="satisfaction">Satisfaction (Very Dissatisfied - Very Satisfied)</option>
+                                                            <option value="frequency">Frequency (Never - Always)</option>
+                                                            <option value="quality">Quality (Poor - Excellent)</option>
+                                                            <option value="likelihood">Likelihood (Very Unlikely - Very Likely)</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="{{ question_form.likert_min.id_for_label }}" class="form-label small">
+                                                            Min Value
+                                                        </label>
+                                                        {{ question_form.likert_min }}
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="{{ question_form.likert_max.id_for_label }}" class="form-label small">
+                                                            Max Value
+                                                        </label>
+                                                        {{ question_form.likert_max }}
+                                                    </div>
+                                                </div>
+                                                <div id="likertLabelsContainer" class="mb-2"></div>
+                                                {{ question_form.likert_labels }}
+                                            </div>
+
+                                            <!-- Preview Card -->
+                                            <div id="previewCard" class="card bg-light mt-3" style="display: none;">
+                                                <div class="card-header">
+                                                    <h6 class="mb-0">Preview</h6>
+                                                </div>
+                                                <div class="card-body" id="previewContent"></div>
+                                            </div>
+
+                                            <hr class="my-3">
+
+                                            <div class="d-flex justify-content-between">
+                                                <button type="button" id="cancelQuestionBtn" class="btn btn-outline-secondary">
+                                                    Cancel
+                                                </button>
+                                                <button type="button" id="addToListBtn" class="btn btn-success">
+                                                    <i class="bi bi-plus-square"></i> Add to List
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Temporary Questions List -->
+                            <div id="temporaryQuestionsList" class="mb-3" style="display: none;">
+                                <div class="card border-warning shadow-sm">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h6 class="mb-0">
+                                            <i class="bi bi-clock-history"></i> Pending Questions (Not Saved)
+                                        </h6>
+                                    </div>
+                                    <div class="card-body" id="temporaryQuestionsContainer"></div>
+                                </div>
+                            </div>
+
+                            <!-- Existing Questions List -->
+                            <div id="existingQuestionsList">
+                                {% if questions %}
+                                    {% for question in questions %}
+                                    <div class="card shadow-sm mb-3 draggable-question" data-question-id="{{ question.id }}" data-order="{{ question.order }}" draggable="true">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-start">
+                                                <div class="drag-handle me-3" style="cursor: move;">
+                                                    <i class="bi bi-grip-vertical fs-4 text-muted"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                                        <div>
+                                                            <span class="badge bg-secondary me-2">Q{{ question.order|add:1 }}</span>
+                                                            <span class="badge bg-info">{{ question.get_question_type_display }}</span>
+                                                            {% if question.is_required %}
+                                                                <span class="badge bg-danger">Required</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div>
+                                                            <a href="{% url 'surveys:edit_question' question.id %}" class="btn btn-sm btn-outline-primary">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                            <button class="btn btn-sm btn-outline-danger delete-question-btn" data-question-id="{{ question.id }}">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <p class="mb-2"><strong>{{ question.question_text }}</strong></p>
+                                                    
+                                                    {% if question.question_type == 'multiple_choice' or question.question_type == 'mcq' or question.question_type == 'checkbox' %}
+                                                        <small class="text-muted">
+                                                            <strong>Options:</strong> 
+                                                            {% for option in question.options %}
+                                                                {{ option }}{% if not forloop.last %}, {% endif %}
+                                                            {% endfor %}
+                                                        </small>
+                                                    {% elif question.question_type == 'likert_scale' or question.question_type == 'likert' %}
+                                                        <small class="text-muted">
+                                                            <strong>Scale:</strong> {{ question.likert_min }} to {{ question.likert_max }}
+                                                        </small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> No questions added yet. Click "Add Question" to create your first question.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -328,6 +403,57 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Section Dropdown Toggle
+    const dropdownToggle = document.getElementById('sectionDropdownToggle');
+    const dropdownContainer = document.getElementById('sectionCheckboxContainer');
+    const dropdownLabel = document.getElementById('sectionDropdownLabel');
+
+    if (dropdownToggle && dropdownContainer) {
+        // Update label on page load based on selected checkboxes
+        updateDropdownLabel();
+
+        dropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdownContainer.classList.toggle('show');
+            const icon = this.querySelector('.bi-chevron-down');
+            if (icon) {
+                icon.style.transform = dropdownContainer.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0deg)';
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdownToggle.contains(e.target) && !dropdownContainer.contains(e.target)) {
+                dropdownContainer.classList.remove('show');
+                const icon = dropdownToggle.querySelector('.bi-chevron-down');
+                if (icon) {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            }
+        });
+
+        // Update label when checkboxes change
+        const checkboxes = dropdownContainer.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateDropdownLabel);
+        });
+
+        function updateDropdownLabel() {
+            const checkboxes = dropdownContainer.querySelectorAll('input[type="checkbox"]');
+            const selected = Array.from(checkboxes).filter(cb => cb.checked);
+            
+            if (selected.length === 0) {
+                dropdownLabel.textContent = 'Select sections...';
+            } else if (selected.length === 1) {
+                const label = selected[0].parentElement.textContent.trim();
+                dropdownLabel.textContent = label;
+            } else {
+                dropdownLabel.textContent = `${selected.length} sections selected`;
+            }
+        }
+    }
+
+    // Question Management
     const addQuestionBtn = document.getElementById('addQuestionBtn');
     const inlineForm = document.getElementById('inlineQuestionForm');
     const cancelBtn = document.getElementById('cancelQuestionBtn');
@@ -775,4 +901,5 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleFields();
 });
 </script>
+
 {% endblock %}

@@ -277,8 +277,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    position: sticky;
-    top: 0;
+    position: relative;
     z-index: 50;
     gap: var(--space-8);
 }
@@ -290,8 +289,8 @@ body {
 }
 
 .corner-logo {
-    width: 60px;
-    height: 60px;
+    width: 100px;
+    height: 100px;
     object-fit: contain;
     filter: brightness(1.1) contrast(1.2);
     transition: all var(--duration-normal) var(--ease-out);

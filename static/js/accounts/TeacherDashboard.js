@@ -66,15 +66,20 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize statistics with counter animation
  */
 function initializeStats() {
-    const stats = [
-        { id: 'totalSurveys', value: 0 },
-        { id: 'activeSurveys', value: 0 },
-        { id: 'pendingReviews', value: 0 },
-        { id: 'completedSurveys', value: 0 }
+    // Get all stat cards and read their actual values
+    const statElements = [
+        'totalSurveys',
+        'activeSurveys', 
+        'pendingReviews',
+        'completedSurveys'
     ];
 
-    stats.forEach(stat => {
-        animateValue(stat.id, 0, stat.value, 1500);
+    statElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            const targetValue = parseInt(element.textContent) || 0;
+            animateValue(id, 0, targetValue, 1500);
+        }
     });
 
     // Animate stat cards on load
@@ -110,14 +115,13 @@ function animateValue(id, start, end, duration) {
  * Initialize survey action buttons
  */
 function initializeSurveyActions() {
-    // Edit buttons
+    // Edit buttons - Allow navigation to edit page
     const editBtns = document.querySelectorAll('.edit-btn');
     editBtns.forEach(btn => {
         btn.addEventListener('click', function(e) {
-            e.preventDefault();
             e.stopPropagation();
-            const surveyTitle = this.closest('.teacher-survey-card').querySelector('.survey-title').textContent;
-            showNotification(`Editing survey: ${surveyTitle}`, 'info');
+            // Allow default action - navigate to edit page
+            // The href attribute will handle the navigation
         });
     });
 

@@ -49,10 +49,10 @@
         <main class="main-content">
             <header class="dashboard-header">
                 <div class="header-top">
-                    <button class="back-btn" onclick="window.location.href='{% url 'analytics:analytics_dashboard' %}'">
+                    <a href="{% url 'analytics:analytics_dashboard' %}" class="back-btn">
                         <span class="material-icons">arrow_back</span>
                         Back to Dashboard
-                    </button>
+                    </a>
                 </div>
                 <h1>Survey Analytics</h1>
                 <p class="header-subtitle">Detailed insights for this survey</p>
@@ -137,11 +137,15 @@
     <script>
         // Navigation functions
         function goToHome() {
-            {% if user.role == 'teacher' %}
-                window.location.href = '{% url "accounts:teacher_dashboard" %}';
-            {% else %}
-                window.location.href = '{% url "accounts:student_dashboard" %}';
-            {% endif %}
+            // Use server-rendered values to avoid template tags inside JS expressions
+            const userRole = "{{ user.role|escapejs }}";
+            const teacherDashboardUrl = "{% url 'accounts:teacher_dashboard' %}";
+            const studentDashboardUrl = "{% url 'accounts:student_dashboard' %}";
+            if (userRole === 'teacher') {
+                window.location.href = teacherDashboardUrl;
+            } else {
+                window.location.href = studentDashboardUrl;
+            }
         }
 
         function goToSurveyList() {

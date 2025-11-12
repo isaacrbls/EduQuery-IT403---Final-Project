@@ -59,19 +59,10 @@ class Survey(models.Model):
 class Question(models.Model):
     QUESTION_TYPES = (
         ('multiple_choice', 'Multiple Choice'),
+        ('checkbox', 'Checkbox'),
         ('likert_scale', 'Likert Scale'),
         ('short_answer', 'Short Answer'),
         ('long_answer', 'Long Answer'),
-        ('text', 'Short Text'),
-        ('textarea', 'Long Text'),
-        ('mcq', 'Multiple Choice (Single)'),
-        ('checkbox', 'Multiple Choice (Multiple)'),
-        ('likert', 'Likert Scale'),
-        ('rating', 'Rating'),
-        ('dropdown', 'Dropdown'),
-        ('date', 'Date'),
-        ('email', 'Email'),
-        ('matching', 'Matching'),
     )
 
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name='questions')

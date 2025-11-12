@@ -6,12 +6,25 @@
     --success-color: #198754;
     --danger-color: #dc3545;
     --warning-color: #ffc107;
+    
+    /* Brand colors */
+    --black: #000000;
+    --green-700: #007B3B;
+    --deep-forest: #1F3C35;
+    --sage: #597868;
+    --sage-500: #7D998A;
+    --zinc-300: #D9D9D9;
+    --stone-200: #EAE9E4;
+    --white: #FFFFFF;
+    --brand: #2F5E53;
 }
 
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--zinc-300) 0%, var(--sage) 100%);
 }
 
 main {

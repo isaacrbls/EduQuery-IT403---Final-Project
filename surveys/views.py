@@ -23,6 +23,9 @@ def create_survey(request):
         messages.error(request, 'Access denied. Teachers only.')
         return redirect('accounts:index')
     
+    survey = None
+    questions = []
+    
     if request.method == 'POST':
         form = SurveyForm(request.POST, user=request.user)
         if form.is_valid():
@@ -31,13 +34,16 @@ def create_survey(request):
             survey.save()
             form.save_m2m()
             
-            messages.success(request, f'Survey "{survey.title}" created successfully!')
-            return redirect('surveys:edit_survey', survey_id=survey.id)
+            messages.success(request, f'Survey "{survey.title}" created successfully! Now add questions below.')
+            questions = survey.questions.filter(is_active=True).order_by('order')
     else:
         form = SurveyForm(user=request.user)
     
     context = {
         'form': form,
+        'survey': survey,
+        'questions': questions,
+        'question_form': QuestionForm() if survey else None,
         'action': 'Create'
     }
     return render(request, 'surveys/create_survey.html', context)
