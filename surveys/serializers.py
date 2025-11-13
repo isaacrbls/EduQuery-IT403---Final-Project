@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Survey, Question, QuestionOption, LikertScale, MatchingPair
+from .models import Survey, Question, QuestionOption, LikertScale
 
 
 class QuestionOptionSerializer(serializers.ModelSerializer):
@@ -14,21 +14,14 @@ class LikertScaleSerializer(serializers.ModelSerializer):
         fields = ['id', 'min_value', 'max_value', 'min_label', 'max_label']
 
 
-class MatchingPairSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MatchingPair
-        fields = ['id', 'left_item', 'right_item', 'order']
-
-
 class QuestionSerializer(serializers.ModelSerializer):
     options = QuestionOptionSerializer(many=True, read_only=True)
     likert_scale = LikertScaleSerializer(read_only=True)
-    matching_pairs = MatchingPairSerializer(many=True, read_only=True)
 
     class Meta:
         model = Question
         fields = ['id', 'question_text', 'question_type', 'required',
-                  'order', 'help_text', 'placeholder', 'options', 'likert_scale', 'matching_pairs']
+                  'order', 'help_text', 'placeholder', 'options', 'likert_scale']
 
 
 class SurveyListSerializer(serializers.ModelSerializer):

@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}?v=3">
-<link rel="stylesheet" href="{% static 'css/surveys/create_survey.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/surveys/create_survey.css' %}?v=8">
 {% endblock %}
 
 {% block content %}
@@ -375,6 +375,7 @@
     </div>
 </div>
 
+<script src="{% static 'js/modal.js' %}"></script>
 <script>
 // Section Dropdown Toggle
 document.addEventListener('DOMContentLoaded', function() {
@@ -428,6 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {% if survey %}
+<script src="{% static 'js/modal.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const addQuestionBtn = document.getElementById('addQuestionBtn');
@@ -444,6 +446,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const isRequiredField = document.getElementById('id_is_required');
     const multipleChoiceDiv = document.getElementById('multipleChoiceOptions');
     const likertDiv = document.getElementById('likertSettings');
+    const matchingDiv = document.getElementById('matchingSettings');
     const optionsContainer = document.getElementById('optionsContainer');
     const addOptionBtn = document.getElementById('addOption');
     const optionsField = document.getElementById('id_options');
@@ -674,14 +677,37 @@ document.addEventListener('DOMContentLoaded', function() {
         const isRequired = isRequiredField.checked;
         
         if (!questionText) {
-            alert('Question text is required');
+
+        
+            Modal.alert({
+
+        
+                title: 'Validation Error',
+
+        
+                message: 'Question text is required',
+
+        
+                type: 'warning'
+
+        
+            });
             return;
         }
         
         if (['multiple_choice', 'mcq', 'checkbox', 'dropdown'].includes(questionType)) {
             const options = JSON.parse(optionsField.value || '[]');
             if (options.length < 2) {
-                alert('Multiple choice questions must have at least 2 options');
+
+                Modal.alert({
+
+                    title: 'Validation Error',
+
+                    message: 'Multiple choice questions must have at least 2 options',
+
+                    type: 'warning'
+
+                });
                 return;
             }
         }
@@ -761,7 +787,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     saveAllBtn.addEventListener('click', function() {
         if (temporaryQuestions.length === 0) {
-            alert('No questions to save');
+
+            Modal.alert({
+
+                title: 'Validation Error',
+
+                message: 'No questions to save',
+
+                type: 'warning'
+
+            });
             return;
         }
         
@@ -779,14 +814,43 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
-                location.reload();
+
+                Modal.alert({
+
+                    title: 'Success',
+
+                    message: data.message,
+
+                    type: 'success',
+
+                    onClose: () => location.reload()
+
+                });
             } else {
-                alert('Error: ' + data.message);
+
+                Modal.alert({
+
+                    title: 'Error',
+
+                    message: data.message,
+
+                    type: 'danger'
+
+                });
+
             }
         })
         .catch(error => {
-            alert('Error saving questions: ' + error);
+
+            Modal.alert({
+
+                title: 'Error',
+
+                message: 'Error saving questions: ' + error,
+
+                type: 'danger'
+
+            });
         });
     });
     
@@ -810,7 +874,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     location.reload();
                 } else {
-                    alert('Error: ' + data.message);
+
+                    Modal.alert({
+
+                        title: 'Error',
+
+                        message: data.message,
+
+                        type: 'danger'
+
+                    });
+
                 }
             });
         });

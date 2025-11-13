@@ -595,7 +595,11 @@ function saveDraft() {
 
     // Here you would send the data to your backend
     // For now, we'll just show a success message
-    alert('Survey saved as draft successfully!');
+    Modal.alert({
+        title: 'Success',
+        message: 'Survey saved as draft successfully!',
+        type: 'success'
+    });
 
     // Optionally store in localStorage
     localStorage.setItem('surveyDraft', JSON.stringify(surveyData));

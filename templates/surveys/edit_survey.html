@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}?v=3">
-<link rel="stylesheet" href="{% static 'css/surveys/create_survey.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/surveys/create_survey.css' %}?v=8">
 {% endblock %}
 
 {% block content %}
@@ -401,6 +401,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/modal.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Section Dropdown Toggle
@@ -468,6 +469,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const isRequiredField = document.getElementById('id_is_required');
     const multipleChoiceDiv = document.getElementById('multipleChoiceOptions');
     const likertDiv = document.getElementById('likertSettings');
+    const matchingDiv = document.getElementById('matchingSettings');
     const optionsContainer = document.getElementById('optionsContainer');
     const addOptionBtn = document.getElementById('addOption');
     const optionsField = document.getElementById('id_options');
@@ -698,14 +700,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const isRequired = isRequiredField.checked;
         
         if (!questionText) {
-            alert('Question text is required');
+            Modal.alert({
+                title: 'Validation Error',
+                message: 'Question text is required',
+                type: 'warning'
+            });
             return;
         }
         
         if (['multiple_choice', 'mcq', 'checkbox', 'dropdown'].includes(questionType)) {
             const options = JSON.parse(optionsField.value || '[]');
             if (options.length < 2) {
-                alert('Multiple choice questions must have at least 2 options');
+                Modal.alert({
+                    title: 'Validation Error',
+                    message: 'Multiple choice questions must have at least 2 options',
+                    type: 'warning'
+                });
                 return;
             }
         }
@@ -785,7 +795,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     saveAllBtn.addEventListener('click', function() {
         if (temporaryQuestions.length === 0) {
-            alert('No questions to save');
+            Modal.alert({
+                title: 'Validation Error',
+                message: 'No questions to save',
+                type: 'warning'
+            });
             return;
         }
         
@@ -803,17 +817,30 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
+                let message = data.message;
                 if (data.version_incremented) {
-                    alert(`Survey version incremented to ${data.new_version}`);
+                    message += `\n\nSurvey version incremented to ${data.new_version}`;
                 }
-                location.reload();
+                Modal.alert({
+                    title: 'Success',
+                    message: message,
+                    type: 'success',
+                    onClose: () => location.reload()
+                });
             } else {
-                alert('Error: ' + data.message);
+                Modal.alert({
+                    title: 'Error',
+                    message: data.message,
+                    type: 'danger'
+                });
             }
         })
         .catch(error => {
-            alert('Error saving questions: ' + error);
+            Modal.alert({
+                title: 'Error',
+                message: 'Error saving questions: ' + error,
+                type: 'danger'
+            });
         });
     });
     
@@ -866,8 +893,12 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (!data.success) {
-                alert('Error updating order: ' + data.message);
-                location.reload();
+                Modal.alert({
+                    title: 'Error',
+                    message: 'Error updating order: ' + data.message,
+                    type: 'danger',
+                    onClose: () => location.reload()
+                });
             }
         });
     }
@@ -875,24 +906,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Delete question
     document.querySelectorAll('.delete-question-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            if (!confirm('Are you sure you want to deactivate this question?')) {
-                return;
-            }
-            
             const questionId = this.dataset.questionId;
-            fetch(`/surveys/question/${questionId}/delete/`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.message);
+            
+            Modal.show({
+                title: 'Confirm Deactivation',
+                message: 'Are you sure you want to deactivate this question?',
+                type: 'warning',
+                confirmText: 'Deactivate',
+                cancelText: 'Cancel',
+                confirmDanger: true,
+                onConfirm: () => {
+                    fetch(`/surveys/question/${questionId}/delete/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            Modal.alert({
+                                title: 'Error',
+                                message: data.message,
+                                type: 'danger'
+                            });
+                        }
+                    });
                 }
             });
         });

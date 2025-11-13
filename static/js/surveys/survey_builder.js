@@ -310,20 +310,34 @@ function saveSurvey() {
         contentType: 'application/json',
         data: JSON.stringify(surveyData),
         success: function(response) {
-            alert('Survey saved successfully!');
-            if (!surveyId) {
-                window.location.href = `/surveys/builder/${response.id}/`;
-            }
+            Modal.alert({
+                title: 'Success',
+                message: 'Survey saved successfully!',
+                type: 'success',
+                onClose: () => {
+                    if (!surveyId) {
+                        window.location.href = `/surveys/builder/${response.id}/`;
+                    }
+                }
+            });
         },
         error: function(error) {
-            alert('Error saving survey: ' + error.responseText);
+            Modal.alert({
+                title: 'Error',
+                message: 'Error saving survey: ' + error.responseText,
+                type: 'danger'
+            });
         }
     });
 }
 
 function publishSurvey() {
     if (!surveyId) {
-        alert('Please save the survey first');
+        Modal.alert({
+            title: 'Validation Error',
+            message: 'Please save the survey first',
+            type: 'warning'
+        });
         return;
     }
     
@@ -332,10 +346,18 @@ function publishSurvey() {
         method: 'POST',
         headers: {'X-CSRFToken': csrfToken},
         success: function() {
-            alert('Survey published successfully!');
+            Modal.alert({
+                title: 'Success',
+                message: 'Survey published successfully!',
+                type: 'success'
+            });
         },
         error: function(error) {
-            alert('Error publishing survey: ' + error.responseText);
+            Modal.alert({
+                title: 'Error',
+                message: 'Error publishing survey: ' + error.responseText,
+                type: 'danger'
+            });
         }
     });
 }
@@ -344,7 +366,11 @@ function previewSurvey() {
     if (surveyId) {
         window.open(`/surveys/preview/${surveyId}/`, '_blank');
     } else {
-        alert('Please save the survey first');
+        Modal.alert({
+            title: 'Validation Error',
+            message: 'Please save the survey first',
+            type: 'warning'
+        });
     }
 }
 

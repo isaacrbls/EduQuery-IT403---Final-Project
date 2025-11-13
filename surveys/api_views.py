@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from .models import Survey, Question, QuestionOption, LikertScale, MatchingPair
+from .models import Survey, Question, QuestionOption, LikertScale
 from .serializers import (
     SurveyListSerializer,
     SurveyDetailSerializer,
@@ -148,16 +148,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 max_label=likert_data.get('max_label', 'Strongly Agree')
             )
         
-        elif question.question_type == 'matching':
-            pairs = request.data.get('matching_pairs', [])
-            for idx, pair in enumerate(pairs):
-                MatchingPair.objects.create(
-                    question=question,
-                    left_item=pair.get('left_item'),
-                    right_item=pair.get('right_item'),
-                    order=idx
-                )
-        
         serializer = self.get_serializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
@@ -192,16 +182,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
             likert.max_label = likert_data.get('max_label', likert.max_label)
             likert.save()
         
-        elif question.question_type == 'matching':
-            question.matching_pairs.all().delete()
-            pairs = request.data.get('matching_pairs', [])
-            for idx, pair in enumerate(pairs):
-                MatchingPair.objects.create(
-                    question=question,
-                    left_item=pair.get('left_item'),
-                    right_item=pair.get('right_item'),
-                    order=idx
-                )
         
         serializer = self.get_serializer(question)
         return Response(serializer.data)

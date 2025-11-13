@@ -113,16 +113,4 @@ class LikertScale(models.Model):
         return f"{self.question.question_text[:30]} ({self.min_value}-{self.max_value})"
 
 
-class MatchingPair(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='matching_pairs')
-    left_item = models.CharField(max_length=255)
-    right_item = models.CharField(max_length=255)
-    order = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ['question', 'order']
-
-    def __str__(self):
-        return f"{self.left_item} - {self.right_item}"
-
 

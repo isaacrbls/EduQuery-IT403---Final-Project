@@ -10,7 +10,7 @@ from django.db import transaction
 import json
 from datetime import datetime
 
-from .models import Survey, Question, QuestionOption, LikertScale, MatchingPair
+from .models import Survey, Question, QuestionOption, LikertScale
 from .forms import SurveyForm, QuestionForm
 from responses.models import Response, Answer
 from analytics.models import ActivityLog

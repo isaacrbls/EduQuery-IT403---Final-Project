@@ -1,129 +1,361 @@
-## Django Backend Setup
+# EduQuery Setup Guide (Windows)
 
+Complete guide for setting up and running the EduQuery application on Windows.
 
-### Step 1: Activate Virtual Environment
+---
 
-**The virtual environment is already created as `.venv`**
+## Prerequisites
 
+Before starting, make sure you have:
+- Python 3.8 or higher installed
+- Git installed (optional, if cloning from repository)
 
-**On Windows (Command Prompt):**
+---
+
+## Step 1: Activate Virtual Environment
+
+The virtual environment is already created as `venv` or `.venv`.
+
+### On Windows (Command Prompt):
+```cmd
+venv\Scripts\activate
+```
+
+### On Windows (PowerShell):
+```powershell
+venv\Scripts\Activate.ps1
+```
+
+**OR if using `.venv`:**
+
+### Command Prompt:
 ```cmd
 .venv\Scripts\activate
 ```
 
-**On Windows (PowerShell):**
+### PowerShell:
 ```powershell
 .venv\Scripts\Activate.ps1
 ```
 
-**You should see `(.venv)` at the start of your terminal prompt**
+**You should see `(venv)` or `(.venv)` at the start of your command prompt.**
 
 ---
 
-### Step 3: Install Python Dependencies (If Needed)
+## Step 2: Install Dependencies
 
-```bash
-# Make sure virtual environment is activated (.venv)
+With the virtual environment activated, install all required packages:
+
+```cmd
 pip install -r requirements.txt
 ```
 
-**If you see errors, try:**
-```bash
-pip install --upgrade pip
+**If you encounter errors:**
+```cmd
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-**Note:** Dependencies are likely already installed. Skip this if the next steps work.
+**Installed packages include:**
+- Django 5.2.7
+- Django REST Framework
+- Pillow (for image handling)
+- Django CORS Headers
+- Django Tailwind
 
 ---
 
-### Step 4: Set Up Database (If Not Already Done)
+## Step 3: Complete Database Setup
 
-**Check if database exists:**
-```bash
-ls db.sqlite3
-```
+**This single script does EVERYTHING:**
+- Creates database tables (runs migrations)
+- Creates admin user
+- Creates 2 teachers and 10 students
+- Creates 2 sections with enrolled students
+- Creates 3 sample surveys with various question types
+- Generates activity logs
 
-If the file doesn't exist, run:
-```bash
-# Apply migrations
-python manage.py migrate
-
-# Create sample data
+**Simply run:**
+```cmd
 python setup_db.py
 ```
 
+**Expected output:**
+```
+==============================================================
+               EDUQUERY DATABASE SETUP
+==============================================================
+
+STEP 1: Running Database Migrations
+✓ All migrations applied successfully
+
+STEP 2: Creating Users
+✓ Created superuser: admin / admin123
+✓ Created teacher: teacher1 / teacher123
+✓ Created teacher: teacher2 / teacher123
+✓ Created student: student1 / student123
+... (more students)
+
+STEP 3: Creating Sections
+✓ Created section: IT 403 (IT403-A)
+✓ Created section: IT 301 (IT301-B)
+
+STEP 4: Creating Sample Surveys
+✓ Created survey: 'Student Satisfaction Survey'
+✓ Created survey: 'Course Feedback - IT 403'
+✓ Created survey: 'Quick Poll - Learning Preferences'
+
+==============================================================
+                   SETUP COMPLETE!
+==============================================================
+```
+
+**That's it! Your database is fully set up with:**
+- ✅ Database tables created
+- ✅ 1 Admin account
+- ✅ 2 Teacher accounts
+- ✅ 10 Student accounts
+- ✅ 2 Sections with enrolled students
+- ✅ 3 Sample surveys with questions
+- ✅ Activity logs
+
 ---
 
-### Step 5: Verify Django Setup
+## Step 4: Verify Setup (Optional)
 
-```bash
-# Run verification script
+To verify everything is set up correctly:
+
+```cmd
 python verify_setup.py
 ```
 
-You should see:
-- ✓ Users: 13
-- ✓ Sections: 2
-- ✓ Surveys: 1
-- ✓ All checks passed
+**You should see:**
+```
+📊 USERS:
+   Total: 13
+   ├─ Admins: 1
+   ├─ Teachers: 2
+   └─ Students: 10
+
+📚 SECTIONS:
+   Total: 2
+   ├─ IT403-A: 5 students
+   ├─ IT301-B: 5 students
+
+📋 SURVEYS:
+   Total: 3
+   ├─ "Student Satisfaction Survey"
+   ├─ "Course Feedback - IT 403"
+   └─ "Quick Poll - Learning Preferences"
+
+✅ ALL CHECKS PASSED - DATABASE IS READY!
+```
 
 ---
 
-### Step 6: Start Django Development Server
+## Step 5: Start the Development Server
 
-```bash
-# Activate virtual environment
-source .venv/bin/activate
-
-# Run the development server
+```cmd
 python manage.py runserver
 ```
 
-You should see:
+**You should see:**
 ```
 Starting development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
 ```
 
-**The server is now running!** 
+**The server is now running!** Keep this terminal window open.
 
 ---
 
-## Access the Application
+## Step 6: Access the Application
 
-### Main Application (Django Templates):
-**URL:** http://127.0.0.1:8000/
+### Main Application URLs:
 
-This is your main application where users will interact.
+| Page | URL |
+|------|-----|
+| **Landing Page** | http://127.0.0.1:8000/ |
+| **Login** | http://127.0.0.1:8000/login/ |
+| **Signup** | http://127.0.0.1:8000/signup/ |
+| **Student Dashboard** | http://127.0.0.1:8000/student/dashboard/ |
+| **Teacher Dashboard** | http://127.0.0.1:8000/teacher/dashboard/ |
+| **Profile** | http://127.0.0.1:8000/profile/ |
 
-**Key URLs:**
-- Landing Page: http://127.0.0.1:8000/
-- Login: http://127.0.0.1:8000/login/
-- Signup: http://127.0.0.1:8000/signup/
-- Student Dashboard: http://127.0.0.1:8000/student/dashboard/
-- Survey List: http://127.0.0.1:8000/surveys/
-- Profile: http://127.0.0.1:8000/profile/
+### Admin Panel:
+| Page | URL |
+|------|-----|
+| **Django Admin** | http://127.0.0.1:8000/admin/ |
 
+Use this to manage database records directly (users, surveys, questions, etc.)
 
-Use this to manage data directly.
-
-### Django API:
-**URL:** http://127.0.0.1:8000/api/
-
-API endpoints for programmatic access.
-
+### API Endpoints:
+| Endpoint | URL |
+|----------|-----|
+| **API Root** | http://127.0.0.1:8000/api/ |
+| **Surveys API** | http://127.0.0.1:8000/api/surveys/ |
+| **Accounts API** | http://127.0.0.1:8000/api/accounts/ |
 
 ---
 
 ## Login Credentials
 
+All accounts use simple passwords for development:
+
 | Role | Username | Password | Description |
 |------|----------|----------|-------------|
-| Admin | admin | admin123 | Full access to everything |
-| Teacher | teacher1 | teacher123 | Can create surveys |
-| Teacher | teacher2 | teacher123 | Can create surveys |
-| Student | student1 | student123 | Can take surveys |
-| Student | student2 | student123 | Can take surveys |
-| ... | student3-10 | student123 | More test accounts |
+| **Admin** | admin | admin123 | Full system access |
+| **Teacher** | teacher1 | teacher123 | Can create/manage surveys |
+| **Teacher** | teacher2 | teacher123 | Can create/manage surveys |
+| **Student** | student1 | student123 | Can take surveys |
+| **Student** | student2 | student123 | Can take surveys |
+| **Student** | student3 | student123 | Can take surveys |
+| ... | ... | student123 | (students 4-10) |
+
+**All student IDs follow the format:** `2024-0001`, `2024-0002`, etc.
 
 ---
+
+## Sample Data Included
+
+### Users:
+- **1 Admin** - Full system access
+- **2 Teachers** - Can create and manage surveys
+- **10 Students** - Can take surveys and view results
+
+### Sections:
+1. **IT 403 (IT403-A)** - Information Systems
+   - Teacher: teacher1
+   - Students: student1 through student5
+
+2. **IT 301 (IT301-B)** - Database Systems
+   - Teacher: teacher2
+   - Students: student6 through student10
+
+### Surveys:
+
+1. **Student Satisfaction Survey** (Published & Active)
+   - Questions: 5
+   - Types: Short answer, multiple choice, Likert scale, checkbox, long answer
+   - Assigned to: IT403-A
+   - Anonymous: No
+
+2. **Course Feedback - IT 403** (Published & Active)
+   - Questions: 5
+   - Types: Likert scales, multiple choice, checkbox, long answer
+   - Assigned to: IT403-A
+   - Anonymous: Yes
+
+3. **Quick Poll - Learning Preferences** (Draft)
+   - Questions: 3
+   - Types: Multiple choice, checkbox, Likert scale
+   - Assigned to: Both sections
+   - Anonymous: Yes
+   - Status: Not yet active
+
+---
+
+## Troubleshooting
+
+### Issue: Virtual environment won't activate
+**Solution:**
+- Make sure you're in the project directory
+- Try using full path: `C:\path\to\project\venv\Scripts\activate`
+- On PowerShell, you may need to run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
+
+### Issue: "pip" command not found
+**Solution:**
+```cmd
+python -m pip install -r requirements.txt
+```
+
+### Issue: Database errors or missing tables
+**Solution:**
+1. Delete `db.sqlite3` if it exists
+2. Run `python setup_db.py` again
+
+### Issue: Port 8000 already in use
+**Solution:**
+```cmd
+python manage.py runserver 8001
+```
+(Use a different port number)
+
+### Issue: Import errors
+**Solution:**
+Make sure virtual environment is activated (you should see `(venv)` in prompt)
+
+---
+
+## Common Commands
+
+### Activate virtual environment:
+```cmd
+venv\Scripts\activate
+```
+
+### Start server:
+```cmd
+python manage.py runserver
+```
+
+### Create new admin user:
+```cmd
+python manage.py createsuperuser
+```
+
+### Check for issues:
+```cmd
+python manage.py check
+```
+
+### View all URLs:
+```cmd
+python manage.py show_urls
+```
+
+### Reset database (if needed):
+```cmd
+del db.sqlite3
+python setup_db.py
+```
+
+---
+
+## What's Next?
+
+1. **Explore the Admin Panel:**
+   - Go to http://127.0.0.1:8000/admin/
+   - Login as: admin / admin123
+   - Browse users, surveys, questions, responses
+
+2. **Test as Teacher:**
+   - Login as: teacher1 / teacher123
+   - Access teacher dashboard
+   - Create new surveys
+   - View responses
+
+3. **Test as Student:**
+   - Login as: student1 / student123
+   - View assigned surveys
+   - Take surveys
+   - View your responses
+
+4. **Develop Features:**
+   - All code is in the project folders
+   - Templates in: `templates/`
+   - Static files in: `static/`
+   - Django apps in: `accounts/`, `surveys/`, `responses/`, `analytics/`
+
+---
+
+## Need Help?
+
+- Check `verify_setup.py` output for database status
+- Review Django error messages in terminal
+- Check browser console for JavaScript errors
+- Ensure virtual environment is activated before running commands
+
+---
+
+**Happy Coding! 🎉**
