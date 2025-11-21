@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{%static 'css/accounts/TCHistoryDetails.css' %}">
-    <script defer src="{%static 'js/accounts/TCHistoryDetails.js' %}"></script>
+    <script defer src="{%static 'js/accounts/TCHistoryDetails.js' %}?v=3"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -27,8 +27,11 @@
                 <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
                     <span class="material-icons">list_alt</span>
                 </button>
-                <button class="sidebar-btn active" aria-label="Survey History" data-tooltip="Survey History" onclick="goToHistory()">
+                <button class="sidebar-btn active" aria-label="History" data-tooltip="History" onclick="goToHistory()">
                     <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
+                    <span class="material-icons">analytics</span>
                 </button>
                 <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                     <span class="material-icons">person</span>

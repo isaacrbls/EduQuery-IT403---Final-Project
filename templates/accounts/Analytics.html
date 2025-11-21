@@ -14,39 +14,39 @@
     <link rel="stylesheet" href="{% static 'css/accounts/Analytics.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{% static 'js/modal.js' %}"></script>
-    <script defer src="{% static 'js/accounts/Analytics.js' %}"></script>
+    <script defer src="{% static 'js/accounts/Analytics.js' %}?v=2"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Student' }}">
     <div class="dashboard-container">
         <div class="sidebar">
             <nav class="sidebar-nav" role="navigation">
-                <a href="{% url 'accounts:student_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                     <span class="material-icons">home</span>
-                </a>
+                </button>
                 <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
                 </button>
                 <button class="sidebar-btn" aria-label="Survey History" data-tooltip="Survey History">
                     <span class="material-icons">history</span>
                 </button>
-                <a href="{% url 'accounts:analytics' %}" class="sidebar-btn active" aria-label="Analytics" data-tooltip="Analytics">
+                <button class="sidebar-btn active" aria-label="Analytics" data-tooltip="Analytics">
                     <span class="material-icons">analytics</span>
-                </a>
-                <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                </button>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                     <span class="material-icons">person</span>
-                </a>
-                <a href="{% url 'accounts:settings' %}" class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
                     <span class="material-icons">settings</span>
-                </a>
+                </button>
             </nav>
 
             <div class="sidebar-spacer"></div>
 
             <div class="sidebar-user">
-                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </a>
+                </button>
             </div>
         </div>
 

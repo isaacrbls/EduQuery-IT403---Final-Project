@@ -432,9 +432,7 @@ def student_history(request):
     # Add answer count to each response
     for response in completed_responses:
         response.answer_count = response.answers.count()
-        response.completion_time = (
-            response.submitted_at - response.started_at
-        ) if response.submitted_at and response.started_at else None
+        # Note: completion_time is already a property on the Response model
     
     context = {
         'responses': completed_responses,

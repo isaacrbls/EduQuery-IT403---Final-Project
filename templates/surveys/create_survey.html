@@ -16,18 +16,21 @@
     <div class="sidebar">
         <!-- Navigation Section -->
         <nav class="sidebar-nav" role="navigation">
-            <a href="{% url 'accounts:teacher_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+            <button class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                 <span class="material-icons">home</span>
-            </a>
+            </button>
             <button class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
                 <span class="material-icons">list_alt</span>
             </button>
             <button class="sidebar-btn" aria-label="History" data-tooltip="History">
                 <span class="material-icons">history</span>
             </button>
-            <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+            <button class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
+                <span class="material-icons">analytics</span>
+            </button>
+            <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                 <span class="material-icons">person</span>
-            </a>
+            </button>
             <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
                 <span class="material-icons">settings</span>
             </button>
@@ -38,9 +41,9 @@
 
         <!-- User Section -->
         <div class="sidebar-user">
-            <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+            <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                 <span class="material-icons">logout</span>
-            </a>
+            </button>
         </div>
     </div>
 
@@ -377,8 +380,60 @@
 
 <script src="{% static 'js/modal.js' %}"></script>
 <script>
+// Navigation functions
+function goToHome() {
+    window.location.href = '/teacher/dashboard/';
+}
+
+function goToSurveyList() {
+    window.location.href = '/surveys/builder/';
+}
+
+function goToHistory() {
+    window.location.href = '/surveys/history/';
+}
+
+function goToAnalytics() {
+    window.location.href = '/analytics/';
+}
+
+function goToProfile() {
+    window.location.href = '/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/settings/';
+}
+
+function handleLogout() {
+    window.location.href = '/logout/';
+}
+
 // Section Dropdown Toggle
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize sidebar navigation
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'History') {
+                goToHistory();
+            } else if (label === 'Analytics') {
+                goToAnalytics();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
+        });
+    });
+    
     const dropdownToggle = document.getElementById('sectionDropdownToggle');
     const dropdownContainer = document.getElementById('sectionCheckboxContainer');
     const dropdownLabel = document.getElementById('sectionDropdownLabel');

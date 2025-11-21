@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/History.css' %}">
     <script src="{% static 'js/modal.js' %}"></script>
-    <script defer src="{% static 'js/accounts/History.js' %}"></script>
+    <script defer src="{% static 'js/accounts/History.js' %}?v=2"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Khy' }}">
@@ -115,7 +115,7 @@
                                     COMPLETED
                                 </div>
                                 <div class="action-buttons">
-                                    <a href="{% url 'surveys:survey_detail' response.id %}" class="action-btn view-details">
+                                    <a href="{% url 'accounts:student_history_details' response.id %}" class="action-btn view-details">
                                         <span class="material-icons">visibility</span>
                                         View Details
                                     </a>
@@ -126,7 +126,7 @@
                         <div class="empty-state">
                             <span class="material-icons">assignment</span>
                             <p>No completed surveys yet</p>
-                            <a href="{% url 'surveys:survey_list' %}" class="primary-btn">
+                            <a href="{% url 'accounts:student_survey_list' %}" class="primary-btn">
                                 <span class="material-icons">list_alt</span>
                                 Browse Surveys
                             </a>

@@ -36,6 +36,13 @@ class Response(models.Model):
         if self.submitted_at and self.started_at:
             return self.submitted_at - self.started_at
         return None
+    
+    @property
+    def completion_time_minutes(self):
+        """Return completion time in minutes as an integer"""
+        if self.completion_time:
+            return int(self.completion_time.total_seconds() / 60)
+        return None
 
 
 class Answer(models.Model):

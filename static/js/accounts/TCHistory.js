@@ -5,7 +5,7 @@
 
 // Navigation functions
 function goToHome() {
-    window.location.href = '/accounts/teacher/dashboard/';
+    window.location.href = '/teacher/dashboard/';
 }
 
 function goToSurveyList() {
@@ -13,19 +13,19 @@ function goToSurveyList() {
 }
 
 function goToHistory() {
-    window.location.href = '/accounts/teacher/dashboard/';
+    window.location.href = '/surveys/history/';
 }
 
 function goToAnalytics() {
-    window.location.href = '/accounts/teacher/dashboard/';
+    window.location.href = '/analytics/';
 }
 
 function goToProfile() {
-    window.location.href = '/accounts/profile/';
+    window.location.href = '/profile/';
 }
 
 function goToSettings() {
-    window.location.href = '/accounts/settings/';
+    window.location.href = '/settings/';
 }
 
 function handleLogout() {

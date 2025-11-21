@@ -5,7 +5,7 @@
 
 // Navigation functions
 function goToHome() {
-    window.location.href = '/accounts/teacher/dashboard/';
+    window.location.href = '/teacher/dashboard/';
 }
 
 function goToSurveyList() {
@@ -13,25 +13,23 @@ function goToSurveyList() {
 }
 
 function goToHistory() {
-    // Teachers view responses through survey builder
-    window.location.href = '/surveys/builder/';
+    window.location.href = '/surveys/history/';
 }
 
 function goToAnalytics() {
-    // Analytics for teachers (if different page needed)
-    window.location.href = '/accounts/teacher/dashboard/';
+    window.location.href = '/analytics/';
 }
 
 function goToProfile() {
-    window.location.href = '/accounts/profile/';
+    window.location.href = '/profile/';
 }
 
 function goToSettings() {
-    window.location.href = '/accounts/settings/';
+    window.location.href = '/settings/';
 }
 
 function handleLogout() {
-    window.location.href = '/accounts/logout/';
+    window.location.href = '/logout/';
 }
 
 // Main dashboard functionality

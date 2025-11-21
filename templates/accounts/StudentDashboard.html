@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}?v=3">
     <script src="{% static 'js/modal.js' %}"></script>
-    <script defer src="{% static 'js/accounts/StudentDashboard.js' %}"></script>
+    <script defer src="{% static 'js/accounts/StudentDashboard.js' %}?v=2"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Khy' }}">
@@ -150,7 +150,7 @@
                                     <span class="material-icons section-icon">assignment</span>
                                     <h2>Recent Surveys</h2>
                                 </div>
-                                <a href="{% url 'surveys:survey_list' %}" class="view-all-btn">
+                                <a href="{% url 'accounts:student_survey_list' %}" class="view-all-btn">
                                     View All
                                     <span class="material-icons">arrow_forward</span>
                                 </a>

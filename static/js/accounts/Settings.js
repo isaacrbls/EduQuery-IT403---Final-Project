@@ -1,27 +1,27 @@
 'use strict';
 
 function goToHome() {
-    window.location.href = '/accounts/student/dashboard/';
+    window.location.href = '/student/dashboard/';
 }
 
 function goToSurveyList() {
-    window.location.href = '/accounts/student/surveys/';
+    window.location.href = '/student/surveys/';
 }
 
 function goToHistory() {
-    window.location.href = '/accounts/student/history/';
+    window.location.href = '/student/history/';
 }
 
 function goToAnalytics() {
-    window.location.href = '/accounts/student/analytics/';
+    window.location.href = '/student/analytics/';
 }
 
 function goToProfile() {
-    window.location.href = '/accounts/profile/';
+    window.location.href = '/profile/';
 }
 
 function goToSettings() {
-    window.location.href = '/accounts/settings/';
+    window.location.href = '/settings/';
 }
 
 function handleLogout() {

@@ -3,15 +3,15 @@ function goToHome() {
 }
 
 function goToSurveyList() {
-    window.location.href = '/accounts/student/surveys/';
+    window.location.href = '/student/surveys/';
 }
 
 function goToHistory() {
-    window.location.href = '/surveys/history/';
+    window.location.href = '/student/history/';
 }
 
 function goToAnalytics() {
-    window.location.href = '/analytics/';
+    window.location.href = '/student/analytics/';
 }
 
 function goToProfile() {
@@ -122,7 +122,7 @@ function initializeSidebarNavigation() {
                 goToHome();
             } else if (label === 'Survey List') {
                 goToSurveyList();
-            } else if (label === 'Survey History') {
+            } else if (label === 'Survey History' || label === 'History') {
                 goToHistory();
             } else if (label === 'Analytics') {
                 goToAnalytics();

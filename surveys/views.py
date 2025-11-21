@@ -672,38 +672,57 @@ def save_survey_progress(request, survey_id):
 
 @login_required
 def response_history(request):
-    if not request.user.is_student:
-        messages.error(request, 'Access denied. Students only.')
-        return redirect('accounts:index')
-
     user = request.user
+    
+    # For students: show their response history
+    if user.is_student:
+        responses = Response.objects.filter(
+            respondent=user,
+            status='submitted'
+        ).select_related('survey', 'survey__creator').annotate(
+            answer_count=Count('answers')
+        ).order_by('-submitted_at')
 
-    responses = Response.objects.filter(
-        respondent=user,
-        status='submitted'
-    ).select_related('survey', 'survey__creator').annotate(
-        answer_count=Count('answers')
-    ).order_by('-submitted_at')
+        search_query = request.GET.get('search', '').strip()
+        if search_query:
+            responses = responses.filter(
+                Q(survey__title__icontains=search_query) |
+                Q(survey__description__icontains=search_query)
+            )
 
-    search_query = request.GET.get('search', '').strip()
-    if search_query:
-        responses = responses.filter(
-            Q(survey__title__icontains=search_query) |
-            Q(survey__description__icontains=search_query)
-        )
+        for response in responses:
+            if response.submitted_at and response.started_at:
+                delta = response.submitted_at - response.started_at
+                response.completion_time_minutes = int(delta.total_seconds() / 60)
 
-    for response in responses:
-        if response.submitted_at and response.started_at:
-            delta = response.submitted_at - response.started_at
-            response.completion_time_minutes = int(delta.total_seconds() / 60)
+        context = {
+            'responses': responses,
+            'total_responses': responses.count(),
+            'search_query': search_query,
+        }
 
-    context = {
-        'responses': responses,
-        'total_responses': responses.count(),
-        'search_query': search_query,
-    }
-
-    return render(request, 'accounts/History.html', context)
+        return render(request, 'accounts/History.html', context)
+    
+    # For teachers/admins: show their created surveys with response counts
+    else:
+        surveys = Survey.objects.filter(
+            creator=user
+        ).prefetch_related('responses', 'sections').order_by('-created_at')
+        
+        search_query = request.GET.get('search', '').strip()
+        if search_query:
+            surveys = surveys.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query)
+            )
+        
+        context = {
+            'surveys': surveys,
+            'total_surveys': surveys.count(),
+            'search_query': search_query,
+        }
+        
+        return render(request, 'accounts/TCHistory.html', context)
 
 
 @login_required

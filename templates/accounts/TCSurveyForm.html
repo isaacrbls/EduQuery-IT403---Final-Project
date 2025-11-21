@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{%static 'css/accounts/TCSurveyForm.css' %}">
     <script src="{% static 'js/modal.js' %}"></script>
-    <script defer src="{%static 'js/accounts/TCSurveyForm.js' %}"></script>
+    <script defer src="{%static 'js/accounts/TCSurveyForm.js' %}?v=3"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Teacher' }}">
@@ -31,6 +31,9 @@
                 </button>
                 <button class="sidebar-btn" aria-label="History" data-tooltip="History">
                     <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
+                    <span class="material-icons">analytics</span>
                 </button>
                 <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                     <span class="material-icons">person</span>

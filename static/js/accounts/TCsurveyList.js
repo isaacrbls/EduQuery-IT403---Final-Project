@@ -5,7 +5,7 @@
 
 // Navigation functions
 function goToHome() {
-    window.location.href = '/accounts/teacher/dashboard/';
+    window.location.href = '/teacher/dashboard/';
 }
 
 function goToSurveyList() {
@@ -13,23 +13,52 @@ function goToSurveyList() {
 }
 
 function goToHistory() {
-    window.location.href = '/accounts/teacher/dashboard/';
+    window.location.href = '/surveys/history/';
 }
 
 function goToAnalytics() {
-    window.location.href = '/accounts/teacher/dashboard/';
+    window.location.href = '/analytics/';
 }
 
 function goToProfile() {
-    window.location.href = '/accounts/profile/';
+    window.location.href = '/profile/';
 }
 
 function goToSettings() {
-    window.location.href = '/accounts/settings/';
+    window.location.href = '/settings/';
 }
 
 function handleLogout() {
     window.location.href = '/accounts/logout/';
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSidebarNavigation();
+});
+
+function initializeSidebarNavigation() {
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'History') {
+                goToHistory();
+            } else if (label === 'Analytics') {
+                goToAnalytics();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
+        });
+    });
 }
 
 // Global Variables
