@@ -3,6 +3,35 @@
  * Enhanced functionality for survey management and creation
  */
 
+// Navigation functions
+function goToHome() {
+    window.location.href = '/accounts/teacher/dashboard/';
+}
+
+function goToSurveyList() {
+    window.location.href = '/surveys/builder/';
+}
+
+function goToHistory() {
+    window.location.href = '/accounts/teacher/dashboard/';
+}
+
+function goToAnalytics() {
+    window.location.href = '/accounts/teacher/dashboard/';
+}
+
+function goToProfile() {
+    window.location.href = '/accounts/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/accounts/settings/';
+}
+
+function handleLogout() {
+    window.location.href = '/accounts/logout/';
+}
+
 // Global Variables
 let questionCounter = 1;
 let surveys = [];
@@ -522,6 +551,23 @@ function setupEventListeners() {
             if (!this.classList.contains('logout-btn')) {
                 sidebarBtns.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
+            }
+            
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'History' || label === 'Survey History') {
+                goToHistory();
+            } else if (label === 'Analytics') {
+                goToAnalytics();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
             }
         });
     });

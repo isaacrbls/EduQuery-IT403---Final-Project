@@ -21,4 +21,11 @@ urlpatterns = [
     # Dashboards
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+    
+    # Student survey list
+    path('student/surveys/', views.student_survey_list, name='student_survey_list'),
+    
+    # Student history
+    path('student/history/', views.student_history, name='student_history'),
+    path('student/history/<int:response_id>/', views.student_history_details, name='student_history_details'),
 ]

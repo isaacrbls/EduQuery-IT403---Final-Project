@@ -77,43 +77,26 @@
                     <span class="material-icons">assignment_turned_in</span>
                 </div>
                 <div class="survey-basic-info">
-                    <h3 class="survey-title" id="surveyTitle">IT403 Final Project Evaluation</h3>
+                    <h3 class="survey-title">{{ survey.title }}</h3>
                     <div class="survey-meta">
                         <span class="teacher-info">
                             <span class="material-icons">person</span>
-                            <span id="teacherName">Prof. Rodriguez</span>
+                            <span>{{ survey.creator.get_full_name|default:survey.creator.username }}</span>
                         </span>
                         <span class="completion-info">
                             <span class="material-icons">check_circle</span>
-                            <span id="completionDate">Completed: Nov 1, 2025</span>
+                            <span>Completed: {{ response.submitted_at|date:"M d, Y" }}</span>
                         </span>
                         <span class="status-info">
                             <span class="material-icons">task_alt</span>
-                            <span id="submissionStatus">Submitted at 2:30 PM</span>
+                            <span>Submitted at {{ response.submitted_at|date:"g:i A" }}</span>
                         </span>
-                    </div>
-                </div>
-            </div>
-            <div class="survey-percentage">
-                <div class="chart-with-legend">
-                    <div class="pie-chart" id="responseChart">
-                        <div class="chart-center">
-                            <span class="chart-percentage" id="headerPercentage">91%</span>
-                        </div>
-                    </div>
-                    <div class="chart-legend-mini">
-                        <div class="legend-mini-item">
-                            <div class="legend-mini-color excellent"></div>
-                            <span>Excellent (76%)</span>
-                        </div>
-                        <div class="legend-mini-item">
-                            <div class="legend-mini-color good"></div>
-                            <span>Good (18%)</span>
-                        </div>
-                        <div class="legend-mini-item">
-                            <div class="legend-mini-color average"></div>
-                            <span>Average (6%)</span>
-                        </div>
+                        {% if completion_time %}
+                        <span class="time-info">
+                            <span class="material-icons">schedule</span>
+                            <span>Time spent: {{ completion_time }}</span>
+                        </span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -122,29 +105,45 @@
         <!-- Survey Answers Section -->
         <div class="survey-answers">
             <div class="survey-answers-header">
-                <h4>Survey Responses</h4>
+                <h4>Survey Responses ({{ answers|length }} answer{{ answers|length|pluralize }})</h4>
             </div>
             <div class="answers-list">
+                {% for answer in answers %}
                 <div class="answer-item">
-                    <div class="question">How would you rate the overall course content?</div>
-                    <div class="answer excellent-text">Excellent - The course content was comprehensive and well-structured.</div>
+                    <div class="question">
+                        <strong>Q{{ forloop.counter }}:</strong> {{ answer.question.question_text }}
+                        {% if answer.question.is_required %}<span style="color: #ef4444;">*</span>{% endif %}
+                    </div>
+                    <div class="answer">
+                        {% if answer.question.question_type == 'short_answer' or answer.question.question_type == 'long_answer' %}
+                            {{ answer.text_answer|default:"No answer provided" }}
+                        {% elif answer.question.question_type == 'multiple_choice' %}
+                            {{ answer.selected_option.option_text|default:"No answer selected" }}
+                        {% elif answer.question.question_type == 'checkbox' %}
+                            {% if answer.selected_options.all %}
+                                {% for option in answer.selected_options.all %}
+                                    {{ option.option_text }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                No options selected
+                            {% endif %}
+                        {% elif answer.question.question_type == 'likert_scale' %}
+                            {% if answer.number_answer %}
+                                Rating: {{ answer.number_answer }}/{{ answer.question.likert_max }}
+                            {% else %}
+                                No rating provided
+                            {% endif %}
+                        {% else %}
+                            {{ answer.get_answer_display|default:"No answer provided" }}
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="answer-item">
-                    <div class="question">What aspects of the course did you find most valuable?</div>
-                    <div class="answer excellent-text">The practical projects and hands-on coding exercises really helped solidify the concepts.</div>
+                {% empty %}
+                <div class="no-answers" style="text-align: center; padding: 2rem; color: #6b7280;">
+                    <span class="material-icons" style="font-size: 48px; color: #9ca3af;">quiz</span>
+                    <p>No answers recorded</p>
                 </div>
-                <div class="answer-item">
-                    <div class="question">How effective was the instructor's teaching method?</div>
-                    <div class="answer good-text">Very effective - Clear explanations and good use of examples.</div>
-                </div>
-                <div class="answer-item">
-                    <div class="question">Would you recommend this course to other students?</div>
-                    <div class="answer excellent-text">Yes, definitely! It's a well-designed course with practical applications.</div>
-                </div>
-                <div class="answer-item">
-                    <div class="question">Any suggestions for improvement?</div>
-                    <div class="answer average-text">More time for the final project would be helpful.</div>
-                </div>
+                {% endfor %}
             </div>
         </div>
 

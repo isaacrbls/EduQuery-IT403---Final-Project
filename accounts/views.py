@@ -412,3 +412,157 @@ def analytics_view(request):
     }
     
     return render(request, 'accounts/Analytics.html', context)
+
+
+@login_required
+def student_history(request):
+    """Student survey history - all completed surveys"""
+    if not request.user.is_student:
+        messages.error(request, 'Access denied. Students only.')
+        return redirect('accounts:index')
+    
+    user = request.user
+    
+    # Get all submitted responses with survey details
+    completed_responses = Response.objects.filter(
+        respondent=user,
+        status='submitted'
+    ).select_related('survey', 'survey__creator').order_by('-submitted_at')
+    
+    # Add answer count to each response
+    for response in completed_responses:
+        response.answer_count = response.answers.count()
+        response.completion_time = (
+            response.submitted_at - response.started_at
+        ) if response.submitted_at and response.started_at else None
+    
+    context = {
+        'responses': completed_responses,
+        'total_completed': completed_responses.count(),
+    }
+    
+    return render(request, 'accounts/History.html', context)
+
+
+@login_required
+def student_history_details(request, response_id):
+    """View detailed responses for a specific survey submission"""
+    if not request.user.is_student:
+        messages.error(request, 'Access denied. Students only.')
+        return redirect('accounts:index')
+    
+    user = request.user
+    
+    # Get the response with all related data
+    response = get_object_or_404(
+        Response.objects.select_related('survey', 'survey__creator')
+                       .prefetch_related('answers__question', 
+                                       'answers__selected_option',
+                                       'answers__selected_options'),
+        id=response_id,
+        respondent=user,
+        status='submitted'
+    )
+    
+    # Get all answers with their questions
+    answers = response.answers.all().order_by('question__order')
+    
+    # Calculate completion time
+    completion_time = None
+    if response.submitted_at and response.started_at:
+        delta = response.submitted_at - response.started_at
+        minutes = delta.total_seconds() / 60
+        if minutes < 60:
+            completion_time = f"{int(minutes)} minute{'s' if int(minutes) != 1 else ''}"
+        else:
+            hours = int(minutes / 60)
+            remaining_minutes = int(minutes % 60)
+            completion_time = f"{hours} hour{'s' if hours != 1 else ''} {remaining_minutes} minute{'s' if remaining_minutes != 1 else ''}"
+    
+    # Organize answers by question
+    question_answers = []
+    for answer in answers:
+        question = answer.question
+        answer_text = ""
+        
+        if question.question_type in ['short_answer', 'long_answer']:
+            answer_text = answer.text_answer or "No answer provided"
+        elif question.question_type == 'multiple_choice':
+            answer_text = answer.selected_option.option_text if answer.selected_option else "No answer selected"
+        elif question.question_type == 'checkbox':
+            selected = answer.selected_options.all()
+            answer_text = ", ".join([opt.option_text for opt in selected]) if selected else "No options selected"
+        elif question.question_type == 'likert_scale':
+            if answer.number_answer is not None:
+                # Get likert labels if available
+                if question.likert_labels:
+                    try:
+                        labels_dict = question.likert_labels
+                        answer_text = f"{answer.number_answer} - {labels_dict.get(str(answer.number_answer), '')}"
+                    except:
+                        answer_text = str(answer.number_answer)
+                else:
+                    answer_text = f"{answer.number_answer} / {question.likert_max}"
+            else:
+                answer_text = "No rating provided"
+        else:
+            answer_text = "No answer provided"
+        
+        question_answers.append({
+            'question': question,
+            'answer_text': answer_text,
+            'answer': answer
+        })
+    
+    context = {
+        'response': response,
+        'survey': response.survey,
+        'question_answers': question_answers,
+        'completion_time': completion_time,
+        'total_questions': response.survey.questions.count(),
+        'answered_questions': answers.count(),
+    }
+    
+    return render(request, 'accounts/HistoryDetails.html', context)
+
+
+@login_required
+def student_survey_list(request):
+    """Student survey list - displays only non-answered surveys with search filter"""
+    if not request.user.is_student:
+        messages.error(request, 'Access denied. Students only.')
+        return redirect('accounts:index')
+    
+    user = request.user
+    search_query = request.GET.get('search', '').strip()
+    
+    # Get surveys assigned to student's sections that are published
+    assigned_surveys = Survey.objects.filter(
+        sections__students=user,
+        status='published'
+    ).distinct()
+    
+    # Filter out surveys that the student has already answered
+    answered_survey_ids = Response.objects.filter(
+        respondent=user,
+        status='submitted'
+    ).values_list('survey_id', flat=True)
+    
+    unanswered_surveys = assigned_surveys.exclude(id__in=answered_survey_ids)
+    
+    # Apply search filter if provided
+    if search_query:
+        unanswered_surveys = unanswered_surveys.filter(
+            Q(title__icontains=search_query) | 
+            Q(description__icontains=search_query)
+        )
+    
+    # Order by most recent
+    unanswered_surveys = unanswered_surveys.order_by('-created_at')
+    
+    context = {
+        'surveys': unanswered_surveys,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'accounts/SurveyListdashboard.html', context)

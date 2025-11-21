@@ -3,6 +3,37 @@
  * Enhanced interactivity and functionality for the teacher dashboard
  */
 
+// Navigation functions
+function goToHome() {
+    window.location.href = '/accounts/teacher/dashboard/';
+}
+
+function goToSurveyList() {
+    window.location.href = '/surveys/builder/';
+}
+
+function goToHistory() {
+    // Teachers view responses through survey builder
+    window.location.href = '/surveys/builder/';
+}
+
+function goToAnalytics() {
+    // Analytics for teachers (if different page needed)
+    window.location.href = '/accounts/teacher/dashboard/';
+}
+
+function goToProfile() {
+    window.location.href = '/accounts/profile/';
+}
+
+function goToSettings() {
+    window.location.href = '/accounts/settings/';
+}
+
+function handleLogout() {
+    window.location.href = '/accounts/logout/';
+}
+
 // Main dashboard functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Set user name from Django context
@@ -21,6 +52,23 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', function() {
             sidebarBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
+            
+            const label = this.getAttribute('aria-label');
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
+                goToSurveyList();
+            } else if (label === 'History') {
+                goToHistory();
+            } else if (label === 'Analytics') {
+                goToAnalytics();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
+            }
         });
     });
 

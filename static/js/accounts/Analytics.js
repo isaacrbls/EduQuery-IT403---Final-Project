@@ -1,25 +1,25 @@
 function goToHome() {
-    window.location.href = '/student/dashboard/';
+    window.location.href = '/accounts/student/dashboard/';
 }
 
 function goToSurveyList() {
-    window.location.href = '/surveys/';
+    window.location.href = '/accounts/student/surveys/';
 }
 
 function goToHistory() {
-    window.location.href = '/surveys/history/';
+    window.location.href = '/accounts/student/history/';
 }
 
 function goToAnalytics() {
-    window.location.href = '/student/analytics/';
+    window.location.href = '/accounts/student/analytics/';
 }
 
 function goToProfile() {
-    window.location.href = '/profile/';
+    window.location.href = '/accounts/profile/';
 }
 
 function goToSettings() {
-    window.location.href = '/settings/';
+    window.location.href = '/accounts/settings/';
 }
 
 function handleLogout() {
@@ -54,10 +54,20 @@ function initializeSidebarNavigation() {
             }
             
             // Handle button clicks
-            if (label === 'Survey List') {
+            if (label === 'Home') {
+                goToHome();
+            } else if (label === 'Survey List') {
                 goToSurveyList();
-            } else if (label === 'Survey History') {
+            } else if (label === 'History' || label === 'Survey History') {
                 goToHistory();
+            } else if (label === 'Analytics') {
+                goToAnalytics();
+            } else if (label === 'Profile') {
+                goToProfile();
+            } else if (label === 'Settings') {
+                goToSettings();
+            } else if (label === 'Logout') {
+                handleLogout();
             }
         });
     });

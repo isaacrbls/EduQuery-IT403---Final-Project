@@ -31,7 +31,10 @@ class SurveyForm(forms.ModelForm):
             'description': 'Description',
             'sections': 'Assign to Sections',
             'due_date': 'Due Date',
-            'is_active': 'Active',
+            'is_active': 'Make survey active immediately',
+        }
+        help_texts = {
+            'is_active': 'Students can start responding once the survey is active',
         }
 
     def __init__(self, *args, **kwargs):

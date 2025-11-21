@@ -23,7 +23,6 @@ urlpatterns = [
     path('validate/<int:survey_id>/', views.validate_survey_access, name='validate_access'),
     path('history/', views.response_history, name='response_history'),
     path('response/<int:response_id>/', views.survey_detail, name='survey_detail'),
-    path('congratulations/<int:response_id>/', views.congratulations, name='congratulations'),
 ]
 
 

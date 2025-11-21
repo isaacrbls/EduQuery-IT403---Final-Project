@@ -42,7 +42,6 @@ function goBack() {
 }
 
 let formProgress = 0;
-const totalQuestions = 8;
 const formData = {};
 
 // Main initialization
@@ -369,40 +368,75 @@ function validateForm() {
 
 function updateProgress() {
     const form = document.getElementById('surveyForm');
-    const requiredFields = form.querySelectorAll('input[required], select[required]');
-    let completedFields = 0;
-
-    requiredFields.forEach(field => {
-        if (field.type === 'radio') {
-            const radioGroup = document.querySelectorAll(`input[name="${field.name}"]`);
-            const isChecked = Array.from(radioGroup).some(radio => radio.checked);
-            if (isChecked && radioGroup[0] === field) {
-                completedFields++;
+    if (!form) return;
+    
+    // Get all question groups
+    const questionGroups = form.querySelectorAll('.question-group');
+    const totalQuestions = questionGroups.length;
+    
+    if (totalQuestions === 0) return;
+    
+    let answeredQuestions = 0;
+    
+    questionGroups.forEach(group => {
+        const questionId = group.getAttribute('data-question-id');
+        if (!questionId) return;
+        
+        const isRequired = group.getAttribute('data-required') === 'true';
+        
+        // Check text inputs and textareas
+        const textInput = group.querySelector('input[type="text"], textarea');
+        if (textInput && textInput.value.trim()) {
+            answeredQuestions++;
+            return;
+        }
+        
+        // Check radio buttons
+        const radioButtons = group.querySelectorAll('input[type="radio"]');
+        if (radioButtons.length > 0) {
+            const isChecked = Array.from(radioButtons).some(radio => radio.checked);
+            if (isChecked) {
+                answeredQuestions++;
+                return;
             }
-        } else if (field.value.trim()) {
-            completedFields++;
+        }
+        
+        // Check checkboxes
+        const checkboxes = group.querySelectorAll('input[type="checkbox"]');
+        if (checkboxes.length > 0) {
+            const isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+            if (isChecked) {
+                answeredQuestions++;
+                return;
+            }
+        }
+        
+        // Check select dropdowns
+        const select = group.querySelector('select');
+        if (select && select.value) {
+            answeredQuestions++;
+            return;
+        }
+        
+        // If not required and not answered, don't count as incomplete
+        if (!isRequired) {
+            answeredQuestions++;
         }
     });
-
-    // Check star rating
-    const starRating = document.getElementById('instructor_rating');
-    if (starRating && starRating.value) {
-        completedFields++;
-    }
-
-    const progress = Math.round((completedFields / totalQuestions) * 100);
-
+    
+    const progress = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
+    
     // Update progress bar
     const progressBar = document.getElementById('progressBar');
     const progressPercent = document.getElementById('progressPercent');
-
+    
     if (progressBar) {
         progressBar.style.width = `${progress}%`;
     }
     if (progressPercent) {
         progressPercent.textContent = progress;
     }
-
+    
     formProgress = progress;
 }
 

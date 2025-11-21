@@ -62,17 +62,13 @@ class Answer(models.Model):
 
     def get_answer_display(self):
         """Return the answer in a readable format"""
-        if self.question.question_type in ['text', 'textarea', 'email']:
+        if self.question.question_type in ['short_answer', 'long_answer']:
             return self.text_answer
-        elif self.question.question_type == 'mcq':
+        elif self.question.question_type == 'multiple_choice':
             return self.selected_option.option_text if self.selected_option else None
         elif self.question.question_type == 'checkbox':
             return ', '.join([opt.option_text for opt in self.selected_options.all()])
-        elif self.question.question_type in ['likert', 'rating']:
+        elif self.question.question_type == 'likert_scale':
             return str(self.number_answer)
-        elif self.question.question_type == 'date':
-            return str(self.date_answer)
-        elif self.question.question_type == 'dropdown':
-            return self.selected_option.option_text if self.selected_option else None
         return None
 

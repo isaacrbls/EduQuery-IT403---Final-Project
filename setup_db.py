@@ -329,15 +329,15 @@ def create_sample_surveys(teacher, sections):
             title='Quick Poll - Learning Preferences',
             description='Quick poll to understand your learning preferences.',
             creator=teacher,
-            status='draft',
-            is_active=False,
+            status='published',
+            is_active=True,
             start_date=timezone.now(),
             due_date=timezone.now() + timedelta(days=3),
             anonymous=True,
             allow_multiple_submissions=False,
             show_results=True
         )
-        survey3.sections.add(*sections)
+        survey3.sections.add(sections[0])  # Assign to IT 403 section
 
         # Question 1: Multiple choice
         Question.objects.create(
@@ -373,7 +373,7 @@ def create_sample_surveys(teacher, sections):
 
         print(f"✓ Created survey: '{survey3.title}'")
         print(f"  ├─ Questions: {survey3.questions.count()}")
-        print(f"  ├─ Status: {survey3.status} (not active yet)")
+        print(f"  ├─ Status: {survey3.status}")
         print(f"  └─ Assigned to: {survey3.sections.count()} section(s)")
         surveys_created += 1
 

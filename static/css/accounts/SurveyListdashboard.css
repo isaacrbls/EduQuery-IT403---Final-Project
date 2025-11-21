@@ -560,12 +560,97 @@ body {
     display: flex;
     align-items: center;
     gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.search-section {
+    flex: 1;
+    min-width: 250px;
+    max-width: 400px;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: var(--space-3);
+    color: var(--gray-400);
+    pointer-events: none;
+    font-size: 20px;
+}
+
+.search-input {
+    width: 100%;
+    padding: var(--space-2) var(--space-10) var(--space-2) var(--space-10);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-lg);
+    background: white;
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    transition: all var(--duration-normal) var(--ease-out);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(47, 94, 83, 0.1);
+}
+
+.search-input::placeholder {
+    color: var(--gray-400);
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: var(--space-2);
+    background: none;
+    border: none;
+    padding: var(--space-1);
+    cursor: pointer;
+    color: var(--gray-400);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.clear-search-btn:hover {
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.clear-search-btn .material-icons {
+    font-size: 18px;
 }
 
 .filter-section,
 .sort-section {
     display: flex;
     align-items: center;
+}
+
+.no-surveys-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-16) var(--space-8);
+    color: var(--gray-500);
+}
+
+.no-surveys-message h3 {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-2);
+    color: var(--gray-700);
+    font-size: 1.25rem;
+}
+
+.no-surveys-message p {
+    color: var(--gray-500);
+    font-size: 0.875rem;
 }
 
 .filter-select {
@@ -748,6 +833,13 @@ body {
     color: var(--gray-900);
     margin-bottom: var(--space-2);
     line-height: 1.4;
+}
+
+.survey-description {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-top: var(--space-2);
+    line-height: 1.5;
 }
 
 .survey-meta {

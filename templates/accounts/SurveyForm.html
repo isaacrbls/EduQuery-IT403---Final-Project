@@ -95,195 +95,120 @@
                     </div>
 
                     <!-- Survey Form -->
-                    <form class="survey-form" id="surveyForm" novalidate>
-                        <!-- Question 1 -->
+                    <form class="survey-form" id="surveyForm" action="{% url 'surveys:submit_survey' survey.id %}" method="POST" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="response_id" value="{{ response.id }}">
+                        
                         <div class="form-section">
                             <div class="section-header">
-                                <h2>Survey Questions</h2>
-                                <p>Please provide your honest feedback to help us improve</p>
+                                <h2>{{ survey.title }}</h2>
+                                {% if survey.description %}
+                                <p>{{ survey.description }}</p>
+                                {% endif %}
                             </div>
 
-                            <!-- Text Input Question -->
-                            <div class="question-group">
-                                <label class="question-label" for="name">
-                                    <span class="question-number">1.</span>
-                                    <span class="question-text">Name</span>
-                                    <span class="required">*</span>
+                            {% for question in questions %}
+                            <!-- Question {{ forloop.counter }} -->
+                            <div class="question-group" data-question-id="{{ question.id }}" data-required="{{ question.is_required|yesno:'true,false' }}">
+                                <label class="question-label">
+                                    <span class="question-number">{{ forloop.counter }}.</span>
+                                    <span class="question-text">{{ question.question_text }}</span>
+                                    {% if question.is_required %}<span class="required">*</span>{% endif %}
                                 </label>
+                                
+                                {% if question.help_text %}
+                                <p class="question-help">{{ question.help_text }}</p>
+                                {% endif %}
+
+                                {% if question.question_type == 'short_answer' %}
+                                <!-- Short Text Answer -->
                                 <input type="text"
-                                       id="name"
-                                       name="name"
+                                       id="question_{{ question.id }}"
+                                       name="question_{{ question.id }}"
                                        class="form-input"
-                                       placeholder="Enter your full name"
-                                       required>
-                                <div class="error-message" id="name-error"></div>
-                            </div>
-
-                            <!-- Course and Section -->
-                            <div class="question-group">
-                                <div class="question-row">
-                                    <div class="question-col">
-                                        <label class="question-label" for="course">
-                                            <span class="question-number">2.</span>
-                                            <span class="question-text">Course</span>
-                                            <span class="required">*</span>
-                                        </label>
-                                        <select id="course" name="course" class="form-select" required>
-                                            <option value="">Select Course</option>
-                                            <option value="IT403">IT403 - Database Systems</option>
-                                            <option value="CS301">CS301 - Database Design</option>
-                                            <option value="WEB201">WEB201 - Web Development</option>
-                                            <option value="SE401">SE401 - Software Engineering</option>
-                                            <option value="CS302">CS302 - Algorithms</option>
-                                        </select>
-                                        <div class="error-message" id="course-error"></div>
-                                    </div>
-                                    <div class="question-col">
-                                        <label class="question-label" for="section">
-                                            <span class="question-number">3.</span>
-                                            <span class="question-text">Section</span>
-                                            <span class="required">*</span>
-                                        </label>
-                                        <select id="section" name="section" class="form-select" required>
-                                            <option value="">Select Section</option>
-                                            <option value="A">Section A</option>
-                                            <option value="B">Section B</option>
-                                            <option value="C">Section C</option>
-                                            <option value="D">Section D</option>
-                                        </select>
-                                        <div class="error-message" id="section-error"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Rating Questions -->
-                            <div class="question-group">
-                                <label class="question-label">
-                                    <span class="question-number">4.</span>
-                                    <span class="question-text">Rate the overall course content quality</span>
-                                    <span class="required">*</span>
-                                </label>
-                                <div class="rating-group">
-                                    <div class="rating-option">
-                                        <input type="radio" id="content_poor" name="content_quality" value="poor" required>
-                                        <label for="content_poor">
-                                            <span class="rating-icon">😞</span>
-                                            <span>Poor</span>
-                                        </label>
-                                    </div>
-                                    <div class="rating-option">
-                                        <input type="radio" id="content_fair" name="content_quality" value="fair">
-                                        <label for="content_fair">
-                                            <span class="rating-icon">😐</span>
-                                            <span>Fair</span>
-                                        </label>
-                                    </div>
-                                    <div class="rating-option">
-                                        <input type="radio" id="content_good" name="content_quality" value="good">
-                                        <label for="content_good">
-                                            <span class="rating-icon">🙂</span>
-                                            <span>Good</span>
-                                        </label>
-                                    </div>
-                                    <div class="rating-option">
-                                        <input type="radio" id="content_excellent" name="content_quality" value="excellent">
-                                        <label for="content_excellent">
-                                            <span class="rating-icon">😊</span>
-                                            <span>Excellent</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="error-message" id="content_quality-error"></div>
-                            </div>
-
-                            <!-- Star Rating Question -->
-                            <div class="question-group">
-                                <label class="question-label">
-                                    <span class="question-number">5.</span>
-                                    <span class="question-text">Rate the instructor's teaching effectiveness</span>
-                                    <span class="required">*</span>
-                                </label>
-                                <div class="star-rating" data-rating="0">
-                                    <div class="star" data-value="1">★</div>
-                                    <div class="star" data-value="2">★</div>
-                                    <div class="star" data-value="3">★</div>
-                                    <div class="star" data-value="4">★</div>
-                                    <div class="star" data-value="5">★</div>
-                                </div>
-                                <input type="hidden" name="instructor_rating" id="instructor_rating" required>
-                                <div class="error-message" id="instructor_rating-error"></div>
-                            </div>
-
-                            <!-- Textarea Question -->
-                            <div class="question-group">
-                                <label class="question-label" for="feedback">
-                                    <span class="question-number">6.</span>
-                                    <span class="question-text">What aspects of the course could be improved? Please provide specific suggestions.</span>
-                                </label>
-                                <textarea id="feedback"
-                                         name="feedback"
+                                       placeholder="{{ question.placeholder|default:'Enter your answer' }}"
+                                       value="{{ question.existing_answer.text_answer|default:'' }}"
+                                       {% if question.is_required %}required{% endif %}>
+                                
+                                {% elif question.question_type == 'long_answer' %}
+                                <!-- Long Text Answer -->
+                                <textarea id="question_{{ question.id }}"
+                                         name="question_{{ question.id }}"
                                          class="form-textarea"
-                                         placeholder="Share your thoughts and suggestions for improvement..."
-                                         rows="4"></textarea>
+                                         placeholder="{{ question.placeholder|default:'Enter your detailed answer' }}"
+                                         rows="4"
+                                         {% if question.is_required %}required{% endif %}>{{ question.existing_answer.text_answer|default:'' }}</textarea>
                                 <div class="character-count">
-                                    <span id="feedback-count">0</span> / 500 characters
+                                    <span id="count_{{ question.id }}">0</span> / 500 characters
                                 </div>
-                            </div>
-
-                            <!-- Multiple Choice Question -->
-                            <div class="question-group">
-                                <label class="question-label">
-                                    <span class="question-number">7.</span>
-                                    <span class="question-text">Which learning materials were most helpful? (Select all that apply)</span>
-                                </label>
+                                
+                                {% elif question.question_type == 'multiple_choice' %}
+                                <!-- Multiple Choice (Radio) -->
+                                <div class="radio-group">
+                                    {% for option in question.options %}
+                                    <div class="radio-option">
+                                        <input type="radio" 
+                                               id="question_{{ question.id }}_{{ forloop.counter }}" 
+                                               name="question_{{ question.id }}" 
+                                               value="{{ option }}"
+                                               {% if question.existing_answer.selected_option.option_text == option %}checked{% endif %}
+                                               {% if question.is_required %}required{% endif %}>
+                                        <label for="question_{{ question.id }}_{{ forloop.counter }}">
+                                            <span class="radio-mark"></span>
+                                            {{ option }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% elif question.question_type == 'checkbox' %}
+                                <!-- Checkbox (Multiple Selection) -->
                                 <div class="checkbox-group">
+                                    {% for option in question.options %}
                                     <div class="checkbox-option">
-                                        <input type="checkbox" id="materials_lectures" name="helpful_materials" value="lectures">
-                                        <label for="materials_lectures">
+                                        <input type="checkbox" 
+                                               id="question_{{ question.id }}_{{ forloop.counter }}" 
+                                               name="question_{{ question.id }}" 
+                                               value="{{ option }}">
+                                        <label for="question_{{ question.id }}_{{ forloop.counter }}">
                                             <span class="checkmark"></span>
-                                            Lecture presentations
+                                            {{ option }}
                                         </label>
                                     </div>
-                                    <div class="checkbox-option">
-                                        <input type="checkbox" id="materials_assignments" name="helpful_materials" value="assignments">
-                                        <label for="materials_assignments">
-                                            <span class="checkmark"></span>
-                                            Practical assignments
-                                        </label>
-                                    </div>
-                                    <div class="checkbox-option">
-                                        <input type="checkbox" id="materials_examples" name="helpful_materials" value="examples">
-                                        <label for="materials_examples">
-                                            <span class="checkmark"></span>
-                                            Code examples
-                                        </label>
-                                    </div>
-                                    <div class="checkbox-option">
-                                        <input type="checkbox" id="materials_resources" name="helpful_materials" value="resources">
-                                        <label for="materials_resources">
-                                            <span class="checkmark"></span>
-                                            Additional resources
-                                        </label>
-                                    </div>
+                                    {% endfor %}
                                 </div>
-                            </div>
+                                
+                                {% elif question.question_type == 'likert_scale' %}
+                                <!-- Likert Scale -->
+                                <div class="likert-scale">
+                                    {% for i in "12345"|make_list %}
+                                    {% if forloop.counter >= question.likert_min and forloop.counter <= question.likert_max %}
+                                    <div class="likert-option">
+                                        <input type="radio" 
+                                               id="question_{{ question.id }}_{{ forloop.counter }}" 
+                                               name="question_{{ question.id }}" 
+                                               value="{{ forloop.counter }}"
+                                               {% if question.existing_answer.number_answer == forloop.counter %}checked{% endif %}
+                                               {% if question.is_required %}required{% endif %}>
+                                        <label for="question_{{ question.id }}_{{ forloop.counter }}">
+                                            <span class="likert-number">{{ forloop.counter }}</span>
+                                            {% if question.likert_labels|length > 0 %}
+                                            <span class="likert-label">{{ question.likert_labels|slice:forloop.counter0 }}</span>
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
 
-                            <!-- File Upload Question -->
-                            <div class="question-group">
-                                <label class="question-label">
-                                    <span class="question-number">8.</span>
-                                    <span class="question-text">Upload any supporting documents or screenshots (Optional)</span>
-                                </label>
-                                <div class="file-upload-area" id="fileUploadArea">
-                                    <input type="file" id="file_upload" name="file_upload" multiple accept="image/*,.pdf,.doc,.docx" hidden>
-                                    <div class="upload-content">
-                                        <span class="material-icons upload-icon">cloud_upload</span>
-                                        <p class="upload-text">Click to upload files or drag and drop</p>
-                                        <p class="upload-subtext">Supports: Images, PDF, DOC, DOCX (Max 10MB each)</p>
-                                    </div>
-                                </div>
-                                <div class="uploaded-files" id="uploadedFiles"></div>
+                                <div class="error-message" id="question_{{ question.id }}_error"></div>
                             </div>
+                            {% empty %}
+                            <div class="no-questions-message">
+                                <p>No questions available for this survey yet.</p>
+                            </div>
+                            {% endfor %}
                         </div>
 
                         <div class="form-actions">

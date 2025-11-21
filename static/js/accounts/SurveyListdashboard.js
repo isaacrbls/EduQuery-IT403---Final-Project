@@ -3,7 +3,7 @@ function goToHome() {
 }
 
 function goToSurveyList() {
-    window.location.href = '/surveys/';
+    window.location.href = '/accounts/student/surveys/';
 }
 
 function goToHistory() {
@@ -867,3 +867,183 @@ function animateCounter(element, start, end, duration) {
 function easeOutCubic(t) {
     return 1 - Math.pow(1 - t, 3);
 }
+
+// ============================================
+// SEARCH FUNCTIONALITY FOR UNANSWERED SURVEYS
+// ============================================
+
+/**
+ * Initialize search functionality on page load
+ */
+function initializeSearchFunctionality() {
+    const searchInput = document.getElementById('survey-search');
+    const clearButton = document.getElementById('clear-search');
+    
+    if (!searchInput) return;
+    
+    // Show/hide clear button based on input
+    searchInput.addEventListener('input', function() {
+        if (this.value.length > 0) {
+            clearButton.style.display = 'block';
+        } else {
+            clearButton.style.display = 'none';
+        }
+    });
+    
+    // Initialize clear button visibility
+    if (searchInput.value.length > 0) {
+        clearButton.style.display = 'block';
+    }
+    
+    // Clear search functionality
+    if (clearButton) {
+        clearButton.addEventListener('click', function() {
+            searchInput.value = '';
+            clearButton.style.display = 'none';
+            // Reload page without search parameter
+            const url = new URL(window.location.href);
+            url.searchParams.delete('search');
+            window.location.href = url.toString();
+        });
+    }
+    
+    // Debounced search on input
+    const debouncedSearch = debounce(function() {
+        performSearch(searchInput.value);
+    }, 500);
+    
+    searchInput.addEventListener('input', debouncedSearch);
+    
+    // Search on Enter key
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch(this.value);
+        }
+    });
+}
+
+/**
+ * Perform search by updating URL with search parameter
+ */
+function performSearch(query) {
+    const trimmedQuery = query.trim();
+    const url = new URL(window.location.href);
+    
+    if (trimmedQuery) {
+        url.searchParams.set('search', trimmedQuery);
+    } else {
+        url.searchParams.delete('search');
+    }
+    
+    window.location.href = url.toString();
+}
+
+/**
+ * Fetch and display unanswered surveys via API (optional enhancement)
+ */
+async function fetchUnansweredSurveys(searchQuery = '') {
+    try {
+        const url = new URL('/api/accounts/surveys/unanswered/', window.location.origin);
+        if (searchQuery) {
+            url.searchParams.set('search', searchQuery);
+        }
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching unanswered surveys:', error);
+        showNotification('Failed to load surveys', 'error');
+        return null;
+    }
+}
+
+/**
+ * Render survey cards dynamically (optional enhancement)
+ */
+function renderSurveyCards(surveys) {
+    const container = document.getElementById('surveys-container');
+    if (!container) return;
+    
+    if (!surveys || surveys.length === 0) {
+        container.innerHTML = `
+            <div class="no-surveys-message">
+                <span class="material-icons" style="font-size: 64px; color: #9CA3AF;">search_off</span>
+                <h3>No surveys found</h3>
+                <p>Try adjusting your search or filters</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = surveys.map(survey => `
+        <div class="survey-card active" data-status="active">
+            <div class="survey-card-main">
+                <div class="survey-icon">
+                    <span class="material-icons">assignment</span>
+                </div>
+                <div class="survey-info">
+                    <h3 class="survey-title">${escapeHtml(survey.title)}</h3>
+                    <div class="survey-meta">
+                        <span class="teacher-info">
+                            <span class="material-icons">person</span>
+                            ${escapeHtml(survey.creator_name || 'Teacher')}
+                        </span>
+                        ${survey.due_date ? `
+                        <span class="due-info">
+                            <span class="material-icons">schedule</span>
+                            Due: ${formatDate(survey.due_date)}
+                        </span>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+            <div class="survey-actions">
+                <div class="survey-status-badge active">
+                    <span class="status-dot"></span>
+                    ACTIVE
+                </div>
+                <button class="survey-action-btn primary" onclick="window.location.href='/surveys/${survey.id}/take/'">
+                    <span class="material-icons">play_arrow</span>
+                    Take Survey
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Format date for display
+ */
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+}
+
+// Initialize search when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSearchFunctionality();
+});

@@ -31,6 +31,9 @@ def create_survey(request):
         if form.is_valid():
             survey = form.save(commit=False)
             survey.creator = request.user
+            # Set status to published if is_active is checked
+            if survey.is_active:
+                survey.status = 'published'
             survey.save()
             form.save_m2m()
             
@@ -63,7 +66,14 @@ def edit_survey(request, survey_id):
             old_title = survey.title
             old_description = survey.description
             
-            survey = form.save()
+            survey = form.save(commit=False)
+            # Set status to published if is_active is checked, otherwise set to draft
+            if survey.is_active:
+                survey.status = 'published'
+            else:
+                survey.status = 'draft'
+            survey.save()
+            form.save_m2m()
             
             if (old_title != survey.title or old_description != survey.description) and survey.response_count > 0:
                 survey.version += 1
@@ -420,8 +430,8 @@ def take_survey(request, survey_id):
             description=f'Started survey: {survey.title}'
         )
 
-    questions = survey.questions.all().prefetch_related(
-        'options',
+    questions = survey.questions.filter(is_active=True).prefetch_related(
+        'option_choices',
         'likert_scale'
     )
     

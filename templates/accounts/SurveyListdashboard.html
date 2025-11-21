@@ -65,8 +65,23 @@
                             <h2>List of Survey</h2>
                         </div>
                         <div class="header-controls">
-                            <!-- Filter and Sort Controls -->
+                            <!-- Search and Filter Controls -->
                             <div class="survey-controls">
+                                <div class="search-section">
+                                    <div class="search-box">
+                                        <span class="material-icons search-icon">search</span>
+                                        <input 
+                                            type="text" 
+                                            id="survey-search" 
+                                            class="search-input" 
+                                            placeholder="Search surveys by name..."
+                                            value="{{ search_query|default:'' }}"
+                                        >
+                                        <button id="clear-search" class="clear-search-btn" style="display: none;">
+                                            <span class="material-icons">close</span>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="filter-section">
                                     <select id="status-filter" class="filter-select">
                                         <option value="all">All Status</option>
@@ -91,24 +106,30 @@
 
                     <!-- Survey Cards Grid -->
                     <div class="surveys-grid" id="surveys-container">
-                        <!-- Active Survey -->
-                        <div class="survey-card active" data-status="active" data-due="2025-11-15">
+                        {% if surveys %}
+                            {% for survey in surveys %}
+                        <div class="survey-card active" data-status="active" data-survey-id="{{ survey.id }}">
                             <div class="survey-card-main">
                                 <div class="survey-icon">
                                     <span class="material-icons">assignment</span>
                                 </div>
                                 <div class="survey-info">
-                                    <h3 class="survey-title">IT403 Final Project Evaluation</h3>
+                                    <h3 class="survey-title">{{ survey.title }}</h3>
                                     <div class="survey-meta">
                                         <span class="teacher-info">
                                             <span class="material-icons">person</span>
-                                            Prof. Rodriguez
+                                            {{ survey.creator.get_full_name|default:survey.creator.username }}
                                         </span>
+                                        {% if survey.due_date %}
                                         <span class="due-info">
                                             <span class="material-icons">schedule</span>
-                                            Due: Nov 15, 2025
+                                            Due: {{ survey.due_date|date:"M d, Y" }}
                                         </span>
+                                        {% endif %}
                                     </div>
+                                    {% if survey.description %}
+                                    <p class="survey-description">{{ survey.description|truncatewords:20 }}</p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="survey-actions">
@@ -116,172 +137,24 @@
                                     <span class="status-dot"></span>
                                     ACTIVE
                                 </div>
-                                <button class="survey-action-btn primary">
+                                <button class="survey-action-btn primary" onclick="window.location.href='{% url 'surveys:take_survey' survey.id %}'">
                                     <span class="material-icons">play_arrow</span>
                                     Take Survey
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Completed Survey -->
-                        <div class="survey-card completed" data-status="completed" data-due="2025-10-28">
-                            <div class="survey-card-main">
-                                <div class="survey-icon completed">
-                                    <span class="material-icons">assignment_turned_in</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Database Design Assessment</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Martinez
-                                        </span>
-                                        <span class="due-info">
-                                            <span class="material-icons">check_circle</span>
-                                            Completed: Oct 28, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-actions">
-                                <div class="survey-status-badge completed">
-                                    <span class="status-dot"></span>
-                                    CLOSED
-                                </div>
-                                <button class="survey-action-btn completed">
-                                    <span class="material-icons">check_circle</span>
-                                    Completed
-                                </button>
-                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="no-surveys-message">
+                            <span class="material-icons" style="font-size: 64px; color: #9CA3AF;">search_off</span>
+                            <h3>No unanswered surveys found</h3>
+                            {% if search_query %}
+                            <p>No surveys match your search "{{ search_query }}". Try a different search term.</p>
+                            {% else %}
+                            <p>You have completed all available surveys or no surveys have been assigned to you yet.</p>
+                            {% endif %}
                         </div>
-
-                        <!-- Overdue Survey -->
-                        <div class="survey-card overdue" data-status="overdue" data-due="2025-10-30">
-                            <div class="survey-card-main">
-                                <div class="survey-icon overdue">
-                                    <span class="material-icons">warning</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Web Development Mid-term Evaluation</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Johnson
-                                        </span>
-                                        <span class="due-info">
-                                            <span class="material-icons">warning</span>
-                                            Overdue since: Oct 30, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-actions">
-                                <div class="survey-status-badge overdue">
-                                    <span class="status-dot"></span>
-                                    OVERDUE
-                                </div>
-                                <button class="survey-action-btn urgent">
-                                    <span class="material-icons">priority_high</span>
-                                    Overdue
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Upcoming Survey -->
-                        <div class="survey-card upcoming" data-status="upcoming" data-due="2025-11-20">
-                            <div class="survey-card-main">
-                                <div class="survey-icon upcoming">
-                                    <span class="material-icons">schedule</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Web Development Final Review</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Johnson
-                                        </span>
-                                        <span class="due-info">
-                                            <span class="material-icons">schedule</span>
-                                            Opens: Nov 20, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-actions">
-                                <div class="survey-status-badge upcoming">
-                                    <span class="status-dot"></span>
-                                    UPCOMING
-                                </div>
-                                <button class="survey-action-btn disabled">
-                                    <span class="material-icons">access_time</span>
-                                    Pending
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Active Survey 2 -->
-                        <div class="survey-card active" data-status="active" data-due="2025-11-18">
-                            <div class="survey-card-main">
-                                <div class="survey-icon">
-                                    <span class="material-icons">assignment</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Software Engineering Practice Evaluation</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Chen
-                                        </span>
-                                        <span class="due-info">
-                                            <span class="material-icons">schedule</span>
-                                            Due: Nov 18, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-actions">
-                                <div class="survey-status-badge active">
-                                    <span class="status-dot"></span>
-                                    ACTIVE
-                                </div>
-                                <button class="survey-action-btn primary">
-                                    <span class="material-icons">play_arrow</span>
-                                    Take Survey
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Completed Survey 2 -->
-                        <div class="survey-card completed" data-status="completed" data-due="2025-10-25">
-                            <div class="survey-card-main">
-                                <div class="survey-icon completed">
-                                    <span class="material-icons">assignment_turned_in</span>
-                                </div>
-                                <div class="survey-info">
-                                    <h3 class="survey-title">Algorithm Design Course Feedback</h3>
-                                    <div class="survey-meta">
-                                        <span class="teacher-info">
-                                            <span class="material-icons">person</span>
-                                            Prof. Williams
-                                        </span>
-                                        <span class="due-info">
-                                            <span class="material-icons">check_circle</span>
-                                            Completed: Oct 25, 2025
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-actions">
-                                <div class="survey-status-badge completed">
-                                    <span class="status-dot"></span>
-                                    CLOSED
-                                </div>
-                                <button class="survey-action-btn completed">
-                                    <span class="material-icons">check_circle</span>
-                                    Completed
-                                </button>
-                            </div>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
