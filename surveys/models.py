@@ -45,7 +45,7 @@ class Survey(models.Model):
 
     @property
     def response_count(self):
-        return self.responses.count()
+        return self.responses.filter(status='submitted').count()
 
     @property
     def is_open(self):

@@ -193,6 +193,106 @@ body {
     overflow-y: auto;
 }
 
+/* Enhanced Header */
+.header {
+    background: transparent;
+    padding: var(--space-4) var(--space-6);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    z-index: 50;
+    gap: var(--space-8);
+}
+
+.header-logo-section {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.corner-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: brightness(1.1) contrast(1.2);
+    transition: all var(--duration-normal) var(--ease-out);
+}
+
+.corner-logo:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2) contrast(1.3);
+}
+
+.header-user-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.user-profile-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-5);
+    background: var(--surface-50);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all var(--duration-normal) var(--ease-out);
+    max-width: 400px;
+    white-space: nowrap;
+}
+
+.user-profile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: var(--primary-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.avatar-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+}
+
+.user-greeting {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-greeting .greeting {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-700);
+    line-height: 1.3;
+}
+
+.user-greeting .sub-greeting {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--primary-500);
+    opacity: 0.8;
+}
+
 .top-bar {
     background: white;
     border-radius: 16px;

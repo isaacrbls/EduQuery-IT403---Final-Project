@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Count, Avg, Q
 from django.views.decorators.http import require_http_methods
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Response, Answer
 from surveys.models import Survey, Question
@@ -45,13 +46,40 @@ def response_list(request):
     if search_query:
         responses = responses.filter(
             Q(survey__title__icontains=search_query) |
-            Q(respondent__username__icontains=search_query)
+            Q(respondent__username__icontains=search_query) |
+            Q(respondent__first_name__icontains=search_query) |
+            Q(respondent__last_name__icontains=search_query)
         )
 
+    # Sorting
+    sort_by = request.GET.get('sort', '-submitted_at')
+    if sort_by in ['-submitted_at', 'submitted_at', 'survey__title', 'respondent__username']:
+        responses = responses.order_by(sort_by)
+
+    # Get surveys for filter dropdown
+    if user.is_teacher:
+        surveys = Survey.objects.filter(creator=user).order_by('title')
+    else:
+        surveys = Survey.objects.all().order_by('title')
+
+    # Pagination
+    paginator = Paginator(responses, 20)  # 20 responses per page
+    page = request.GET.get('page')
+    
+    try:
+        responses_page = paginator.page(page)
+    except PageNotAnInteger:
+        responses_page = paginator.page(1)
+    except EmptyPage:
+        responses_page = paginator.page(paginator.num_pages)
+
     context = {
-        'responses': responses,
-        'total_responses': responses.count(),
+        'responses': responses_page,
+        'total_responses': paginator.count,
         'search_query': search_query,
+        'sort_by': sort_by,
+        'surveys': surveys,
+        'selected_survey': survey_id,
     }
 
     return render(request, 'responses/response_list.html', context)

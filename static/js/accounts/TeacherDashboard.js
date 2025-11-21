@@ -16,6 +16,10 @@ function goToHistory() {
     window.location.href = '/surveys/history/';
 }
 
+function goToResponses() {
+    window.location.href = '/responses/';
+}
+
 function goToAnalytics() {
     window.location.href = '/analytics/';
 }
@@ -47,17 +51,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add click handlers for sidebar buttons
     const sidebarBtns = document.querySelectorAll('.sidebar-btn');
     sidebarBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            sidebarBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
             
             const label = this.getAttribute('aria-label');
+            
+            // Navigate immediately without visual changes that might interfere
             if (label === 'Home') {
                 goToHome();
             } else if (label === 'Survey List') {
                 goToSurveyList();
             } else if (label === 'History') {
                 goToHistory();
+            } else if (label === 'Responses') {
+                goToResponses();
             } else if (label === 'Analytics') {
                 goToAnalytics();
             } else if (label === 'Profile') {

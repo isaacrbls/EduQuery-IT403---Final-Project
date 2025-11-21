@@ -15,7 +15,7 @@ from analytics.models import ActivityLog
 # Create your views here.
 
 def index(request):
-    """Home page"""
+    """Home page - redirects to login or dashboard"""
     if request.user.is_authenticated:
         if request.user.is_student:
             return redirect('accounts:student_dashboard')
@@ -23,7 +23,7 @@ def index(request):
             return redirect('accounts:teacher_dashboard')
         else:
             return redirect('admin:index')
-    return render(request, 'accounts/index.html')
+    return redirect('accounts:login')
 
 
 def signup_view(request):

@@ -16,6 +16,10 @@ function goToHistory() {
     window.location.href = '/surveys/history/';
 }
 
+function goToResponses() {
+    window.location.href = '/responses/';
+}
+
 function goToAnalytics() {
     window.location.href = '/analytics/';
 }
@@ -83,6 +87,8 @@ function publishSurvey() {y = document.body;
                 goToSurveyList();
             } else if (label === 'History' || label === 'Survey History') {
                 goToHistory();
+            } else if (label === 'Responses') {
+                goToResponses();
             } else if (label === 'Analytics') {
                 goToAnalytics();
             } else if (label === 'Profile') {

@@ -1,0 +1,421 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response Management - EduQuery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}">
+    <style>
+        .response-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .search-box, .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+        .response-table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f9fafb;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th.sortable:hover {
+            background: #f3f4f6;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #6b7280;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            background: #2F5E53;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .view-btn:hover {
+            background: #254a42;
+            color: white;
+        }
+
+        .delete-btn {
+            padding: 8px 16px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #b91c1c;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .page-link {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #374151;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .page-link:hover {
+            background: #f3f4f6;
+            border-color: #2F5E53;
+        }
+
+        .page-link.active {
+            background: #2F5E53;
+            color: white;
+            border-color: #2F5E53;
+        }
+
+        .page-link.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state .material-icons {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-submitted {
+            background: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+
+<body data-user-name="{{ request.user.first_name|default:'Teacher' }}">
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <nav class="sidebar-nav" role="navigation">
+                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
+                    <span class="material-icons">list_alt</span>
+                </button>
+                <button class="sidebar-btn" aria-label="History" data-tooltip="History">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="sidebar-btn active" aria-label="Responses" data-tooltip="Responses">
+                    <span class="material-icons">assignment_turned_in</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
+                    <span class="material-icons">analytics</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </button>
+                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
+                    <span class="material-icons">settings</span>
+                </button>
+            </nav>
+            <div class="sidebar-spacer"></div>
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-area">
+                <div class="response-table">
+                    <div class="table-header">
+                        <div>
+                            <h2 style="margin: 0; color: #2F5E53; display: flex; align-items: center; gap: 10px;">
+                                <span class="material-icons">assignment_turned_in</span>
+                                Response Management
+                            </h2>
+                            <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 14px;">
+                                View and filter individual student submissions ({{ total_responses }} total)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="table-header" style="border-top: none; padding-top: 0;">
+                        <div class="search-filter-bar">
+                            <form method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; flex: 1;">
+                                <input type="text" name="search" class="search-box" placeholder="Search student or survey..." value="{{ search_query }}">
+                                
+                                <select name="survey" class="filter-select">
+                                    <option value="">All Surveys</option>
+                                    {% for survey in surveys %}
+                                    <option value="{{ survey.id }}" {% if selected_survey == survey.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ survey.title }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+
+                                <select name="sort" class="filter-select">
+                                    <option value="-submitted_at" {% if sort_by == "-submitted_at" %}selected{% endif %}>Latest First</option>
+                                    <option value="submitted_at" {% if sort_by == "submitted_at" %}selected{% endif %}>Oldest First</option>
+                                    <option value="survey__title" {% if sort_by == "survey__title" %}selected{% endif %}>Survey A-Z</option>
+                                    <option value="respondent__username" {% if sort_by == "respondent__username" %}selected{% endif %}>Student A-Z</option>
+                                </select>
+
+                                <button type="submit" class="view-btn">
+                                    <span class="material-icons" style="font-size: 18px;">search</span>
+                                    Filter
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="response-table-container">
+                        {% if responses %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student</th>
+                                    <th>Survey Title</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for response in responses %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <strong>{{ response.respondent.get_full_name|default:response.respondent.username }}</strong><br>
+                                        <small style="color: #9ca3af;">{{ response.respondent.username }}</small>
+                                    </td>
+                                    <td>{{ response.survey.title }}</td>
+                                    <td>{{ response.submitted_at|date:"M d, Y g:i A" }}</td>
+                                    <td>
+                                        <span class="status-badge status-{{ response.status }}">
+                                            {{ response.get_status_display|upper }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <a href="{% url 'responses:response_detail' response.id %}" class="view-btn">
+                                                <span class="material-icons" style="font-size: 16px;">visibility</span>
+                                                View
+                                            </a>
+                                            <form method="POST" action="{% url 'responses:delete_response' response.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this response?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="delete-btn">
+                                                    <span class="material-icons" style="font-size: 16px;">delete</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination -->
+                        {% if responses.has_other_pages %}
+                        <div class="pagination">
+                            {% if responses.has_previous %}
+                            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_survey %}&survey={{ selected_survey }}{% endif %}&sort={{ sort_by }}" class="page-link">
+                                <span class="material-icons" style="font-size: 18px;">first_page</span>
+                            </a>
+                            <a href="?page={{ responses.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_survey %}&survey={{ selected_survey }}{% endif %}&sort={{ sort_by }}" class="page-link">
+                                <span class="material-icons" style="font-size: 18px;">chevron_left</span>
+                            </a>
+                            {% else %}
+                            <span class="page-link disabled">
+                                <span class="material-icons" style="font-size: 18px;">first_page</span>
+                            </span>
+                            <span class="page-link disabled">
+                                <span class="material-icons" style="font-size: 18px;">chevron_left</span>
+                            </span>
+                            {% endif %}
+
+                            <span style="color: #6b7280;">
+                                Page {{ responses.number }} of {{ responses.paginator.num_pages }}
+                            </span>
+
+                            {% if responses.has_next %}
+                            <a href="?page={{ responses.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_survey %}&survey={{ selected_survey }}{% endif %}&sort={{ sort_by }}" class="page-link">
+                                <span class="material-icons" style="font-size: 18px;">chevron_right</span>
+                            </a>
+                            <a href="?page={{ responses.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_survey %}&survey={{ selected_survey }}{% endif %}&sort={{ sort_by }}" class="page-link">
+                                <span class="material-icons" style="font-size: 18px;">last_page</span>
+                            </a>
+                            {% else %}
+                            <span class="page-link disabled">
+                                <span class="material-icons" style="font-size: 18px;">chevron_right</span>
+                            </span>
+                            <span class="page-link disabled">
+                                <span class="material-icons" style="font-size: 18px;">last_page</span>
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="empty-state">
+                            <span class="material-icons">assignment</span>
+                            <h3>No Responses Found</h3>
+                            <p>{% if search_query %}Try adjusting your search or filters.{% else %}No student responses yet.{% endif %}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functions
+        function goToHome() {
+            window.location.href = '/teacher/dashboard/';
+        }
+
+        function goToSurveyList() {
+            window.location.href = '/surveys/builder/';
+        }
+
+        function goToHistory() {
+            window.location.href = '/surveys/history/';
+        }
+
+        function goToResponses() {
+            window.location.href = '/responses/';
+        }
+
+        function goToAnalytics() {
+            window.location.href = '/analytics/';
+        }
+
+        function goToProfile() {
+            window.location.href = '/profile/';
+        }
+
+        function goToSettings() {
+            window.location.href = '/settings/';
+        }
+
+        function handleLogout() {
+            window.location.href = '/logout/';
+        }
+
+        // Initialize sidebar navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+            sidebarBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const label = this.getAttribute('aria-label');
+                    if (label === 'Home') {
+                        goToHome();
+                    } else if (label === 'Survey List') {
+                        goToSurveyList();
+                    } else if (label === 'History') {
+                        goToHistory();
+                    } else if (label === 'Responses') {
+                        goToResponses();
+                    } else if (label === 'Analytics') {
+                        goToAnalytics();
+                    } else if (label === 'Profile') {
+                        goToProfile();
+                    } else if (label === 'Settings') {
+                        goToSettings();
+                    } else if (label === 'Logout') {
+                        handleLogout();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
