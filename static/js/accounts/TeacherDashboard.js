@@ -9,7 +9,7 @@ function goToHome() {
 }
 
 function goToSurveyList() {
-    window.location.href = '/surveys/builder/';
+    window.location.href = '/surveys/';
 }
 
 function goToHistory() {
@@ -216,14 +216,10 @@ function initializeSurveyActions() {
 }
 
 /**
- * Update notification badge
+ * Update notification badge - Removed
  */
 function updateNotificationBadge() {
-    const badge = document.querySelector('.notification-badge');
-    if (badge) {
-        const currentCount = parseInt(badge.textContent) || 0;
-        badge.textContent = currentCount + 1;
-    }
+    // Notifications removed
 }
 
 /**
@@ -250,52 +246,10 @@ function createRipple(event) {
 }
 
 /**
- * Show notification message
+ * Show notification message - Removed
  */
 function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 16px 20px;
-        border-radius: 12px;
-        color: white;
-        font-weight: 500;
-        z-index: 1001;
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        max-width: 300px;
-    `;
-
-    switch(type) {
-        case 'success':
-            notification.style.background = 'var(--success)';
-            break;
-        case 'error':
-            notification.style.background = 'var(--error)';
-            break;
-        case 'warning':
-            notification.style.background = 'var(--warning)';
-            break;
-        default:
-            notification.style.background = 'var(--info)';
-    }
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-
-    setTimeout(() => {
-        notification.style.transform = 'translateX(400px)';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    console.log('Notification:', message);
 }
 
 /**

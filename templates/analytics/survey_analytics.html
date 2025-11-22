@@ -7,31 +7,33 @@
     <title>Survey Analytics - EduQuery</title>
     <link rel="stylesheet" href="{% static 'css/accounts/Analytics.css' %}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
+        <div class="sidebar">
             <!-- Navigation Section -->
             <nav class="sidebar-nav" role="navigation">
-                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home" onclick="goToHome()">
+                <a href="{% if request.user.is_teacher %}{% url 'accounts:teacher_dashboard' %}{% else %}{% url 'accounts:student_dashboard' %}{% endif %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                     <span class="material-icons">home</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List" onclick="goToSurveyList()">
+                </a>
+                <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
-                </button>
-                <button class="sidebar-btn" aria-label="History" data-tooltip="History" onclick="goToHistory()">
-                    <span class="material-icons">history</span>
-                </button>
+                </a>
+                {% if request.user.is_teacher %}
+                <a href="{% url 'responses:response_list' %}" class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
+                    <span class="material-icons">assignment_turned_in</span>
+                </a>
+                {% endif %}
                 <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-btn active" aria-label="Analytics" data-tooltip="Analytics">
                     <span class="material-icons">analytics</span>
                 </a>
-                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile" onclick="goToProfile()">
+                <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                     <span class="material-icons">person</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings" onclick="goToSettings()">
-                    <span class="material-icons">settings</span>
-                </button>
+                </a>
             </nav>
 
             <!-- Spacer -->
@@ -43,7 +45,7 @@
                     <span class="material-icons">logout</span>
                 </a>
             </div>
-        </aside>
+        </div>
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -133,6 +135,8 @@
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.2.2/wordcloud2.min.js"></script>
     <script src="{% static 'js/accounts/Analytics.js' %}"></script>
     <script>
         // Navigation functions
@@ -149,43 +153,247 @@
         }
 
         function goToSurveyList() {
-            // Placeholder - implement when survey list view is ready
-            console.log('Navigate to survey list');
-        }
-
-        function goToHistory() {
-            // Placeholder - implement when history view is ready
-            console.log('Navigate to history');
+            window.location.href = '/surveys/';
         }
 
         function goToProfile() {
             window.location.href = '{% url "accounts:profile" %}';
         }
 
-        function goToSettings() {
-            window.location.href = '{% url "accounts:settings" %}';
-        }
-
         // Load survey-specific analytics data
         document.addEventListener('DOMContentLoaded', function() {
-            const surveyId = window.location.pathname.split('/')[2]; // Extract survey ID from URL
-            loadSurveyAnalytics(surveyId);
+            // Extract survey ID from URL path: /analytics/survey/<id>/
+            const pathParts = window.location.pathname.split('/');
+            // Assuming format /analytics/survey/123/
+            // pathParts might be ['', 'analytics', 'survey', '123', '']
+            let surveyId = null;
+            for(let i=0; i<pathParts.length; i++) {
+                if(pathParts[i] === 'survey' && i+1 < pathParts.length) {
+                    surveyId = pathParts[i+1];
+                    break;
+                }
+            }
+            
+            if(surveyId) {
+                loadSurveyAnalytics(surveyId);
+                // Poll for updates every 30 seconds
+                setInterval(() => loadSurveyAnalytics(surveyId), 30000);
+            } else {
+                console.error('Could not determine survey ID from URL');
+            }
         });
 
-        function loadSurveyAnalytics(surveyId) {
+        async function loadSurveyAnalytics(surveyId) {
             console.log('Loading analytics for survey:', surveyId);
             
-            // Placeholder for AJAX calls to API endpoints
-            // fetch(`/analytics/api/${surveyId}/summary/`)
-            // fetch(`/analytics/api/${surveyId}/mcq/`)
-            // fetch(`/analytics/api/${surveyId}/likert/`)
-            // fetch(`/analytics/api/${surveyId}/text/`)
+            try {
+                // Fetch Summary
+                const summaryRes = await fetch(`/analytics/api/survey/${surveyId}/summary/`);
+                const summaryData = await summaryRes.json();
+                if(summaryData.status === 'success') {
+                    document.getElementById('surveyResponses').textContent = summaryData.data.response_count;
+                    // Update other stats if available
+                }
+
+                // Fetch MCQ Data
+                const mcqRes = await fetch(`/analytics/api/survey/${surveyId}/mcq-data/`);
+                const mcqData = await mcqRes.json();
+                if(mcqData.status === 'success') {
+                    renderCharts(mcqData.data, 'questionCharts');
+                }
+
+                // Fetch Likert Data
+                const likertRes = await fetch(`/analytics/api/survey/${surveyId}/likert-data/`);
+                const likertData = await likertRes.json();
+                if(likertData.status === 'success') {
+                    renderCharts(likertData.data, 'questionCharts');
+                }
+
+                // Fetch Text Data
+                const textRes = await fetch(`/analytics/api/survey/${surveyId}/text-data/`);
+                const textData = await textRes.json();
+                if(textData.status === 'success') {
+                    renderTextResponses(textData.data, 'textResponses');
+                }
+
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        function renderCharts(data, containerId) {
+            const container = document.getElementById(containerId);
+            // Clear placeholder if it exists
+            if(container.querySelector('.chart-placeholder')) {
+                container.innerHTML = '';
+            }
+
+            data.forEach(item => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'chart-wrapper';
+                wrapper.style.marginBottom = '40px';
+                wrapper.style.padding = '20px';
+                wrapper.style.background = 'white';
+                wrapper.style.borderRadius = '12px';
+                wrapper.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+
+                const title = document.createElement('h3');
+                title.textContent = item.question_text;
+                title.style.marginBottom = '15px';
+                title.style.color = '#374151';
+                wrapper.appendChild(title);
+
+                const canvasContainer = document.createElement('div');
+                canvasContainer.style.position = 'relative';
+                canvasContainer.style.height = '300px';
+                canvasContainer.style.width = '100%';
+                
+                const canvas = document.createElement('canvas');
+                canvasContainer.appendChild(canvas);
+                wrapper.appendChild(canvasContainer);
+                container.appendChild(wrapper);
+
+                const ctx = canvas.getContext('2d');
+                
+                if (item.type === 'pie') {
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: item.options.map(o => o.label),
+                            datasets: [{
+                                data: item.options.map(o => o.count),
+                                backgroundColor: [
+                                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                } else if (item.type === 'bar') {
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: item.distribution.map(d => d.label),
+                            datasets: [{
+                                label: 'Responses',
+                                data: item.distribution.map(d => d.count),
+                                backgroundColor: '#36A2EB'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function renderTextResponses(data, containerId) {
+            const container = document.getElementById(containerId);
+             if(container.querySelector('.empty-state')) {
+                container.innerHTML = '';
+            }
+
+            data.forEach(item => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'text-response-group';
+                wrapper.style.marginBottom = '30px';
+                wrapper.style.background = 'white';
+                wrapper.style.padding = '20px';
+                wrapper.style.borderRadius = '12px';
+                wrapper.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+
+                wrapper.innerHTML = `<h3 style="margin-bottom: 15px; color: #374151;">${item.question_text}</h3>`;
+                
+                // Word Cloud Container
+                const cloudContainer = document.createElement('div');
+                cloudContainer.style.height = '300px';
+                cloudContainer.style.width = '100%';
+                cloudContainer.style.marginBottom = '20px';
+                cloudContainer.style.position = 'relative';
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = 800; 
+                canvas.height = 300;
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                
+                cloudContainer.appendChild(canvas);
+                wrapper.appendChild(cloudContainer);
+
+                // Process words for cloud
+                const words = processWords(item.answers);
+                if (words.length > 0) {
+                    // Use a timeout to ensure canvas is rendered
+                    setTimeout(() => {
+                        WordCloud(canvas, { 
+                            list: words, 
+                            gridSize: 8, 
+                            weightFactor: function (size) {
+                                // size is the raw count
+                                // Scale: min 20px, max depends on count
+                                return 20 + (size * 5);
+                            },
+                            fontFamily: 'sans-serif', 
+                            color: 'random-dark', 
+                            rotateRatio: 0.5,
+                            backgroundColor: '#ffffff'
+                        });
+                    }, 100);
+                } else {
+                    cloudContainer.innerHTML = '<p style="text-align:center; color:#9ca3af; padding-top: 130px;">Not enough data for word cloud</p>';
+                }
+                
+                const list = document.createElement('ul');
+                list.className = 'text-response-list';
+                list.style.listStyle = 'none';
+                list.style.padding = '0';
+                list.style.maxHeight = '200px';
+                list.style.overflowY = 'auto';
+                
+                if (item.answers.length === 0) {
+                    list.innerHTML = '<li style="color: #9ca3af; font-style: italic;">No text responses provided.</li>';
+                } else {
+                    item.answers.forEach(ans => {
+                        const li = document.createElement('li');
+                        li.textContent = ans;
+                        li.style.padding = '10px';
+                        li.style.borderBottom = '1px solid #f3f4f6';
+                        li.style.color = '#4b5563';
+                        list.appendChild(li);
+                    });
+                }
+                wrapper.appendChild(list);
+                container.appendChild(wrapper);
+            });
+        }
+
+        function processWords(answers) {
+            const text = answers.join(' ');
+            // Simple tokenization
+            const words = text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
+            const stopWords = new Set(['the', 'and', 'is', 'in', 'to', 'of', 'a', 'for', 'it', 'on', 'with', 'as', 'this', 'that', 'at', 'by', 'an', 'be', 'or', 'from', 'but', 'not', 'are', 'was', 'were', 'so', 'if', 'my', 'i', 'me', 'we', 'you', 'your', 'have', 'has', 'had', 'do', 'does', 'did', 'can', 'could', 'will', 'would', 'should', 'all', 'any', 'some', 'one', 'what', 'which', 'who', 'when', 'where', 'why', 'how']);
             
-            // Example: Update stats
-            document.getElementById('surveyResponses').textContent = '0';
-            document.getElementById('avgTime').textContent = '0 min';
-            document.getElementById('completionRate').textContent = '0%';
-            document.getElementById('avgRating').textContent = '0.0';
+            const freqMap = {};
+            words.forEach(w => {
+                if (!stopWords.has(w)) {
+                    freqMap[w] = (freqMap[w] || 0) + 1;
+                }
+            });
+            
+            // Convert to array format for wordcloud2.js: [['word', count], ...]
+            // Sort by frequency
+            return Object.entries(freqMap)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 50) // Limit to top 50 words
+                .map(([word, count]) => [word, count]); // Return raw count, scaling handled in weightFactor
         }
     </script>
 </body>

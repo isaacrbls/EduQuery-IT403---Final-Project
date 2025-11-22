@@ -18,52 +18,76 @@ from analytics.models import ActivityLog
 
 @login_required
 def response_list(request):
-    """List all responses (for teachers/admins)"""
+    """List all surveys with their response counts (for teachers/admins)"""
     user = request.user
 
     if user.is_teacher:
-        # Teachers see responses to their surveys
-        responses = Response.objects.filter(
-            survey__creator=user,
-            status='submitted'
-        ).select_related('survey', 'respondent').order_by('-submitted_at')
+        surveys = Survey.objects.filter(creator=user).annotate(
+            submission_count=Count('responses', filter=Q(responses__status='submitted'), distinct=True),
+            total_questions=Count('questions', distinct=True)
+        ).order_by('-created_at')
     elif user.is_admin_user:
-        # Admins see all responses
-        responses = Response.objects.filter(
-            status='submitted'
-        ).select_related('survey', 'respondent').order_by('-submitted_at')
+        surveys = Survey.objects.annotate(
+            submission_count=Count('responses', filter=Q(responses__status='submitted'), distinct=True),
+            total_questions=Count('questions', distinct=True)
+        ).order_by('-created_at')
     else:
         messages.error(request, 'Access denied.')
         return redirect('accounts:index')
 
-    # Filter by survey
-    survey_id = request.GET.get('survey')
-    if survey_id:
-        responses = responses.filter(survey_id=survey_id)
+    # Search
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        surveys = surveys.filter(title__icontains=search_query)
+
+    context = {
+        'surveys': surveys,
+        'search_query': search_query,
+    }
+
+    return render(request, 'responses/response_list.html', context)
+
+
+@login_required
+def survey_responses(request, survey_id):
+    """List responses for a specific survey"""
+    user = request.user
+    survey = get_object_or_404(Survey, id=survey_id)
+
+    # Check permission
+    if not user.is_admin_user and survey.creator != user:
+        messages.error(request, 'Access denied.')
+        return redirect('responses:response_list')
+
+    responses = Response.objects.filter(
+        survey=survey,
+        status='submitted'
+    ).select_related('respondent').order_by('-submitted_at')
 
     # Search
     search_query = request.GET.get('search', '').strip()
     if search_query:
         responses = responses.filter(
-            Q(survey__title__icontains=search_query) |
             Q(respondent__username__icontains=search_query) |
             Q(respondent__first_name__icontains=search_query) |
             Q(respondent__last_name__icontains=search_query)
         )
 
+    # Date filtering
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    if date_from:
+        responses = responses.filter(submitted_at__date__gte=date_from)
+    if date_to:
+        responses = responses.filter(submitted_at__date__lte=date_to)
+
     # Sorting
     sort_by = request.GET.get('sort', '-submitted_at')
-    if sort_by in ['-submitted_at', 'submitted_at', 'survey__title', 'respondent__username']:
+    if sort_by in ['-submitted_at', 'submitted_at', 'respondent__username']:
         responses = responses.order_by(sort_by)
 
-    # Get surveys for filter dropdown
-    if user.is_teacher:
-        surveys = Survey.objects.filter(creator=user).order_by('title')
-    else:
-        surveys = Survey.objects.all().order_by('title')
-
     # Pagination
-    paginator = Paginator(responses, 20)  # 20 responses per page
+    paginator = Paginator(responses, 20)
     page = request.GET.get('page')
     
     try:
@@ -74,15 +98,16 @@ def response_list(request):
         responses_page = paginator.page(paginator.num_pages)
 
     context = {
+        'survey': survey,
         'responses': responses_page,
         'total_responses': paginator.count,
         'search_query': search_query,
         'sort_by': sort_by,
-        'surveys': surveys,
-        'selected_survey': survey_id,
+        'date_from': date_from,
+        'date_to': date_to,
     }
 
-    return render(request, 'responses/response_list.html', context)
+    return render(request, 'responses/survey_responses.html', context)
 
 
 @login_required

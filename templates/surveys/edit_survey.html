@@ -19,18 +19,18 @@
             <a href="{% url 'accounts:teacher_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                 <span class="material-icons">home</span>
             </a>
-            <button class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
+            <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
                 <span class="material-icons">list_alt</span>
-            </button>
-            <button class="sidebar-btn" aria-label="History" data-tooltip="History">
-                <span class="material-icons">history</span>
-            </button>
+            </a>
+            <a href="{% url 'responses:response_list' %}" class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
+                <span class="material-icons">assignment_turned_in</span>
+            </a>
+            <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
+                <span class="material-icons">analytics</span>
+            </a>
             <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                 <span class="material-icons">person</span>
             </a>
-            <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
-                <span class="material-icons">settings</span>
-            </button>
         </nav>
 
         <!-- Spacer -->
@@ -47,12 +47,7 @@
     <!-- Main Content -->
     <div class="main-content">
         <!-- Header -->
-        <div class="header">
-            <!-- Logo in left corner -->
-            <div class="header-logo-section">
-                <img src="{% static 'images/logo.png' %}" alt="EduQuery" class="corner-logo" />
-            </div>
-        </div>
+        
 
         <!-- Content Area -->
         <div class="content-area">

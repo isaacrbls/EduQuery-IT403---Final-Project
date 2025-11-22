@@ -103,6 +103,12 @@ function initializeEventListeners() {
         editBtn.addEventListener('click', handleEditProfile);
     }
 
+    // Update Password Button
+    const updatePassBtn = document.getElementById('updatePasswordBtn');
+    if (updatePassBtn) {
+        updatePassBtn.addEventListener('click', handleUpdatePassword);
+    }
+
     // Save Profile Button
     const saveBtn = document.getElementById('saveProfileBtn');
     if (saveBtn) {
@@ -174,17 +180,20 @@ function handleLogout() {
    Profile Management Functions
    ============================================ */
 
+let currentMode = null; // 'profile' or 'password'
+
 function handleEditProfile() {
     console.log('Enabling edit mode...');
+    currentMode = 'profile';
 
     // Enable form inputs
-    setFormReadOnly(false);
+    setFormReadOnly(false, 'profile');
 
     // Toggle buttons
     toggleEditButtons(true);
 
     // Focus on first input
-    const nameInput = document.getElementById('name');
+    const nameInput = document.getElementById('first_name');
     if (nameInput) {
         nameInput.focus();
         nameInput.select();
@@ -192,6 +201,26 @@ function handleEditProfile() {
 
     // Add visual feedback
     showNotification('Edit mode enabled', 'info');
+}
+
+function handleUpdatePassword() {
+    console.log('Enabling password update mode...');
+    currentMode = 'password';
+
+    // Enable form inputs
+    setFormReadOnly(false, 'password');
+
+    // Toggle buttons
+    toggleEditButtons(true);
+
+    // Focus on password input
+    const passInput = document.getElementById('password');
+    if (passInput) {
+        passInput.focus();
+    }
+
+    // Add visual feedback
+    showNotification('Password update mode enabled', 'info');
 }
 
 function handleSaveProfile() {
@@ -221,9 +250,10 @@ function handleSaveProfile() {
             // Disable edit mode
             setFormReadOnly(true);
             toggleEditButtons(false);
+            currentMode = null;
 
             // Show success message
-            showNotification('Profile updated successfully!', 'success');
+            showNotification(currentMode === 'password' ? 'Password updated successfully!' : 'Profile updated successfully!', 'success');
 
             // Here you would typically send the data to your backend
             console.log('Form data to save:', formData);
@@ -241,6 +271,7 @@ function handleCancelEdit() {
         // Disable edit mode
         setFormReadOnly(true);
         toggleEditButtons(false);
+        currentMode = null;
 
         // Show notification
         showNotification('Changes cancelled', 'info');
@@ -314,50 +345,92 @@ function handleChangeProfilePicture() {
    Form Management Functions
    ============================================ */
 
-function setFormReadOnly(readonly) {
+function setFormReadOnly(readonly, mode = null) {
     const inputs = document.querySelectorAll('.form-input');
     inputs.forEach(input => {
-        // All fields should be readonly by default, only editable when in edit mode
-        input.readOnly = readonly;
+        // Skip position field - it should always be readonly
+        if (input.id === 'position') return;
 
-        // Update visual styling based on readonly state
         if (readonly) {
+            input.readOnly = true;
             input.classList.add('readonly-mode');
         } else {
-            input.classList.remove('readonly-mode');
+            if (mode === 'profile') {
+                // Enable profile fields, disable password fields
+                if (input.id === 'password' || input.id === 'confirm_password') {
+                    input.readOnly = true;
+                    input.classList.add('readonly-mode');
+                } else {
+                    input.readOnly = false;
+                    input.classList.remove('readonly-mode');
+                }
+            } else if (mode === 'password') {
+                // Enable password fields, disable profile fields
+                if (input.id === 'password' || input.id === 'confirm_password') {
+                    input.readOnly = false;
+                    input.classList.remove('readonly-mode');
+                } else {
+                    input.readOnly = true;
+                    input.classList.add('readonly-mode');
+                }
+            }
         }
     });
 }
 
 function toggleEditButtons(isEditing) {
     const editBtn = document.getElementById('editProfileBtn');
+    const updatePassBtn = document.getElementById('updatePasswordBtn');
     const saveBtn = document.getElementById('saveProfileBtn');
     const cancelBtn = document.getElementById('cancelEditBtn');
 
     if (editBtn) editBtn.style.display = isEditing ? 'none' : 'flex';
+    if (updatePassBtn) updatePassBtn.style.display = isEditing ? 'none' : 'flex';
     if (saveBtn) saveBtn.style.display = isEditing ? 'flex' : 'none';
     if (cancelBtn) cancelBtn.style.display = isEditing ? 'flex' : 'none';
 }
 
 function validateForm() {
-    const requiredFields = ['name', 'email'];
     let isValid = true;
 
-    requiredFields.forEach(fieldName => {
-        const field = document.getElementById(fieldName);
-        if (field && !field.value.trim()) {
-            showFieldError(field, `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`);
-            isValid = false;
-        } else if (field) {
-            clearFieldError(field);
-        }
-    });
+    if (currentMode === 'profile') {
+        const requiredFields = ['first_name', 'last_name', 'email'];
 
-    // Validate email format
-    const email = document.getElementById('email');
-    if (email && email.value && !isValidEmail(email.value)) {
-        showFieldError(email, 'Please enter a valid email address');
-        isValid = false;
+        requiredFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field && !field.value.trim()) {
+                showFieldError(field, `${fieldName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} is required`);
+                isValid = false;
+            } else if (field) {
+                clearFieldError(field);
+            }
+        });
+
+        // Validate email format
+        const email = document.getElementById('email');
+        if (email && email.value && !isValidEmail(email.value)) {
+            showFieldError(email, 'Please enter a valid email address');
+            isValid = false;
+        }
+    } else if (currentMode === 'password') {
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        
+        if (password && !password.value) {
+             showFieldError(password, 'Password is required');
+             isValid = false;
+        } else if (password) {
+             clearFieldError(password);
+        }
+
+        if (password && password.value) {
+            if (password.value !== confirmPassword.value) {
+                showFieldError(confirmPassword, 'Passwords do not match');
+                isValid = false;
+            } else {
+                clearFieldError(confirmPassword);
+            }
+        }
     }
 
     return isValid;
@@ -376,15 +449,8 @@ function getFormData() {
 }
 
 function resetFormData() {
-    // Reset to original values (you would get these from your backend)
-    const userName = document.body.getAttribute('data-user-name') || 'Khy User';
-    const userEmail = 'khy@example.com'; // This would come from your backend
-
-    document.getElementById('name').value = userName;
-    document.getElementById('email').value = userEmail;
-    document.getElementById('confirmEmail').value = userEmail;
-    document.getElementById('position').value = 'Student';
-    document.getElementById('section').value = 'IT-401';
+    // Reload page to reset form data
+    window.location.reload();
 }
 
 /* ============================================

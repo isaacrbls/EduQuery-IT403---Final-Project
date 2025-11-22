@@ -15,6 +15,7 @@ import os
 import sys
 import django
 from datetime import datetime, timedelta
+import random
 
 # Setup Django environment
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'eduquery.settings')
@@ -389,6 +390,107 @@ def create_sample_surveys(teacher, sections):
     return surveys_created
 
 
+def create_sample_responses(students, surveys):
+    """Create sample responses for surveys"""
+    print("\n" + "=" * 60)
+    print("STEP 5: Creating Sample Responses")
+    print("=" * 60)
+
+    responses_created = 0
+    
+    # Text comments pool
+    positive_comments = [
+        "Great course!", "I learned a lot.", "The teacher is very helpful.", 
+        "Excellent materials.", "Enjoyed the practical exercises.",
+        "Very engaging lectures.", "Clear explanations.", "Good pace."
+    ]
+    neutral_comments = [
+        "It was okay.", "Average course.", "Could be better.", 
+        "Some parts were hard.", "Need more examples.",
+        "The pace was a bit fast.", "Materials were sufficient."
+    ]
+    negative_comments = [
+        "Too difficult.", "Not enough support.", "Confusing instructions.",
+        "Technical issues were frustrating.", "Lectures were boring.",
+        "Need more time for assignments."
+    ]
+    
+    all_comments = positive_comments + neutral_comments + negative_comments
+
+    for survey in surveys:
+        # Determine how many students will respond (60-90%)
+        num_respondents = int(len(students) * random.uniform(0.6, 0.9))
+        respondents = random.sample(students, num_respondents)
+        
+        print(f"Generating {num_respondents} responses for '{survey.title}'...")
+        
+        for student in respondents:
+            # Check if response already exists
+            if Response.objects.filter(survey=survey, respondent=student).exists():
+                continue
+                
+            # Create response
+            start_time = timezone.now() - timedelta(days=random.randint(0, 5), minutes=random.randint(10, 60))
+            submit_time = start_time + timedelta(minutes=random.randint(5, 30))
+            
+            response = Response.objects.create(
+                survey=survey,
+                respondent=student,
+                status='submitted',
+                started_at=start_time,
+                submitted_at=submit_time,
+                ip_address=f"192.168.1.{random.randint(2, 254)}"
+            )
+            
+            # Answer questions
+            for question in survey.questions.all():
+                answer = Answer(response=response, question=question)
+                
+                if question.question_type == 'multiple_choice':
+                    # Pick a random option
+                    options = list(question.option_choices.all())
+                    if options:
+                        # Bias towards first 2 options for realistic data
+                        weights = [0.4, 0.3] + [0.3/(len(options)-2)] * (len(options)-2) if len(options) > 2 else [0.5, 0.5]
+                        selected = random.choices(options, weights=weights[:len(options)], k=1)[0]
+                        answer.selected_option = selected
+                        answer.save()
+                        
+                elif question.question_type == 'checkbox':
+                    # Pick 1-3 random options
+                    options = list(question.option_choices.all())
+                    if options:
+                        num_selected = random.randint(1, min(3, len(options)))
+                        selected = random.sample(options, num_selected)
+                        answer.save() # Save first to get ID
+                        answer.selected_options.set(selected)
+                        
+                elif question.question_type == 'likert_scale':
+                    # Pick a number between min and max, bias towards higher numbers
+                    r = random.random()
+                    if r < 0.1: val = 1
+                    elif r < 0.2: val = 2
+                    elif r < 0.4: val = 3
+                    elif r < 0.7: val = 4
+                    else: val = 5
+                    
+                    # Ensure within bounds
+                    val = max(question.likert_min, min(question.likert_max, val))
+                    answer.number_answer = val
+                    answer.save()
+                    
+                elif question.question_type in ['short_answer', 'long_answer']:
+                    # Add random text
+                    if random.random() > 0.3: # 70% chance of answering text
+                        answer.text_answer = random.choice(all_comments)
+                        answer.save()
+            
+            responses_created += 1
+            
+    print(f"✓ Created {responses_created} responses across {len(surveys)} surveys")
+    return responses_created
+
+
 def main():
     """Main setup function"""
     print("\n")
@@ -435,6 +537,13 @@ def main():
         print(f"\n✗ Error creating surveys: {e}")
         sys.exit(1)
 
+    # Step 5: Create sample responses
+    try:
+        create_sample_responses(students, Survey.objects.all())
+    except Exception as e:
+        print(f"\n✗ Error creating responses: {e}")
+        sys.exit(1)
+
     # Final summary
     print("\n" + "=" * 60)
     print(" " * 15 + "SETUP COMPLETE!")
@@ -447,6 +556,7 @@ def main():
     print(f"  │  └─ Students: {User.objects.filter(user_type='student').count()}")
     print(f"  ├─ Sections: {Section.objects.count()}")
     print(f"  ├─ Surveys: {Survey.objects.count()}")
+    print(f"  ├─ Responses: {Response.objects.count()}")
     print(f"  ├─ Questions: {Question.objects.count()}")
     print(f"  └─ Activity Logs: {ActivityLog.objects.count()}")
 

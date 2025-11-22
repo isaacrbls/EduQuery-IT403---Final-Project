@@ -9,10 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/Profile.css' %}">
     <script src="{% static 'js/modal.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script defer src="{% static 'js/accounts/Profile.js' %}?v=2"></script>
 </head>
 
@@ -21,35 +23,36 @@
         <!-- Enhanced Sidebar -->
         <div class="sidebar">
             <nav class="sidebar-nav" role="navigation">
-                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+                <a href="{% if request.user.is_teacher %}{% url 'accounts:teacher_dashboard' %}{% else %}{% url 'accounts:student_dashboard' %}{% endif %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                     <span class="material-icons">home</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
+                </a>
+                <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
-                </button>
-                <button class="sidebar-btn" aria-label="History" data-tooltip="History">
+                </a>
+                {% if request.user.user_type == 'student' %}
+                <a href="{% url 'accounts:student_history' %}" class="sidebar-btn" aria-label="History" data-tooltip="History">
                     <span class="material-icons">history</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
+                </a>
+                {% endif %}
+                {% if request.user.user_type == 'teacher' %}
+                <a href="{% url 'responses:response_list' %}" class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
                     <span class="material-icons">assignment_turned_in</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
+                </a>
+                {% endif %}
+                <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
                     <span class="material-icons">analytics</span>
-                </button>
-                <button class="sidebar-btn active" aria-label="Profile" data-tooltip="Profile">
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="sidebar-btn active" aria-label="Profile" data-tooltip="Profile">
                     <span class="material-icons">person</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
-                    <span class="material-icons">settings</span>
-                </button>
+                </a>
             </nav>
 
             <div class="sidebar-spacer"></div>
 
             <div class="sidebar-user">
-                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </button>
+                </a>
             </div>
         </div>
 
@@ -57,12 +60,7 @@
         <div class="main-content">
             <!-- Header Section -->
             <div class="header-section">
-                <!-- EduQuery Logo Branding -->
-                <div class="branding">
-                    <div class="brand-logo-container">
-                        <img src=\"{% static 'images/accounts/logo2.png' %}\" alt="EDUQUERY" class="brand-logo-img">
-                    </div>
-                </div>
+
 
                 <!-- Welcome Message -->
                 <div class="welcome-section">
@@ -94,10 +92,17 @@
                         <!-- Profile Form -->
                         <div class="profile-form-section">
                             <form class="profile-form" id="profileForm">
-                                <div class="form-group">
-                                    <label for="name" class="form-label">Name</label>
-                                    <input type="text" id="name" name="name" class="form-input"
-                                           value="{{ request.user.get_full_name|default:'Khy User' }}" readonly>
+                                <div class="form-row">
+                                    <div class="form-group half-width">
+                                        <label for="first_name" class="form-label">First Name</label>
+                                        <input type="text" id="first_name" name="first_name" class="form-input"
+                                               value="{{ request.user.first_name }}" readonly>
+                                    </div>
+                                    <div class="form-group half-width">
+                                        <label for="last_name" class="form-label">Last Name</label>
+                                        <input type="text" id="last_name" name="last_name" class="form-input"
+                                               value="{{ request.user.last_name }}" readonly>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -107,28 +112,29 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="confirmEmail" class="form-label">Confirm Email</label>
-                                    <input type="email" id="confirmEmail" name="confirmEmail" class="form-input"
-                                           value="{{ request.user.email|default:'khy@example.com' }}" readonly>
+                                    <label for="password" class="form-label">Change Password</label>
+                                    <input type="password" id="password" name="password" class="form-input" placeholder="New Password" readonly>
                                 </div>
 
-                                <div class="form-row">
-                                    <div class="form-group half-width">
-                                        <label for="position" class="form-label">Position</label>
-                                        <input type="text" id="position" name="position" class="form-input"
-                                               value="{{ user_profile.position|default:'Student' }}" readonly>
-                                    </div>
-                                    <div class="form-group half-width">
-                                        <label for="section" class="form-label">Section</label>
-                                        <input type="text" id="section" name="section" class="form-input"
-                                               value="{{ user_profile.section|default:'IT-401' }}" readonly>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                                    <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Confirm New Password" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="position" class="form-label">Position</label>
+                                    <input type="text" id="position" name="position" class="form-input"
+                                           value="{{ user_profile.position|default:'Student' }}" readonly disabled style="background-color: #e9ecef; cursor: not-allowed;">
                                 </div>
 
                                 <div class="form-actions">
                                     <button type="button" class="edit-profile-btn" id="editProfileBtn">
                                         <span class="btn-icon material-icons">edit</span>
                                         Edit Profile
+                                    </button>
+                                    <button type="button" class="update-password-btn" id="updatePasswordBtn">
+                                        <span class="btn-icon material-icons">lock</span>
+                                        Update Password
                                     </button>
                                     <button type="submit" class="save-profile-btn" id="saveProfileBtn" style="display: none;">
                                         <span class="btn-icon material-icons">save</span>
@@ -145,6 +151,7 @@
                 </div>
 
                 <!-- Statistics Cards -->
+                {% if request.user.user_type == 'student' %}
                 <div class="statistics-section">
                     <div class="stat-card">
                         <div class="stat-header">
@@ -167,6 +174,7 @@
                         <div class="stat-value active">{{ participation_status|default:'Active' }}</div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

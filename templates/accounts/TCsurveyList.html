@@ -9,8 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{%static 'css/accounts/TCsurveyList.css' %}?v=3">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script defer src="{%static 'js/accounts/TCsurveyList.js' %}?v=3"></script>
 </head>
 
@@ -20,27 +23,21 @@
         <div class="sidebar">
             <!-- Navigation Section -->
             <nav class="sidebar-nav" role="navigation">
-                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+                <a href="{% url 'accounts:teacher_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                     <span class="material-icons">home</span>
-                </button>
-                <button class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
+                </a>
+                <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
-                </button>
-                <button class="sidebar-btn" aria-label="History" data-tooltip="History">
-                    <span class="material-icons">history</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
+                </a>
+                <a href="{% url 'responses:response_list' %}" class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
                     <span class="material-icons">assignment_turned_in</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
+                </a>
+                <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
                     <span class="material-icons">analytics</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                     <span class="material-icons">person</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
-                    <span class="material-icons">settings</span>
-                </button>
+                </a>
             </nav>
 
             <!-- Spacer -->
@@ -48,9 +45,9 @@
 
             <!-- User Section -->
             <div class="sidebar-user">
-                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </button>
+                </a>
             </div>
         </div>
 
@@ -86,7 +83,7 @@
 
                 <!-- Results Counter -->
                 <div class="results-counter">
-                    <span id="results-count">Showing 6 of 6 surveys</span>
+                    <span id="results-count">Showing {{ surveys|length }} of {{ surveys|length }} surveys</span>
                 </div>
 
                 <!-- Floating Create Button -->
@@ -97,261 +94,85 @@
 
                 <!-- Survey List Container -->
                     <div class="surveys-list" id="surveys-container">
-                        <!-- Active Survey -->
-                        <div class="survey-item active" data-status="active" data-due="2025-11-15">
+                        {% for survey in surveys %}
+                        <div class="survey-item {{ survey.status }}" data-status="{{ survey.status }}" data-due="{{ survey.due_date|date:'Y-m-d' }}">
                             <div class="survey-left">
-                                <div class="survey-icon-wrapper">
-                                    <span class="material-icons">assignment</span>
+                                <div class="survey-icon-wrapper {{ survey.status }}">
+                                    {% if survey.status == 'active' or survey.status == 'published' %}
+                                        <span class="material-icons">assignment</span>
+                                    {% elif survey.status == 'draft' %}
+                                        <span class="material-icons">drafts</span>
+                                    {% elif survey.status == 'closed' %}
+                                        <span class="material-icons">assignment_turned_in</span>
+                                    {% else %}
+                                        <span class="material-icons">assignment</span>
+                                    {% endif %}
                                 </div>
                                 <div class="survey-content">
-                                    <h3 class="survey-title">IT403 Final Project Evaluation</h3>
+                                    <h3 class="survey-title">{{ survey.title }}</h3>
                                     <div class="survey-meta">
                                         <span class="meta-item">
                                             <span class="material-icons">event</span>
-                                            Created: Nov 1, 2025
+                                            Created: {{ survey.created_at|date:"M d, Y" }}
                                         </span>
                                         <span class="meta-item">
                                             <span class="material-icons">schedule</span>
-                                            Due: Nov 15, 2025
+                                            Due: {% if survey.due_date %}{{ survey.due_date|date:"M d, Y" }}{% else %}Not Set{% endif %}
                                         </span>
                                         <span class="meta-item">
                                             <span class="material-icons">people</span>
-                                            25 Responses
+                                            {{ survey.response_count }} Responses
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="survey-right">
-                                <div class="survey-status-badge active">
+                                <div class="survey-status-badge {{ survey.status }}">
                                     <span class="status-dot"></span>
-                                    ACTIVE
+                                    {{ survey.get_status_display|upper }}
                                 </div>
                                 <div class="action-buttons">
-                                    <button class="action-btn edit-btn" onclick="editSurvey('it403-eval')">
-                                        <span class="material-icons">edit</span>
-                                        Edit
-                                    </button>
-                                    <button class="action-btn delete-btn" onclick="deleteSurvey('it403-eval')">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Draft Survey -->
-                        <div class="survey-item draft" data-status="draft" data-due="2025-11-20">
-                            <div class="survey-left">
-                                <div class="survey-icon-wrapper draft">
-                                    <span class="material-icons">drafts</span>
-                                </div>
-                                <div class="survey-content">
-                                    <h3 class="survey-title">Database Design Mid-term Feedback</h3>
-                                    <div class="survey-meta">
-                                        <span class="meta-item">
-                                            <span class="material-icons">event</span>
-                                            Created: Nov 3, 2025
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">schedule</span>
-                                            Due: Not Set
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">people</span>
-                                            0 Responses
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-right">
-                                <div class="survey-status-badge draft">
-                                    <span class="status-dot"></span>
-                                    DRAFT
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn publish-btn" onclick="publishSurvey('db-design')">
+                                    {% if survey.status == 'draft' %}
+                                    <button class="action-btn publish-btn" onclick="publishSurvey('{{ survey.id }}')">
                                         <span class="material-icons">publish</span>
                                         Publish
                                     </button>
-                                    <button class="action-btn edit-btn" onclick="editSurvey('db-design')">
-                                        <span class="material-icons">edit</span>
-                                        Edit
-                                    </button>
-                                    <button class="action-btn delete-btn" onclick="deleteSurvey('db-design')">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Closed Survey -->
-                        <div class="survey-item closed" data-status="closed" data-due="2025-10-30">
-                            <div class="survey-left">
-                                <div class="survey-icon-wrapper closed">
-                                    <span class="material-icons">assignment_turned_in</span>
-                                </div>
-                                <div class="survey-content">
-                                    <h3 class="survey-title">Web Development Course Evaluation</h3>
-                                    <div class="survey-meta">
-                                        <span class="meta-item">
-                                            <span class="material-icons">event</span>
-                                            Created: Oct 15, 2025
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">check_circle</span>
-                                            Closed: Oct 30, 2025
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">people</span>
-                                            42 Responses
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-right">
-                                <div class="survey-status-badge closed">
-                                    <span class="status-dot"></span>
-                                    CLOSED
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn view-btn" onclick="viewResults('web-dev')">
+                                    {% endif %}
+                                    
+                                    {% if survey.status == 'closed' %}
+                                    <button class="action-btn view-btn" onclick="viewResults('{{ survey.id }}')">
                                         <span class="material-icons">visibility</span>
                                         View Results
                                     </button>
-                                    <button class="action-btn delete-btn" onclick="deleteSurvey('web-dev')">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Overdue Survey -->
-                        <div class="survey-item overdue" data-status="overdue" data-due="2025-10-30">
-                            <div class="survey-left">
-                                <div class="survey-icon-wrapper overdue">
-                                    <span class="material-icons">warning</span>
-                                </div>
-                                <div class="survey-content">
-                                    <h3 class="survey-title">Web Development Mid-term Evaluation</h3>
-                                    <div class="survey-meta">
-                                        <span class="meta-item">
-                                            <span class="material-icons">event</span>
-                                            Created: Oct 10, 2025
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">warning</span>
-                                            Overdue since: Oct 30, 2025
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">people</span>
-                                            18 Responses
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-right">
-                                <div class="survey-status-badge overdue">
-                                    <span class="status-dot"></span>
-                                    OVERDUE
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn edit-btn" onclick="editSurvey('web-midterm')">
+                                    {% else %}
+                                    <button class="action-btn edit-btn" onclick="editSurvey('{{ survey.id }}')">
                                         <span class="material-icons">edit</span>
                                         Edit
                                     </button>
-                                    <button class="action-btn delete-btn" onclick="deleteSurvey('web-midterm')">
+                                    {% endif %}
+                                    
+                                    <button class="action-btn delete-btn" onclick="deleteSurvey('{{ survey.id }}')">
                                         <span class="material-icons">delete</span>
                                         Delete
                                     </button>
                                 </div>
                             </div>
                         </div>
+                        {% empty %}
+                        <div class="no-surveys">
+                            <p>No surveys found. Create one to get started!</p>
+                        </div>
+                        {% endfor %}
 
-                        <!-- Upcoming Survey -->
-                        <div class="survey-item upcoming" data-status="upcoming" data-due="2025-11-20">
-                            <div class="survey-left">
-                                <div class="survey-icon-wrapper upcoming">
-                                    <span class="material-icons">schedule</span>
-                                </div>
-                                <div class="survey-content">
-                                    <h3 class="survey-title">Web Development Final Review</h3>
-                                    <div class="survey-meta">
-                                        <span class="meta-item">
-                                            <span class="material-icons">event</span>
-                                            Created: Nov 4, 2025
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">schedule</span>
-                                            Opens: Nov 20, 2025
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">people</span>
-                                            0 Responses
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-right">
-                                <div class="survey-status-badge upcoming">
-                                    <span class="status-dot"></span>
-                                    UPCOMING
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn edit-btn" onclick="editSurvey('web-final')">
-                                        <span class="material-icons">edit</span>
-                                        Edit
-                                    </button>
-                                    <button class="action-btn delete-btn" onclick="deleteSurvey('web-final')">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Active Survey 2 -->
-                        <div class="survey-item active" data-status="active" data-due="2025-11-18">
-                            <div class="survey-left">
-                                <div class="survey-icon-wrapper">
-                                    <span class="material-icons">assignment</span>
-                                </div>
-                                <div class="survey-content">
-                                    <h3 class="survey-title">Software Engineering Practice Evaluation</h3>
-                                    <div class="survey-meta">
-                                        <span class="meta-item">
-                                            <span class="material-icons">event</span>
-                                            Created: Nov 2, 2025
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">schedule</span>
-                                            Due: Nov 18, 2025
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">people</span>
-                                            38 Responses
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-right">
-                                <div class="survey-status-badge active">
-                                    <span class="status-dot"></span>
-                                    ACTIVE
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="action-btn edit-btn" onclick="editSurvey('se-practice')">
-                                        <span class="material-icons">edit</span>
-                                        Edit
-                                    </button>
-                                    <button class="action-btn delete-btn" onclick="deleteSurvey('se-practice')">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+
+
+
+
+
+
+
+
                     </div>
             </div>
         </div>

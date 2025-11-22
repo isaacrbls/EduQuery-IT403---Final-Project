@@ -16,27 +16,21 @@
     <div class="sidebar">
         <!-- Navigation Section -->
         <nav class="sidebar-nav" role="navigation">
-            <button class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+            <a href="{% url 'accounts:teacher_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                 <span class="material-icons">home</span>
-            </button>
-            <button class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
+            </a>
+            <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
                 <span class="material-icons">list_alt</span>
-            </button>
-            <button class="sidebar-btn" aria-label="History" data-tooltip="History">
-                <span class="material-icons">history</span>
-            </button>
-            <button class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
+            </a>
+            <a href="{% url 'responses:response_list' %}" class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
                 <span class="material-icons">assignment_turned_in</span>
-            </button>
-            <button class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
+            </a>
+            <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
                 <span class="material-icons">analytics</span>
-            </button>
-            <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+            </a>
+            <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                 <span class="material-icons">person</span>
-            </button>
-            <button class="sidebar-btn" aria-label="Settings" data-tooltip="Settings">
-                <span class="material-icons">settings</span>
-            </button>
+            </a>
         </nav>
 
         <!-- Spacer -->
@@ -44,9 +38,9 @@
 
         <!-- User Section -->
         <div class="sidebar-user">
-            <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+            <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                 <span class="material-icons">logout</span>
-            </button>
+            </a>
         </div>
     </div>
 
@@ -389,7 +383,7 @@ function goToHome() {
 }
 
 function goToSurveyList() {
-    window.location.href = '/surveys/builder/';
+    window.location.href = '/surveys/';
 }
 
 function goToHistory() {
@@ -406,10 +400,6 @@ function goToAnalytics() {
 
 function goToProfile() {
     window.location.href = '/profile/';
-}
-
-function goToSettings() {
-    window.location.href = '/settings/';
 }
 
 function handleLogout() {
@@ -435,8 +425,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 goToAnalytics();
             } else if (label === 'Profile') {
                 goToProfile();
-            } else if (label === 'Settings') {
-                goToSettings();
             } else if (label === 'Logout') {
                 handleLogout();
             }

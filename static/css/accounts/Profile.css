@@ -680,6 +680,32 @@ body {
     box-shadow: var(--shadow-md);
 }
 
+/* Update Password Button */
+.update-password-btn {
+    padding: var(--space-3) var(--space-5);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--duration-normal) var(--ease-out);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 120px;
+    justify-content: center;
+    background: #4B5563 !important; /* Gray-600 */
+    color: white !important;
+    border: 2px solid #4B5563 !important;
+}
+
+.update-password-btn:hover {
+    background: #374151 !important; /* Gray-700 */
+    border-color: #374151 !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
 /* ============================================
    Statistics Section
    ============================================ */

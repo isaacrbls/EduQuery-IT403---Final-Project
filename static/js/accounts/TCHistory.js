@@ -9,7 +9,7 @@ function goToHome() {
 }
 
 function goToSurveyList() {
-    window.location.href = '/surveys/builder/';
+    window.location.href = '/surveys/';
 }
 
 function goToHistory() {

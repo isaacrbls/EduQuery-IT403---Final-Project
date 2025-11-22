@@ -19,12 +19,15 @@
     --brand: #2F5E53;
 }
 
+a {
+    text-decoration: none !important;
+}
+
 body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, var(--zinc-300) 0%, var(--sage) 100%);
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+    margin: 0;
+    padding: 0;
 }
 
 main {

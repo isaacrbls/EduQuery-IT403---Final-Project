@@ -13,7 +13,6 @@ urlpatterns = [
 
     # Profile and settings
     path('profile/', views.profile, name='profile'),
-    path('settings/', views.settings_view, name='settings'),
     path('student/analytics/', views.analytics_view, name='analytics'),
 
     path('forgot-password/', views.forgot_password, name='forgot_password'),

@@ -329,6 +329,10 @@ def survey_builder(request, survey_id=None):
 
 @login_required
 def survey_list(request):
+    if request.user.is_teacher:
+        surveys = request.user.created_surveys.all().order_by('-created_at')
+        return render(request, 'accounts/TCsurveyList.html', {'surveys': surveys})
+
     if not request.user.is_student:
         messages.error(request, 'Access denied. Students only.')
         return redirect('accounts:index')

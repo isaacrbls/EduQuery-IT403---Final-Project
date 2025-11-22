@@ -27,9 +27,11 @@
                 <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
                 </button>
+                {% if request.user.user_type == 'student' %}
                 <button class="sidebar-btn" aria-label="History" data-tooltip="History">
                     <span class="material-icons">history</span>
                 </button>
+                {% endif %}
                 <button class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
                     <span class="material-icons">assignment_turned_in</span>
                 </button>
