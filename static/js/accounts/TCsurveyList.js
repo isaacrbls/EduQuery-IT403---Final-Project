@@ -156,21 +156,43 @@ function goToHome() {
 
 // Modal Functions
 function openCreateSurveyModal() {
+    const createUrl = document.body.getAttribute('data-create-survey-url');
+    if (createUrl) {
+        window.location.href = createUrl;
+        return;
+    }
+
     const modal = document.getElementById('createSurveyModal');
+    if (!modal) {
+        console.warn('Create survey modal not found and no redirect URL provided.');
+        return;
+    }
+
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeCreateSurveyModal() {
     const modal = document.getElementById('createSurveyModal');
+    if (!modal) {
+        return;
+    }
+
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
 
     // Reset form
-    document.getElementById('createSurveyForm').reset();
+    const createForm = document.getElementById('createSurveyForm');
+    if (!createForm) {
+        return;
+    }
+    createForm.reset();
 
     // Reset questions to just one
     const questionsContainer = document.getElementById('questions-container');
+    if (!questionsContainer) {
+        return;
+    }
     questionsContainer.innerHTML = `
         <div class="question-item" data-question-id="1">
             <div class="question-header">
@@ -294,40 +316,51 @@ function editSurvey(surveyId) {
 }
 
 function deleteSurvey(surveyId) {
-    if (confirm('Are you sure you want to delete this survey? This action cannot be undone.')) {
-        showNotification('Survey deleted successfully!', 'success');
-        // In a real application, this would delete from the database
-        setTimeout(() => {
-            // Find the survey item by its onclick attribute
-            const allSurveys = document.querySelectorAll('.survey-item');
-            allSurveys.forEach(item => {
-                const deleteBtn = item.querySelector('.delete-btn');
-                if (deleteBtn && deleteBtn.getAttribute('onclick')?.includes(surveyId)) {
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateX(-20px)';
-                    setTimeout(() => {
-                        item.remove();
-                        updateResultsCount();
-                    }, 300);
-                }
-            });
-        }, 500);
-    }
+    Modal.show({
+        title: 'Delete Survey',
+        message: 'Are you sure you want to delete this survey? This action cannot be undone.',
+        type: 'danger',
+        confirmText: 'Delete',
+        onConfirm: () => {
+            showNotification('Survey deleted successfully!', 'success');
+            // In a real application, this would delete from the database
+            setTimeout(() => {
+                // Find the survey item by its onclick attribute
+                const allSurveys = document.querySelectorAll('.survey-item');
+                allSurveys.forEach(item => {
+                    const deleteBtn = item.querySelector('.delete-btn');
+                    if (deleteBtn && deleteBtn.getAttribute('onclick')?.includes(surveyId)) {
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateX(-20px)';
+                        setTimeout(() => {
+                            item.remove();
+                            updateResultsCount();
+                        }, 300);
+                    }
+                });
+            }, 500);
+        }
+    });
 }
 
 function publishSurvey(surveyId) {
-    if (confirm('Are you sure you want to publish this survey? Students will be able to access it.')) {
-        showNotification('Survey published successfully!', 'success');
-        // In a real application, this would update the database
-        setTimeout(() => {
-            // Update the survey card status
-            const surveyCard = document.querySelector(`[data-survey-id="${surveyId}"]`);
-            if (surveyCard) {
-                surveyCard.classList.remove('draft');
-                surveyCard.classList.add('active');
+    Modal.show({
+        title: 'Publish Survey',
+        message: 'Are you sure you want to publish this survey? Students will be able to access it.',
+        type: 'info',
+        confirmText: 'Publish',
+        onConfirm: () => {
+            showNotification('Survey published successfully!', 'success');
+            // In a real application, this would update the database
+            setTimeout(() => {
+                // Update the survey card status
+                const surveyCard = document.querySelector(`[data-survey-id="${surveyId}"]`);
+                if (surveyCard) {
+                    surveyCard.classList.remove('draft');
+                    surveyCard.classList.add('active');
 
-                const badge = surveyCard.querySelector('.survey-status-badge');
-                badge.className = 'survey-status-badge active';
+                    const badge = surveyCard.querySelector('.survey-status-badge');
+                    badge.className = 'survey-status-badge active';
                 badge.innerHTML = '<span class="status-dot"></span>ACTIVE';
 
                 const icon = surveyCard.querySelector('.survey-icon');

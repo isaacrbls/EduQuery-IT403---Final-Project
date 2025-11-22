@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}?v=3">
@@ -33,9 +32,6 @@
                 <a href="{% url 'accounts:student_history' %}" class="sidebar-btn" aria-label="Survey History" data-tooltip="Survey History">
                     <span class="material-icons">history</span>
                 </a>
-                <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
-                    <span class="material-icons">analytics</span>
-                </a>
                 <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                     <span class="material-icons">person</span>
                 </a>
@@ -44,44 +40,14 @@
             <div class="sidebar-spacer"></div>
 
             <div class="sidebar-user">
-                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </a>
+                </button>
             </div>
         </div>
 
         <!-- Main Content -->
         <div class="main-content">
-            <!-- Enhanced Header -->
-            <div class="header">
-    
-
-                <!-- User Profile Section -->
-                <div class="header-user-section">
-                    <div class="user-profile-card">
-                        <div class="user-avatar">
-                            <div class="avatar-circle"></div>
-                        </div>
-                        <div class="user-greeting">
-                            <span class="greeting">Hello, <span id="userName">{{ request.user.first_name|default:'Khy' }}</span>!</span>
-                            <span class="sub-greeting">Explore your dashboard and stay informed.</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="header-right">
-                    <div class="search-box">
-                        <label for="search-input" class="visually-hidden">Search</label>
-                        <input id="search-input" type="search" placeholder="Search..." />
-                        <span class="material-icons search-icon">search</span>
-                    </div>
-                    <div class="header-actions">
-                        <!-- Notifications removed -->
-                    </div>
-
-                </div>
-            </div>
-
             <!-- Content Area -->
             <div class="content-area">
                 <div class="content-layout">
@@ -232,102 +198,7 @@
                         </div>
                     </div>
 
-                    <!-- Right Sidebar -->
-                    <div class="right-sidebar">
-                        <!-- Announcement Card -->
-                        <div class="announcement-card">
-                            <div class="card-header">
-                                <h2>Announcements</h2>
-                                <span class="material-icons">campaign</span>
-                            </div>
-                            <div class="announcement-list">
-                                <div class="announcement-item">
-                                    <div class="announcement-icon">
-                                        <span class="material-icons">info</span>
-                                    </div>
-                                    <div class="announcement-content">
-                                        <h4>Please complete pending evaluations</h4>
-                                        <p>Due date: Nov 15, 2025</p>
-                                        <span class="announcement-time">2 hours ago</span>
-                                    </div>
-                                </div>
-                                <div class="announcement-item">
-                                    <div class="announcement-icon maintenance">
-                                        <span class="material-icons">build</span>
-                                    </div>
-                                    <div class="announcement-content">
-                                        <h4>System maintenance scheduled</h4>
-                                        <p>Nov 10, 2025 at 2:00 AM</p>
-                                        <span class="announcement-time">1 day ago</span>
-                                    </div>
-                                </div>
-                                <div class="announcement-item">
-                                    <div class="announcement-icon success">
-                                        <span class="material-icons">celebration</span>
-                                    </div>
-                                    <div class="announcement-content">
-                                        <h4>New survey features available</h4>
-                                        <p>Check out the enhanced UI</p>
-                                        <span class="announcement-time">3 days ago</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Analytics Card -->
-                        <div class="analytics-card">
-                            <div class="card-header">
-                                <h2>Analytics</h2>
-                                <span class="material-icons">analytics</span>
-                            </div>
-                            <div class="analytics-controls">
-                                <label for="month-select">Month</label>
-                                <select id="month-select" class="month-dropdown">
-                                    <option value="01">January</option>
-                                    <option value="02">February</option>
-                                    <option value="03">March</option>
-                                    <option value="04">April</option>
-                                    <option value="05">May</option>
-                                    <option value="06">June</option>
-                                    <option value="07">July</option>
-                                    <option value="08">August</option>
-                                    <option value="09">September</option>
-                                    <option value="10">October</option>
-                                    <option value="11" selected>November</option>
-                                    <option value="12">December</option>
-                                </select>
-                            </div>
-                            <div class="analytics-content">
-                                <div class="analytics-stats">
-                                    <div class="stat-mini">
-                                        <span class="stat-mini-value">75%</span>
-                                        <span class="stat-mini-label">Completion Rate</span>
-                                    </div>
-                                    <div class="stat-mini">
-                                        <span class="stat-mini-value">4.2</span>
-                                        <span class="stat-mini-label">Avg. Rating</span>
-                                    </div>
-                                </div>
-                                <div class="analytics-chart">
-                                    <div class="chart-placeholder">
-                                        <div class="chart-bars">
-                                            <div class="bar" style="height: 60%"></div>
-                                            <div class="bar" style="height: 80%"></div>
-                                            <div class="bar" style="height: 45%"></div>
-                                            <div class="bar" style="height: 90%"></div>
-                                            <div class="bar" style="height: 70%"></div>
-                                            <div class="bar" style="height: 55%"></div>
-                                            <div class="bar" style="height: 85%"></div>
-                                        </div>
-                                        <p class="chart-coming-soon">
-                                            <span class="material-icons">show_chart</span>
-                                            Analytics Coming Soon
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Right Sidebar Removed -->
                 </div>
             </div>
         </div>

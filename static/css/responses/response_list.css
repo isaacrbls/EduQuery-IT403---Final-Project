@@ -1,0 +1,186 @@
+:root {
+    --response-muted: var(--gray-400, #9ca3af);
+}
+
+.response-management-page {
+    padding-bottom: 40px;
+}
+
+.response-management-page .results-counter {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.response-grid {
+    margin-top: 10px;
+}
+
+/* User provided styles scoped to response management page */
+.response-management-page .survey-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-top: 4px solid;
+    transition: all var(--duration-normal) var(--ease-out);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    position: relative;
+    overflow: hidden;
+    align-items: stretch; /* Reset align-items from StudentDashboard.css */
+}
+
+.response-management-page .survey-card.active,
+.response-management-page .survey-card.published {
+    border-top-color: var(--success);
+}
+
+.response-management-page .survey-card.draft {
+    border-top-color: var(--draft);
+}
+
+.response-management-page .survey-card.closed {
+    border-top-color: var(--gray-400);
+}
+
+.response-management-page .survey-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+}
+
+.response-management-page .survey-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
+
+.response-management-page .survey-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.response-management-page .survey-description {
+    font-size: 14px;
+    color: var(--gray-600);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.response-management-page .survey-description.muted {
+    color: var(--response-muted);
+    font-style: italic;
+}
+
+.response-management-page .survey-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--gray-200);
+}
+
+.response-management-page .survey-card-actions {
+    display: flex;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--gray-200);
+}
+
+.response-management-page .survey-card-actions .action-btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+    text-decoration: none; /* Ensure links look like buttons */
+}
+
+.response-management-page .survey-left {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    flex: 1;
+}
+
+.response-management-page .survey-icon-wrapper {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: var(--primary-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.response-management-page .survey-icon-wrapper .material-icons {
+    font-size: 28px;
+    color: white;
+}
+
+.response-management-page .survey-icon-wrapper.draft {
+    background: var(--draft);
+}
+
+.response-management-page .survey-icon-wrapper.closed {
+    background: var(--success);
+}
+
+.response-management-page .survey-icon-wrapper.overdue {
+    background: var(--error);
+}
+
+.response-management-page .survey-icon-wrapper.upcoming {
+    background: var(--warning);
+}
+
+.response-management-page .survey-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.response-management-page .survey-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 var(--space-2) 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.response-management-page .survey-meta {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: 0;
+    flex-wrap: wrap;
+}
+
+.response-management-page .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--gray-600);
+    white-space: nowrap;
+}
+
+.response-management-page .meta-item .material-icons {
+    font-size: 16px;
+    color: var(--gray-500);
+}
+
+.response-management-page .survey-card-meta .meta-item {
+    width: 100%;
+}
+
+.response-management-page .survey-stats-inline {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-top: var(--space-2);
+}

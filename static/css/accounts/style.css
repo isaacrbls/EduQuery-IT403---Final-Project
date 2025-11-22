@@ -267,7 +267,7 @@ body {
 
 .terms a:hover {
   color: #005e2c; /* darker green on hover */
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Buttons */
@@ -421,7 +421,7 @@ body {
 }
 
 .forgot-link:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Bottom helper */
@@ -438,7 +438,7 @@ body {
 }
 
 .btnSignIn-helper a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .btnSignUp-helper{
@@ -454,7 +454,7 @@ body {
 }
 
 .btnSignUp-helper a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /*forgot password */

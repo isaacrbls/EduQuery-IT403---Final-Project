@@ -387,9 +387,15 @@ function handleFormCancel(event) {
     event.preventDefault();
 
     if (SettingsState.isFormDirty) {
-        if (confirm('Are you sure you want to cancel? Your changes will be lost.')) {
-            resetPasswordForm();
-        }
+        Modal.show({
+            title: 'Cancel Changes',
+            message: 'Are you sure you want to cancel? Your changes will be lost.',
+            type: 'warning',
+            confirmText: 'Yes, Cancel',
+            onConfirm: () => {
+                resetPasswordForm();
+            }
+        });
     } else {
         resetPasswordForm();
     }

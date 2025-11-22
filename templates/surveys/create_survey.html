@@ -5,7 +5,6 @@
 
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}?v=3">
 <link rel="stylesheet" href="{% static 'css/surveys/create_survey.css' %}?v=8">
 {% endblock %}
@@ -46,20 +45,14 @@
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Header -->
-        <div class="header">
-            <!-- Logo in left corner -->
-            <div class="header-logo-section">
-                <img src="{% static 'images/logo.png' %}" alt="EduQuery" class="corner-logo" />
-            </div>
-        </div>
+        
 
         <!-- Content Area -->
         <div class="content-area">
             <!-- Page Title Section -->
             <div class="page-title-section">
                 <h1>
-                    <i class="bi bi-plus-circle-fill"></i>
+                    <span class="material-icons">add_circle</span>
                     Create New Survey
                 </h1>
                 <p>Fill in the details below to create your survey. Once created, add questions using the builder on the right.</p>
@@ -76,7 +69,7 @@
                 
                 {% if form.non_field_errors %}
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span class="material-icons">warning</span>
                         {{ form.non_field_errors }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -84,57 +77,57 @@
 
                 <div class="form-section">
                     <label for="{{ form.title.id_for_label }}" class="form-label">
-                        <i class="bi bi-card-heading"></i> Survey Title <span class="text-danger">*</span>
+                        <span class="material-icons">title</span> Survey Title <span class="text-danger">*</span>
                     </label>
                     {{ form.title }}
                     {% if form.title.errors %}
                         <div class="text-danger">
-                            <i class="bi bi-exclamation-circle"></i> {{ form.title.errors }}
+                            <span class="material-icons">error_outline</span> {{ form.title.errors }}
                         </div>
                     {% endif %}
                     <div class="form-text">
-                        <i class="bi bi-info-circle"></i> A clear, descriptive title
+                        <span class="material-icons">info</span> A clear, descriptive title
                     </div>
                 </div>
 
                 <div class="form-section">
                     <label for="{{ form.due_date.id_for_label }}" class="form-label">
-                        <i class="bi bi-calendar-event"></i> Due Date <span class="text-danger">*</span>
+                        <span class="material-icons">event</span> Due Date <span class="text-danger">*</span>
                     </label>
                     {{ form.due_date }}
                     {% if form.due_date.errors %}
                         <div class="text-danger">
-                            <i class="bi bi-exclamation-circle"></i> {{ form.due_date.errors }}
+                            <span class="material-icons">error_outline</span> {{ form.due_date.errors }}
                         </div>
                     {% endif %}
                     <div class="form-text">
-                        <i class="bi bi-info-circle"></i> Deadline for responses
+                        <span class="material-icons">info</span> Deadline for responses
                     </div>
                 </div>
 
                 <div class="form-section">
                     <label for="{{ form.description.id_for_label }}" class="form-label">
-                        <i class="bi bi-card-text"></i> Description <span style="color: #9ca3af; font-weight: 400;">(Optional)</span>
+                        <span class="material-icons">description</span> Description <span style="color: #9ca3af; font-weight: 400;">(Optional)</span>
                     </label>
                     {{ form.description }}
                     {% if form.description.errors %}
                         <div class="text-danger">
-                            <i class="bi bi-exclamation-circle"></i> {{ form.description.errors }}
+                            <span class="material-icons">error_outline</span> {{ form.description.errors }}
                         </div>
                     {% endif %}
                     <div class="form-text">
-                        <i class="bi bi-info-circle"></i> Provide context or instructions for students
+                        <span class="material-icons">info</span> Provide context or instructions for students
                     </div>
                 </div>
 
                 <div class="form-section">
                     <label class="form-label">
-                        <i class="bi bi-people-fill"></i> Assign to Sections <span class="text-danger">*</span>
+                        <span class="material-icons">group</span> Assign to Sections <span class="text-danger">*</span>
                     </label>
                     <div class="section-dropdown-wrapper">
                         <button type="button" class="section-dropdown-toggle" id="sectionDropdownToggle">
                             <span id="sectionDropdownLabel">Select sections...</span>
-                            <i class="bi bi-chevron-down"></i>
+                            <span class="material-icons">expand_more</span>
                         </button>
                         <div class="section-checkbox-container" id="sectionCheckboxContainer">
                             {{ form.sections }}
@@ -142,11 +135,11 @@
                     </div>
                     {% if form.sections.errors %}
                         <div class="text-danger">
-                            <i class="bi bi-exclamation-circle"></i> {{ form.sections.errors }}
+                            <span class="material-icons">error_outline</span> {{ form.sections.errors }}
                         </div>
                     {% endif %}
                     <div class="form-text">
-                        <i class="bi bi-info-circle"></i> Select one or more sections to assign this survey
+                        <span class="material-icons">info</span> Select one or more sections to assign this survey
                     </div>
                 </div>
 
@@ -159,20 +152,20 @@
                     </div>
                     {% if form.is_active.errors %}
                         <div class="text-danger">
-                            <i class="bi bi-exclamation-circle"></i> {{ form.is_active.errors }}
+                            <span class="material-icons">error_outline</span> {{ form.is_active.errors }}
                         </div>
                     {% endif %}
                     <div class="form-text">
-                        <i class="bi bi-info-circle"></i> Students can start responding once the survey is active
+                        <span class="material-icons">info</span> Students can start responding once the survey is active
                     </div>
                 </div>
 
                 <div class="action-buttons">
                     <a href="{% url 'accounts:teacher_dashboard' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Cancel
+                        <span class="material-icons">arrow_back</span> Cancel
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-circle-fill"></i> {% if survey %}Update Survey{% else %}Create Survey{% endif %}
+                        <span class="material-icons">check_circle</span> {% if survey %}Update Survey{% else %}Create Survey{% endif %}
                     </button>
                 </div>
             </form>
@@ -186,15 +179,15 @@
                         <div class="questions-header">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h3><i class="bi bi-list-check"></i> Add Questions</h3>
+                                    <h3><span class="material-icons">checklist</span> Add Questions</h3>
                                     <p>Build your survey by adding questions below</p>
                                 </div>
                                 <div>
                                     <button id="addQuestionBtn" class="btn btn-light">
-                                        <i class="bi bi-plus-circle"></i> Add Question
+                                        <span class="material-icons">add_circle_outline</span> Add Question
                                     </button>
                                     <button id="saveAllQuestionsBtn" class="btn btn-success" style="display: none;">
-                                        <i class="bi bi-check-all"></i> Save All
+                                        <span class="material-icons">done_all</span> Save All
                                         <span id="tempQuestionCount" class="badge bg-white text-success ms-1">0</span>
                                     </button>
                                 </div>
@@ -206,7 +199,7 @@
                                 <div class="card border-success">
                                     <div class="card-header bg-success text-white">
                                         <h6 class="mb-0">
-                                            <i class="bi bi-pencil-square"></i> Create Question
+                                            <span class="material-icons align-middle me-2">edit</span> Create Question
                                         </h6>
                                     </div>
                                     <div class="card-body">
@@ -243,7 +236,7 @@
                                                 <label class="form-label">Options <span class="text-danger">*</span></label>
                                                 <div id="optionsContainer" class="mb-2"></div>
                                                 <button type="button" id="addOption" class="btn btn-sm btn-outline-primary">
-                                                    <i class="bi bi-plus"></i> Add Option
+                                                    <span class="material-icons align-middle">add</span> Add Option
                                                 </button>
                                                 {{ question_form.options }}
                                             </div>
@@ -297,7 +290,7 @@
                                                     Cancel
                                                 </button>
                                                 <button type="button" id="addToListBtn" class="btn btn-success">
-                                                    <i class="bi bi-plus-square"></i> Add to List
+                                                    <span class="material-icons align-middle me-1">add_box</span> Add to List
                                                 </button>
                                             </div>
                                         </form>
@@ -310,7 +303,7 @@
                                 <div class="card border-warning">
                                     <div class="card-header bg-warning text-dark">
                                         <h6 class="mb-0">
-                                            <i class="bi bi-clock-history"></i> Pending Questions (Not Saved)
+                                            <span class="material-icons align-middle me-2">history</span> Pending Questions (Not Saved)
                                         </h6>
                                     </div>
                                     <div class="card-body" id="temporaryQuestionsContainer"></div>
@@ -325,7 +318,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-start">
                                                 <div class="drag-handle me-3" style="cursor: move;">
-                                                    <i class="bi bi-grip-vertical fs-4 text-muted"></i>
+                                                    <span class="material-icons text-muted">drag_indicator</span>
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -338,7 +331,7 @@
                                                         </div>
                                                         <div>
                                                             <button class="btn btn-sm btn-outline-danger delete-question-btn" data-question-id="{{ question.id }}">
-                                                                <i class="bi bi-trash"></i>
+                                                                <span class="material-icons align-middle">delete</span>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -363,7 +356,7 @@
                                     {% endfor %}
                                 {% else %}
                                     <div class="alert alert-info">
-                                        <i class="bi bi-info-circle"></i> No questions added yet. Click "Add Question" to create your first question.
+                                        <span class="material-icons align-middle me-2">info</span> No questions added yet. Click "Add Question" to create your first question.
                                     </div>
                                 {% endif %}
                             </div>
@@ -576,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
         div.innerHTML = `
             <input type="text" class="form-control form-control-sm option-input" value="${value}" placeholder="Enter option">
             <button type="button" class="btn btn-sm btn-outline-danger remove-option">
-                <i class="bi bi-x"></i>
+                <span class="material-icons align-middle">close</span>
             </button>
         `;
         optionsContainer.appendChild(div);
@@ -806,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <p class="mb-0 mt-2"><strong>${q.question_text}</strong></p>
                         </div>
                         <button class="btn btn-sm btn-outline-danger remove-temp-question" data-index="${index}">
-                            <i class="bi bi-x"></i>
+                            <span class="material-icons align-middle">close</span>
                         </button>
                     </div>
                 </div>
@@ -909,34 +902,33 @@ document.addEventListener('DOMContentLoaded', function() {
     // Delete question
     document.querySelectorAll('.delete-question-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            if (!confirm('Are you sure you want to delete this question?')) {
-                return;
-            }
-            
             const questionId = this.dataset.questionId;
-            fetch(`/surveys/question/${questionId}/delete/`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-
-                    Modal.alert({
-
-                        title: 'Error',
-
-                        message: data.message,
-
-                        type: 'danger'
-
+            
+            Modal.show({
+                title: 'Delete Question',
+                message: 'Are you sure you want to delete this question?',
+                type: 'danger',
+                confirmText: 'Delete',
+                onConfirm: () => {
+                    fetch(`/surveys/question/${questionId}/delete/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            Modal.alert({
+                                title: 'Error',
+                                message: data.message,
+                                type: 'danger'
+                            });
+                        }
                     });
-
                 }
             });
         });

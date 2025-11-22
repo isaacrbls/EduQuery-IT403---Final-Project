@@ -469,8 +469,10 @@ def student_history_details(request, response_id):
     completion_time = None
     if response.submitted_at and response.started_at:
         delta = response.submitted_at - response.started_at
-        minutes = delta.total_seconds() / 60
-        if minutes < 60:
+        minutes = abs(delta.total_seconds() / 60)
+        if minutes < 1:
+            completion_time = "Less than a minute"
+        elif minutes < 60:
             completion_time = f"{int(minutes)} minute{'s' if int(minutes) != 1 else ''}"
         else:
             hours = int(minutes / 60)

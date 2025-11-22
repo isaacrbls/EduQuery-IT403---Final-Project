@@ -10,14 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{%static 'css/accounts/TCsurveyList.css' %}?v=3">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script defer src="{%static 'js/accounts/TCsurveyList.js' %}?v=3"></script>
 </head>
 
-<body data-user-name="{{ request.user.first_name|default:'Khy' }}">
+<body data-user-name="{{ request.user.first_name|default:'Khy' }}" data-create-survey-url="{% url 'surveys:create_survey' %}">
     <div class="dashboard-container">
         <!-- Enhanced Sidebar -->
         <div class="sidebar">
@@ -87,16 +86,16 @@
                 </div>
 
                 <!-- Floating Create Button -->
-                <button class="floating-create-btn" onclick="openCreateSurveyModal()" aria-label="Create New Survey">
+                <a class="floating-create-btn" href="{% url 'surveys:create_survey' %}" aria-label="Create New Survey">
                     <span class="material-icons">add</span>
                     <span class="btn-text">Create New Survey</span>
-                </button>
+                </a>
 
-                <!-- Survey List Container -->
-                    <div class="surveys-list" id="surveys-container">
+                <!-- Survey Cards Grid -->
+                    <div class="surveys-grid" id="surveys-container">
                         {% for survey in surveys %}
-                        <div class="survey-item {{ survey.status }}" data-status="{{ survey.status }}" data-due="{{ survey.due_date|date:'Y-m-d' }}">
-                            <div class="survey-left">
+                        <div class="survey-card {{ survey.status }}" data-status="{{ survey.status }}" data-due="{{ survey.due_date|date:'Y-m-d' }}">
+                            <div class="survey-card-header">
                                 <div class="survey-icon-wrapper {{ survey.status }}">
                                     {% if survey.status == 'active' or survey.status == 'published' %}
                                         <span class="material-icons">assignment</span>
@@ -108,58 +107,63 @@
                                         <span class="material-icons">assignment</span>
                                     {% endif %}
                                 </div>
-                                <div class="survey-content">
-                                    <h3 class="survey-title">{{ survey.title }}</h3>
-                                    <div class="survey-meta">
-                                        <span class="meta-item">
-                                            <span class="material-icons">event</span>
-                                            Created: {{ survey.created_at|date:"M d, Y" }}
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">schedule</span>
-                                            Due: {% if survey.due_date %}{{ survey.due_date|date:"M d, Y" }}{% else %}Not Set{% endif %}
-                                        </span>
-                                        <span class="meta-item">
-                                            <span class="material-icons">people</span>
-                                            {{ survey.response_count }} Responses
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="survey-right">
                                 <div class="survey-status-badge {{ survey.status }}">
                                     <span class="status-dot"></span>
                                     {{ survey.get_status_display|upper }}
                                 </div>
-                                <div class="action-buttons">
-                                    {% if survey.status == 'draft' %}
-                                    <button class="action-btn publish-btn" onclick="publishSurvey('{{ survey.id }}')">
-                                        <span class="material-icons">publish</span>
-                                        Publish
-                                    </button>
-                                    {% endif %}
-                                    
-                                    {% if survey.status == 'closed' %}
-                                    <button class="action-btn view-btn" onclick="viewResults('{{ survey.id }}')">
-                                        <span class="material-icons">visibility</span>
-                                        View Results
-                                    </button>
-                                    {% else %}
-                                    <button class="action-btn edit-btn" onclick="editSurvey('{{ survey.id }}')">
-                                        <span class="material-icons">edit</span>
-                                        Edit
-                                    </button>
-                                    {% endif %}
-                                    
-                                    <button class="action-btn delete-btn" onclick="deleteSurvey('{{ survey.id }}')">
-                                        <span class="material-icons">delete</span>
-                                        Delete
-                                    </button>
+                            </div>
+                            
+                            <div class="survey-card-body">
+                                <h3 class="survey-title">{{ survey.title }}</h3>
+                                {% if survey.description %}
+                                <p class="survey-description">{{ survey.description|truncatewords:15 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="survey-card-meta">
+                                <div class="meta-item">
+                                    <span class="material-icons">event</span>
+                                    <span>Created: {{ survey.created_at|date:"M d, Y" }}</span>
                                 </div>
+                                <div class="meta-item">
+                                    <span class="material-icons">schedule</span>
+                                    <span>Due: {% if survey.due_date %}{{ survey.due_date|date:"M d, Y" }}{% else %}Not Set{% endif %}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="material-icons">people</span>
+                                    <span>{{ survey.response_count }} Responses</span>
+                                </div>
+                            </div>
+                            
+                            <div class="survey-card-actions">
+                                {% if survey.status == 'draft' %}
+                                <button class="action-btn publish-btn" onclick="publishSurvey('{{ survey.id }}')">
+                                    <span class="material-icons">publish</span>
+                                    Publish
+                                </button>
+                                {% endif %}
+                                
+                                {% if survey.status == 'closed' %}
+                                <button class="action-btn view-btn" onclick="viewResults('{{ survey.id }}')">
+                                    <span class="material-icons">visibility</span>
+                                    View
+                                </button>
+                                {% else %}
+                                <button class="action-btn edit-btn" onclick="editSurvey('{{ survey.id }}')">
+                                    <span class="material-icons">edit</span>
+                                    Edit
+                                </button>
+                                {% endif %}
+                                
+                                <button class="action-btn delete-btn" onclick="deleteSurvey('{{ survey.id }}')">
+                                    <span class="material-icons">delete</span>
+                                    Delete
+                                </button>
                             </div>
                         </div>
                         {% empty %}
                         <div class="no-surveys">
+                            <span class="material-icons" style="font-size: 64px; color: var(--gray-400); margin-bottom: 16px;">folder_open</span>
                             <p>No surveys found. Create one to get started!</p>
                         </div>
                         {% endfor %}
@@ -178,98 +182,6 @@
         </div>
     </div>
 
-    <!-- Create Survey Modal -->
-    <div id="createSurveyModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Create New Survey</h2>
-                <button class="modal-close" onclick="closeCreateSurveyModal()">
-                    <span class="material-icons">close</span>
-                </button>
-            </div>
-            <form id="createSurveyForm" class="create-survey-form">
-                <div class="form-group">
-                    <label for="survey-title">Survey Title <span class="required">*</span></label>
-                    <input type="text" id="survey-title" name="title" placeholder="Enter survey title" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="survey-description">Description</label>
-                    <textarea id="survey-description" name="description" rows="3" placeholder="Enter survey description (optional)"></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="survey-course">Course <span class="required">*</span></label>
-                        <select id="survey-course" name="course" required>
-                            <option value="">Select Course</option>
-                            <option value="IT403">IT403 - Database Systems</option>
-                            <option value="CS301">CS301 - Data Structures</option>
-                            <option value="WEB201">WEB201 - Web Development</option>
-                            <option value="SE401">SE401 - Software Engineering</option>
-                            <option value="CS302">CS302 - Algorithms</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="survey-section">Section <span class="required">*</span></label>
-                        <select id="survey-section" name="section" required>
-                            <option value="">Select Section</option>
-                            <option value="A">Section A</option>
-                            <option value="B">Section B</option>
-                            <option value="C">Section C</option>
-                            <option value="D">Section D</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="survey-due-date">Due Date <span class="required">*</span></label>
-                    <input type="date" id="survey-due-date" name="due-date" required>
-                </div>
-
-                <div class="questions-section">
-                    <div class="questions-header">
-                        <h3>Survey Questions</h3>
-                        <button type="button" class="add-question-btn" onclick="addQuestion()">
-                            <span class="material-icons">add</span>
-                            Add Question
-                        </button>
-                    </div>
-                    <div id="questions-container">
-                        <!-- Questions will be added dynamically -->
-                        <div class="question-item" data-question-id="1">
-                            <div class="question-header">
-                                <span class="question-number">Question 1</span>
-                                <button type="button" class="remove-question-btn" onclick="removeQuestion(1)">
-                                    <span class="material-icons">close</span>
-                                </button>
-                            </div>
-                            <div class="form-group">
-                                <label for="question-1-text" class="visually-hidden">Question 1 text</label>
-                                <input type="text" id="question-1-text" name="question-1-text" placeholder="Enter your question" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="question-1-type" class="visually-hidden">Question 1 type</label>
-                                <select id="question-1-type" name="question-1-type" onchange="handleQuestionTypeChange(1, this.value)">
-                                    <option value="text">Text Answer</option>
-                                    <option value="multiple-choice">Multiple Choice</option>
-                                    <option value="rating">Rating Scale</option>
-                                    <option value="file">File Upload</option>
-                                </select>
-                            </div>
-                            <div class="question-options" id="question-1-options"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" onclick="closeCreateSurveyModal()">Cancel</button>
-                    <button type="button" class="btn-secondary" onclick="saveDraft()">Save as Draft</button>
-                    <button type="submit" class="btn-primary">Publish Survey</button>
-                </div>
-            </form>
-        </div>
-    </div>
 </body>
 </html>
 

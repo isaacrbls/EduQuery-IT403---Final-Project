@@ -186,14 +186,20 @@ function initQuestionEvents($card) {
     });
     
     $card.find('.delete-question').on('click', function() {
-        if (confirm('Delete this question?')) {
-            const questionId = $card.data('question-id');
-            questions = questions.filter(q => q.id !== questionId);
-            $card.remove();
-            if (questions.length === 0) {
-                $('#addQuestionPrompt').show();
+        Modal.show({
+            title: 'Delete Question',
+            message: 'Delete this question?',
+            type: 'danger',
+            confirmText: 'Delete',
+            onConfirm: () => {
+                const questionId = $card.data('question-id');
+                questions = questions.filter(q => q.id !== questionId);
+                $card.remove();
+                if (questions.length === 0) {
+                    $('#addQuestionPrompt').show();
+                }
             }
-        }
+        });
     });
     
     $card.find('.option-text').on('input', function() {

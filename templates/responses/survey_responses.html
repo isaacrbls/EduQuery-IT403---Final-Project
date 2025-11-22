@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}">
     <style>
@@ -300,7 +299,7 @@
                                                     <a href="{% url 'responses:response_detail' response.id %}" class="view-btn">
                                                         <span class="material-icons" style="font-size: 16px;">visibility</span> View
                                                     </a>
-                                                    <a href="{% url 'responses:delete_response' response.id %}" class="delete-btn" onclick="return confirm('Are you sure you want to delete this response?');">
+                                                    <a href="{% url 'responses:delete_response' response.id %}" class="delete-btn delete-response-link">
                                                         <span class="material-icons" style="font-size: 16px;">delete</span>
                                                     </a>
                                                 </div>
@@ -345,5 +344,25 @@
             </div>
         </div>
     </div>
+    <script src="{% static 'js/modal.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-response-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const href = this.getAttribute('href');
+                    Modal.show({
+                        title: 'Delete Response',
+                        message: 'Are you sure you want to delete this response?',
+                        type: 'danger',
+                        confirmText: 'Delete',
+                        onConfirm: () => {
+                            window.location.href = href;
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

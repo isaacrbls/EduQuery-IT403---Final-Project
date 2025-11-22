@@ -795,35 +795,11 @@ function refreshSurveys() {
 }
 
 function updateResultsCount() {
-    const allCards = document.querySelectorAll('.survey-card');
-    const visibleCards = Array.from(allCards).filter(card => {
-        const style = window.getComputedStyle(card);
-        return style.display !== 'none';
-    });
-
-    const visibleCount = visibleCards.length;
-    const totalCards = allCards.length;
-
-    let existingCount = document.querySelector('.results-count');
-    if (!existingCount) {
-        existingCount = document.createElement('div');
-        existingCount.className = 'results-count';
-        existingCount.style.cssText = `
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 1.5rem;
-            font-weight: 500;
-            width: 100%;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 0 1rem;
-        `;
-        const sectionHeader = document.querySelector('.survey-list-section .section-header');
-        sectionHeader.parentNode.insertBefore(existingCount, sectionHeader.nextSibling);
+    // Functionality removed: "Showing X of Y surveys" text is no longer displayed.
+    const existingCount = document.querySelector('.results-count');
+    if (existingCount) {
+        existingCount.remove();
     }
-
-    existingCount.textContent = `Showing ${visibleCount} of ${totalCards} surveys`;
 }
 
 function animateElements() {

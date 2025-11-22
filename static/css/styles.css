@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 /* Custom Styles for EduQuery */
 
 :root {
@@ -19,12 +21,12 @@
     --brand: #2F5E53;
 }
 
-a {
+a, a:hover, a:focus, a:active, a:visited {
     text-decoration: none !important;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Poppins', 'Inter', sans-serif;
     background-color: #f3f4f6;
     margin: 0;
     padding: 0;

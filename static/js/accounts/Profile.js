@@ -264,18 +264,24 @@ function handleSaveProfile() {
 function handleCancelEdit() {
     console.log('Cancelling edit...');
 
-    if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
-        // Reset form to original values
-        resetFormData();
+    Modal.show({
+        title: 'Cancel Edit',
+        message: 'Are you sure you want to cancel? Any unsaved changes will be lost.',
+        type: 'warning',
+        confirmText: 'Yes, Cancel',
+        onConfirm: () => {
+            // Reset form to original values
+            resetFormData();
 
-        // Disable edit mode
-        setFormReadOnly(true);
-        toggleEditButtons(false);
-        currentMode = null;
+            // Disable edit mode
+            setFormReadOnly(true);
+            toggleEditButtons(false);
+            currentMode = null;
 
-        // Show notification
-        showNotification('Changes cancelled', 'info');
-    }
+            // Show notification
+            showNotification('Changes cancelled', 'info');
+        }
+    });
 }
 
 function handleChangeProfilePicture() {

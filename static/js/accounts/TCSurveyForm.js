@@ -577,12 +577,22 @@ function editQuestion(questionId) {
 }
 
 function deleteQuestion(questionId, silent = false) {
-    if (!silent && !confirm('Are you sure you want to delete this question?')) {
+    if (silent) {
+        questions = questions.filter(q => q.id !== questionId);
+        renderQuestions();
         return;
     }
 
-    questions = questions.filter(q => q.id !== questionId);
-    renderQuestions();
+    Modal.show({
+        title: 'Delete Question',
+        message: 'Are you sure you want to delete this question?',
+        type: 'danger',
+        confirmText: 'Delete',
+        onConfirm: () => {
+            questions = questions.filter(q => q.id !== questionId);
+            renderQuestions();
+        }
+    });
 }
 
 // Validation Functions
@@ -699,29 +709,37 @@ function collectFormData() {
 // Load draft from localStorage on page load
 window.addEventListener('load', function() {
     const draft = localStorage.getItem('surveyDraft');
-    if (draft && confirm('Would you like to load your saved draft?')) {
-        const surveyData = JSON.parse(draft);
+    if (draft) {
+        Modal.show({
+            title: 'Load Draft',
+            message: 'Would you like to load your saved draft?',
+            type: 'info',
+            confirmText: 'Load',
+            onConfirm: () => {
+                const surveyData = JSON.parse(draft);
 
-        document.getElementById('surveyTitle').value = surveyData.title || '';
-        document.getElementById('surveyDescription').value = surveyData.description || '';
-        document.getElementById('course').value = surveyData.course || '';
-        document.getElementById('section').value = surveyData.section || '';
-        document.getElementById('dueDate').value = surveyData.dueDate || '';
+                document.getElementById('surveyTitle').value = surveyData.title || '';
+                document.getElementById('surveyDescription').value = surveyData.description || '';
+                document.getElementById('course').value = surveyData.course || '';
+                document.getElementById('section').value = surveyData.section || '';
+                document.getElementById('dueDate').value = surveyData.dueDate || '';
 
-        if (surveyData.questions) {
-            questions = surveyData.questions;
-            questionIdCounter = Math.max(...questions.map(q => q.id)) + 1;
-            renderQuestions();
-        }
+                if (surveyData.questions) {
+                    questions = surveyData.questions;
+                    questionIdCounter = Math.max(...questions.map(q => q.id)) + 1;
+                    renderQuestions();
+                }
 
-        // Update character counter
-        const descCounter = document.getElementById('description-count');
-        if (descCounter) {
-            descCounter.textContent = surveyData.description?.length || 0;
-        }
+                // Update character counter
+                const descCounter = document.getElementById('description-count');
+                if (descCounter) {
+                    descCounter.textContent = surveyData.description?.length || 0;
+                }
 
-        // Update form color based on loaded section
-        updateFormColorFromSelect();
+                // Update form color based on loaded section
+                updateFormColorFromSelect();
+            }
+        });
     }
 });
 

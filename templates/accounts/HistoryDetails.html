@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/HistoryDetails.css' %}">
     <script src="{% static 'js/modal.js' %}"></script>
@@ -29,9 +29,6 @@
                 </button>
                 <button class="sidebar-btn active" aria-label="Survey History" data-tooltip="Survey History">
                     <span class="material-icons">history</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
-                    <span class="material-icons">analytics</span>
                 </button>
                 <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                     <span class="material-icons">person</span>
@@ -57,15 +54,18 @@
                 <!-- History Details Content -->
                 <div class="history-details-section">
                     <div class="section-header">
-                        <div class="header-left">
-                            <button class="back-btn" aria-label="Back to History">
+                        <div class="section-title">
+                            <button class="back-btn" aria-label="Back to History" onclick="goToHistory()">
                                 <span class="material-icons">arrow_back</span>
                             </button>
-                            <img src="{% static 'images/accounts/logo2.png' %}" alt="EduQuery" class="header-logo" />
-                        </div>
-                        <div class="title-content">
                             <span class="material-icons section-icon">history</span>
                             <h2>History Details</h2>
+                        </div>
+                        <div class="header-controls">
+                            <button class="action-btn primary download-btn">
+                                <span class="material-icons">download</span>
+                                Download Results
+                            </button>
                         </div>
                     </div>
 
@@ -105,7 +105,7 @@
         <!-- Survey Answers Section -->
         <div class="survey-answers">
             <div class="survey-answers-header">
-                <h4>Survey Responses ({{ answers|length }} answer{{ answers|length|pluralize }})</h4>
+                <h4>Survey Responses</h4>
             </div>
             <div class="answers-list">
                 {% for answer in answers %}
@@ -148,14 +148,6 @@
         </div>
 
 
-                    </div>
-
-
-                    <div class="quick-actions">
-                        <button class="action-btn primary download-btn">
-                            <span class="material-icons">download</span>
-                            Download Results
-                        </button>
                     </div>
                 </div>
             </div>

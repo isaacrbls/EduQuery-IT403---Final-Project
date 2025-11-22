@@ -68,8 +68,18 @@ function validateForm(formId) {
 
 // Confirmation dialog
 function confirmAction(message, callback) {
-    if (confirm(message)) {
-        callback();
+    if (typeof Modal !== 'undefined') {
+        Modal.show({
+            title: 'Confirmation',
+            message: message,
+            type: 'warning',
+            confirmText: 'Confirm',
+            onConfirm: callback
+        });
+    } else {
+        if (confirm(message)) {
+            callback();
+        }
     }
 }
 

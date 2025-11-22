@@ -185,10 +185,17 @@ function initializeSurveyActions() {
             e.stopPropagation();
             const surveyId = this.getAttribute('data-survey-id');
             const surveyTitle = this.closest('.teacher-survey-card').querySelector('.survey-title').textContent;
-            if (confirm(`Are you sure you want to delete "${surveyTitle}"?`)) {
-                showNotification('Survey deleted successfully', 'success');
-                this.closest('.teacher-survey-card').remove();
-            }
+            
+            Modal.show({
+                title: 'Delete Survey',
+                message: `Are you sure you want to delete "${surveyTitle}"?`,
+                type: 'danger',
+                confirmText: 'Delete',
+                onConfirm: () => {
+                    showNotification('Survey deleted successfully', 'success');
+                    this.closest('.teacher-survey-card').remove();
+                }
+            });
         });
     });
 

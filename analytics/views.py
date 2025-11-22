@@ -5,14 +5,106 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from surveys.models import Survey, Question
 from responses.models import Response as SurveyResponse, Answer
-from django.db.models import Count
+from django.db.models import Count, Sum, Q
+from django.utils import timezone
+from datetime import timedelta
+import json
 
 # Create your views here.
 
 @login_required
 def analytics_dashboard(request):
     """Main analytics dashboard"""
-    return render(request, 'analytics/analytics_dashboard.html')
+    user = request.user
+    
+    # Base query for user's surveys
+    if user.is_teacher:
+        surveys = Survey.objects.filter(creator=user)
+    elif user.is_admin_user:
+        surveys = Survey.objects.all()
+    else:
+        # Students don't see this dashboard usually, or see their own stats
+        context = {
+            'total_surveys': 0,
+            'total_responses': 0,
+            'active_surveys': 0,
+            'response_rate': 0,
+            'recent_surveys': [],
+            'timeline_labels': json.dumps([]),
+            'timeline_data': json.dumps([]),
+            'performance_labels': json.dumps([]),
+            'performance_data': json.dumps([]),
+        }
+        return render(request, 'analytics/analytics_dashboard.html', context)
+
+    # 1. Total Surveys
+    total_surveys = surveys.count()
+
+    # 2. Total Responses
+    total_responses = SurveyResponse.objects.filter(
+        survey__in=surveys, 
+        status='submitted'
+    ).count()
+
+    # 3. Active Surveys
+    active_surveys = surveys.filter(
+        status='published', 
+        is_active=True
+    ).count()
+
+    # 4. Response Rate Calculation
+    # Total potential responses = Sum of students in sections assigned to each survey
+    total_potential_responses = 0
+    for survey in surveys:
+        # Get count of students in all sections assigned to this survey
+        # Using distinct() to avoid double counting if a student is in multiple sections assigned to same survey (unlikely but possible)
+        student_count = 0
+        for section in survey.sections.all():
+            student_count += section.students.count()
+        total_potential_responses += student_count
+    
+    response_rate = 0
+    if total_potential_responses > 0:
+        response_rate = (total_responses / total_potential_responses) * 100
+
+    # 5. Recent Surveys
+    recent_surveys = surveys.order_by('-created_at')[:5]
+
+    # 6. Chart Data: Response Timeline (Last 30 days)
+    timeline_data = []
+    timeline_labels = []
+    today = timezone.now().date()
+    for i in range(29, -1, -1):
+        date = today - timedelta(days=i)
+        count = SurveyResponse.objects.filter(
+            survey__in=surveys,
+            status='submitted',
+            submitted_at__date=date
+        ).count()
+        timeline_labels.append(date.strftime('%b %d'))
+        timeline_data.append(count)
+
+    # 7. Chart Data: Top Surveys by Responses
+    top_surveys = surveys.annotate(
+        total_response_count=Count('responses', filter=Q(responses__status='submitted'))
+    ).order_by('-total_response_count')[:5]
+    
+    performance_labels = [s.title[:20] + '...' if len(s.title) > 20 else s.title for s in top_surveys]
+    performance_data = [s.total_response_count for s in top_surveys]
+
+    context = {
+        'total_surveys': total_surveys,
+        'total_responses': total_responses,
+        'active_surveys': active_surveys,
+        'response_rate': round(response_rate, 1),
+        'recent_surveys': recent_surveys,
+        'timeline_labels': json.dumps(timeline_labels),
+        'timeline_data': json.dumps(timeline_data),
+        'performance_labels': json.dumps(performance_labels),
+        'performance_data': json.dumps(performance_data),
+    }
+
+    return render(request, 'analytics/analytics_dashboard.html', context)
 
 @login_required
 def survey_analytics(request, survey_id):
