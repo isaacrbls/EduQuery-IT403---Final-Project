@@ -860,7 +860,7 @@ function initializeSearchFunctionality() {
     // Show/hide clear button based on input
     searchInput.addEventListener('input', function() {
         if (this.value.length > 0) {
-            clearButton.style.display = 'block';
+            clearButton.style.display = 'flex';
         } else {
             clearButton.style.display = 'none';
         }
@@ -868,7 +868,7 @@ function initializeSearchFunctionality() {
     
     // Initialize clear button visibility
     if (searchInput.value.length > 0) {
-        clearButton.style.display = 'block';
+        clearButton.style.display = 'flex';
     }
     
     // Clear search functionality

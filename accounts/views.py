@@ -6,6 +6,9 @@ from django.db.models import Count, Q, Avg
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+import json
+import datetime
+from django.db.models.functions import TruncMonth
 
 from .models import User, Section
 from surveys.models import Survey
@@ -144,30 +147,8 @@ def profile(request):
     """User profile"""
     user = request.user
 
-    if request.method == 'POST':
-        # Update profile
-        user.first_name = request.POST.get('first_name', user.first_name)
-        user.last_name = request.POST.get('last_name', user.last_name)
-        user.email = request.POST.get('email', user.email)
-        user.phone_number = request.POST.get('phone_number', user.phone_number)
-        user.bio = request.POST.get('bio', user.bio)
-
-        # Handle profile picture upload
-        if 'profile_picture' in request.FILES:
-            user.profile_picture = request.FILES['profile_picture']
-
-        user.save()
-
-        ActivityLog.objects.create(
-            user=user,
-            action='profile_updated',
-            description='Profile information updated'
-        )
-
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('accounts:profile')
-
-    # Calculate statistics for students
+    # Calculate statistics
+    context = {}
     if user.is_student:
         total_surveys = Survey.objects.filter(
             sections__students=user,
@@ -205,8 +186,33 @@ def profile(request):
             'teaching_sections': teaching_sections,
             'total_responses': total_responses,
         }
-    else:
-        context = {}
+
+    if request.method == 'POST':
+        # Update profile
+        new_username = request.POST.get('username', user.username)
+        
+        # Check if username is taken by another user
+        if new_username != user.username and User.objects.filter(username=new_username).exists():
+            messages.error(request, 'Username already exists.')
+            return render(request, 'accounts/Profile.html', context, status=400)
+            
+        user.username = new_username
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.email = request.POST.get('email', user.email)
+        user.phone_number = request.POST.get('phone_number', user.phone_number)
+        user.bio = request.POST.get('bio', user.bio)
+
+        user.save()
+
+        ActivityLog.objects.create(
+            user=user,
+            action='profile_updated',
+            description='Profile information updated'
+        )
+
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('accounts:profile')
 
     return render(request, 'accounts/Profile.html', context)
 
@@ -281,20 +287,33 @@ def student_dashboard(request):
         status='published'
     ).distinct().order_by('-created_at')
 
-    # Get completed surveys
-    completed_survey_ids = Response.objects.filter(
+    # Get completed surveys (checking version)
+    submitted_responses = Response.objects.filter(
         respondent=user,
         status='submitted'
-    ).values_list('survey_id', flat=True)
+    ).values('survey_id', 'survey_version')
+    
+    submitted_map = {}
+    for resp in submitted_responses:
+        sid = resp['survey_id']
+        ver = resp['survey_version']
+        if sid not in submitted_map or ver > submitted_map[sid]:
+            submitted_map[sid] = ver
 
-    # Separate pending and completed
-    pending_surveys = assigned_surveys.exclude(id__in=completed_survey_ids)
-    completed_surveys = assigned_surveys.filter(id__in=completed_survey_ids)
+    pending_surveys = []
+    completed_surveys = []
+    
+    for survey in assigned_surveys:
+        last_completed_version = submitted_map.get(survey.id, 0)
+        if last_completed_version >= survey.version:
+            completed_surveys.append(survey)
+        else:
+            pending_surveys.append(survey)
 
     # Calculate statistics
     total_surveys = assigned_surveys.count()
-    completed_count = completed_surveys.count()
-    pending_count = pending_surveys.count()
+    completed_count = len(completed_surveys)
+    pending_count = len(pending_surveys)
     completion_rate = (completed_count / total_surveys * 100) if total_surveys > 0 else 0
 
     # Get recent activity
@@ -373,17 +392,24 @@ def analytics_view(request):
     if not user.is_student:
         return redirect('accounts:index')
     
-    total_surveys = Survey.objects.filter(
+    # 1. Basic Stats
+    assigned_surveys_qs = Survey.objects.filter(
         sections__students=user,
         status='published'
-    ).distinct().count()
+    ).distinct()
     
-    completed_surveys = Response.objects.filter(
-        respondent=user,
-        status='submitted'
-    ).count()
+    total_surveys = assigned_surveys_qs.count()
     
-    pending_surveys = total_surveys - completed_surveys
+    user_responses = Response.objects.filter(respondent=user)
+    completed_surveys = user_responses.filter(status='submitted').count()
+    in_progress_surveys = user_responses.filter(status='in_progress').count()
+    
+    # Pending for card display (Total - Completed)
+    pending_surveys_card = total_surveys - completed_surveys
+    
+    # Pending for chart (Assigned - (Completed + In Progress))
+    responded_survey_ids = user_responses.values_list('survey_id', flat=True)
+    pending_surveys_chart = assigned_surveys_qs.exclude(id__in=responded_survey_ids).count()
     
     completion_rate = round((completed_surveys / total_surveys * 100) if total_surveys > 0 else 0, 1)
     
@@ -402,13 +428,57 @@ def analytics_view(request):
             activity.icon = 'person'
         else:
             activity.icon = 'info'
+
+    # 2. Chart Data Preparation
+    
+    # Status Chart Data: [Completed, Pending (Not Started), In Progress]
+    status_data = [completed_surveys, pending_surveys_chart, in_progress_surveys]
+    
+    # Completion History Chart (Last 6 Months)
+    six_months_ago = timezone.now() - datetime.timedelta(days=180)
+    monthly_stats = user_responses.filter(
+        status='submitted',
+        submitted_at__gte=six_months_ago
+    ).annotate(
+        month=TruncMonth('submitted_at')
+    ).values('month').annotate(
+        count=Count('id')
+    ).order_by('month')
+    
+    # Convert to dict for easy lookup: 'YYYY-MM' -> count
+    stats_dict = {}
+    for item in monthly_stats:
+        if item['month']:
+            stats_dict[item['month'].strftime('%Y-%m')] = item['count']
+            
+    completion_labels = []
+    completion_data = []
+    
+    # Generate last 6 months
+    today = timezone.now().date()
+    for i in range(5, -1, -1):
+        # Calculate date for i months ago
+        year = today.year
+        month = today.month - i
+        while month <= 0:
+            month += 12
+            year -= 1
+            
+        month_key = f"{year}-{month:02d}"
+        month_label = datetime.date(year, month, 1).strftime('%b')
+        
+        completion_labels.append(month_label)
+        completion_data.append(stats_dict.get(month_key, 0))
     
     context = {
         'total_surveys': total_surveys,
         'completed_surveys': completed_surveys,
-        'pending_surveys': pending_surveys,
+        'pending_surveys': pending_surveys_card,
         'completion_rate': completion_rate,
         'recent_activities': recent_activities,
+        'chart_status_data': json.dumps(status_data),
+        'chart_completion_labels': json.dumps(completion_labels),
+        'chart_completion_data': json.dumps(completion_data),
     }
     
     return render(request, 'accounts/Analytics.html', context)
@@ -542,23 +612,34 @@ def student_survey_list(request):
         status='published'
     ).distinct()
     
-    # Filter out surveys that the student has already answered
-    answered_survey_ids = Response.objects.filter(
-        respondent=user,
-        status='submitted'
-    ).values_list('survey_id', flat=True)
-    
-    unanswered_surveys = assigned_surveys.exclude(id__in=answered_survey_ids)
-    
     # Apply search filter if provided
     if search_query:
-        unanswered_surveys = unanswered_surveys.filter(
+        assigned_surveys = assigned_surveys.filter(
             Q(title__icontains=search_query) | 
             Q(description__icontains=search_query)
         )
     
     # Order by most recent
-    unanswered_surveys = unanswered_surveys.order_by('-created_at')
+    assigned_surveys = assigned_surveys.order_by('-created_at')
+    
+    # Filter out surveys that the student has already answered for the CURRENT version
+    submitted_responses = Response.objects.filter(
+        respondent=user,
+        status='submitted'
+    ).values('survey_id', 'survey_version')
+    
+    submitted_map = {}
+    for resp in submitted_responses:
+        sid = resp['survey_id']
+        ver = resp['survey_version']
+        if sid not in submitted_map or ver > submitted_map[sid]:
+            submitted_map[sid] = ver
+            
+    unanswered_surveys = []
+    for survey in assigned_surveys:
+        last_completed_version = submitted_map.get(survey.id, 0)
+        if last_completed_version < survey.version:
+            unanswered_surveys.append(survey)
     
     context = {
         'surveys': unanswered_surveys,

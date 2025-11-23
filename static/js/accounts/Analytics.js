@@ -83,15 +83,31 @@ function initializeCharts() {
     const completionChartElement = document.getElementById('completionChart');
     const statusChartElement = document.getElementById('statusChart');
 
+    // Get data from script tag
+    const dataScript = document.getElementById('analytics-data');
+    let analyticsData = {
+        statusData: [0, 0, 0],
+        completionLabels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        completionData: [0, 0, 0, 0, 0, 0]
+    };
+    
+    if (dataScript) {
+        try {
+            analyticsData = JSON.parse(dataScript.textContent);
+        } catch (e) {
+            console.error('Error parsing analytics data', e);
+        }
+    }
+
     if (completionChartElement) {
         const completionCtx = completionChartElement.getContext('2d');
         new Chart(completionCtx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                labels: analyticsData.completionLabels,
                 datasets: [{
                     label: 'Surveys Completed',
-                    data: [3, 5, 7, 9, 12, 15],
+                    data: analyticsData.completionData,
                     borderColor: '#2d6a5f',
                     backgroundColor: 'rgba(45, 106, 95, 0.1)',
                     tension: 0.4,
@@ -115,7 +131,8 @@ function initializeCharts() {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            stepSize: 5
+                            stepSize: 1,
+                            precision: 0
                         }
                     }
                 }
@@ -128,9 +145,9 @@ function initializeCharts() {
         new Chart(statusCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Completed', 'Pending', 'Not Started'],
+                labels: ['Completed', 'Pending', 'In Progress'],
                 datasets: [{
-                    data: [15, 5, 3],
+                    data: analyticsData.statusData,
                     backgroundColor: [
                         '#10b981',
                         '#f59e0b',

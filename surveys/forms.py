@@ -17,7 +17,9 @@ class SurveyForm(forms.ModelForm):
                 'rows': 3,
                 'placeholder': 'Enter survey description (optional)'
             }),
-            'sections': forms.CheckboxSelectMultiple(),
+            'sections': forms.CheckboxSelectMultiple(attrs={
+                'class': 'form-check-input'
+            }),
             'due_date': forms.DateTimeInput(attrs={
                 'type': 'datetime-local',
                 'class': 'form-control'

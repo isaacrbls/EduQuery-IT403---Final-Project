@@ -91,9 +91,42 @@
             gap: 12px;
             flex-wrap: wrap;
             justify-content: flex-end;
+            align-items: center;
         }
 
-        .search-box, .filter-select {
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 300px;
+            padding: 10px 40px 10px 40px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #4b5563;
+            background-color: #f9fafb;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #2F5E53;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(47, 94, 83, 0.1);
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #2F5E53;
+            font-size: 20px;
+            left: 14px;
+            pointer-events: none;
+        }
+
+        .filter-select {
             padding: 10px 16px;
             border: 1px solid #e5e7eb;
             border-radius: 10px;
@@ -104,7 +137,7 @@
             transition: all 0.2s;
         }
 
-        .search-box:focus, .filter-select:focus {
+        .filter-select:focus {
             outline: none;
             border-color: #2F5E53;
             background-color: white;
@@ -214,18 +247,18 @@
         <!-- Enhanced Sidebar -->
         <div class="sidebar">
             <nav class="sidebar-nav" role="navigation">
-                <button class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+                <a href="{% url 'accounts:student_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
                     <span class="material-icons">home</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
+                </a>
+                <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
-                </button>
-                <button class="sidebar-btn active" aria-label="Survey History" data-tooltip="Survey History">
+                </a>
+                <a href="{% url 'accounts:student_history' %}" class="sidebar-btn active" aria-label="Survey History" data-tooltip="Survey History">
                     <span class="material-icons">history</span>
-                </button>
-                <button class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
                     <span class="material-icons">person</span>
-                </button>
+                </a>
             </nav>
 
             <div class="sidebar-spacer"></div>
@@ -247,6 +280,10 @@
                     </div>
                     <div class="header-controls">
                         <div class="search-filter-bar">
+                            <div class="search-box">
+                                <span class="material-icons search-icon">search</span>
+                                <input type="text" id="history-search" placeholder="Search history...">
+                            </div>
                             <select id="date-filter" class="filter-select">
                                 <option value="all">All Time</option>
                                 <option value="week">This Week</option>

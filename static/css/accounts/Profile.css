@@ -449,52 +449,22 @@ body {
 }
 
 .change-profile-btn {
-    padding: var(--space-2) var(--space-3);
-    border: 2px solid #2F5E53;
-    border-radius: var(--radius-md);
-    background: #2F5E53;
+    margin-top: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--radius-full);
     color: white;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: all var(--duration-normal) var(--ease-out);
-    min-width: auto;
-    white-space: nowrap;
-    box-shadow: var(--shadow-sm);
-    outline: none;
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+    transition: all var(--duration-fast) var(--ease-out);
+    backdrop-filter: blur(4px);
 }
 
 .change-profile-btn:hover {
-    background: #1F3C35 !important;
-    border-color: #1F3C35 !important;
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: var(--shadow-lg);
-    cursor: pointer;
-}
-
-.change-profile-btn:active {
-    transform: translateY(0px) scale(0.98);
-    box-shadow: var(--shadow-sm);
-}
-
-/* Icon styles removed as requested */
-
-.change-profile-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-.change-profile-btn:disabled:hover {
-    background: #2F5E53 !important;
-    border-color: #2F5E53 !important;
-    transform: none !important;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
 }
 
 /* Profile Form Section */
@@ -612,76 +582,10 @@ body {
     margin-top: var(--space-6);
 }
 
-/* Override any conflicting button styles */
-.profile-form .edit-profile-btn,
-.profile-form .save-profile-btn,
-.profile-form .cancel-edit-btn {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-}
-
+/* Fix for Profile Buttons */
 .edit-profile-btn,
 .save-profile-btn,
-.cancel-edit-btn {
-    padding: var(--space-3) var(--space-5);
-    border: none;
-    border-radius: var(--radius-lg);
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--duration-normal) var(--ease-out);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-width: 120px;
-    justify-content: center;
-}
-
-.btn-icon {
-    font-size: 16px;
-}
-
-.edit-profile-btn {
-    background: #2F5E53 !important;
-    color: white !important;
-    border: 2px solid #2F5E53 !important;
-}
-
-.edit-profile-btn:hover {
-    background: #1F3C35 !important;
-    border-color: #1F3C35 !important;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-.save-profile-btn {
-    background: var(--primary-500);
-    color: white;
-    border: 2px solid var(--primary-500);
-}
-
-.save-profile-btn:hover {
-    background: var(--primary-600);
-    border-color: var(--primary-600);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-.cancel-edit-btn {
-    background: transparent;
-    color: var(--primary-500);
-    border: 2px solid var(--primary-500);
-}
-
-.cancel-edit-btn:hover {
-    background: var(--primary-500);
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-/* Update Password Button */
+.cancel-edit-btn,
 .update-password-btn {
     padding: var(--space-3) var(--space-5);
     border: none;
@@ -695,16 +599,50 @@ body {
     gap: var(--space-2);
     min-width: 120px;
     justify-content: center;
-    background: #4B5563 !important; /* Gray-600 */
-    color: white !important;
-    border: 2px solid #4B5563 !important;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.edit-profile-btn {
+    background: var(--gray-200);
+    color: var(--gray-800);
+}
+
+.edit-profile-btn:hover {
+    background: var(--gray-300);
+    transform: translateY(-1px);
+}
+
+.update-password-btn {
+    background: var(--gray-200);
+    color: var(--gray-800);
 }
 
 .update-password-btn:hover {
-    background: #374151 !important; /* Gray-700 */
-    border-color: #374151 !important;
+    background: var(--gray-300);
+    transform: translateY(-1px);
+}
+
+.save-profile-btn {
+    background: var(--primary-500);
+    color: white;
+}
+
+.save-profile-btn:hover {
+    background: var(--primary-600);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
+}
+
+.cancel-edit-btn {
+    background: var(--error-bg);
+    color: var(--error);
+}
+
+.cancel-edit-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: translateY(-1px);
 }
 
 /* ============================================

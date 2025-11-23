@@ -68,10 +68,7 @@
                             </div>
                         </div>
 
-                        <div class="results-counter response-results-counter">
-                            <span>Showing {{ surveys|length }} of {{ surveys|length }} surveys</span>
-                        </div>
-
+                        
                         <div class="surveys-grid response-grid">
                             {% for survey in surveys %}
                             {% with status_label=survey.get_status_display|default:survey.status|default:'Published' %}

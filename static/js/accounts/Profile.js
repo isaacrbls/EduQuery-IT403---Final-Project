@@ -72,6 +72,21 @@ function initializeSidebarNavigation() {
    Profile Initialization
    ============================================ */
 
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 function initializeProfile() {
     // Get user name from body data attribute
     const userName = document.body.getAttribute('data-user-name') || 'Khy';
@@ -119,12 +134,6 @@ function initializeEventListeners() {
     const cancelBtn = document.getElementById('cancelEditBtn');
     if (cancelBtn) {
         cancelBtn.addEventListener('click', handleCancelEdit);
-    }
-
-    // Change Profile Picture Button
-    const changeProfileBtn = document.querySelector('.change-profile-btn');
-    if (changeProfileBtn) {
-        changeProfileBtn.addEventListener('click', handleChangeProfilePicture);
     }
 
     // Search and notification functionality removed as requested
@@ -232,7 +241,8 @@ function handleSaveProfile() {
     }
 
     // Get form data
-    const formData = getFormData();
+    const form = document.getElementById('profileForm');
+    const formData = new FormData(form);
 
     // Show loading state
     const saveBtn = document.getElementById('saveProfileBtn');
@@ -241,23 +251,31 @@ function handleSaveProfile() {
         saveBtn.textContent = 'Saving...';
         saveBtn.disabled = true;
 
-        // Simulate save operation
-        setTimeout(() => {
-            // Reset button
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Show success message
+                showNotification(currentMode === 'password' ? 'Password updated successfully!' : 'Profile updated successfully!', 'success');
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error saving profile. Please try again.', 'error');
             saveBtn.textContent = originalText;
             saveBtn.disabled = false;
-
-            // Disable edit mode
-            setFormReadOnly(true);
-            toggleEditButtons(false);
-            currentMode = null;
-
-            // Show success message
-            showNotification(currentMode === 'password' ? 'Password updated successfully!' : 'Profile updated successfully!', 'success');
-
-            // Here you would typically send the data to your backend
-            console.log('Form data to save:', formData);
-        }, 1500);
+        });
     }
 }
 
@@ -282,69 +300,6 @@ function handleCancelEdit() {
             showNotification('Changes cancelled', 'info');
         }
     });
-}
-
-function handleChangeProfilePicture() {
-    console.log('Changing profile picture...');
-
-    // Show loading state on button
-    const changeBtn = document.querySelector('.change-profile-btn');
-    const originalText = changeBtn.innerHTML;
-    changeBtn.innerHTML = 'Selecting...';
-    changeBtn.disabled = true;
-
-    // Create file input
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/jpeg,image/jpg,image/png,image/gif';
-    fileInput.style.display = 'none';
-
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            // Show processing state
-            changeBtn.innerHTML = 'Processing...';
-
-            // Validate file
-            if (validateImageFile(file)) {
-                // Show preview with animation
-                showImagePreview(file);
-                showNotification(`Profile picture updated! (${file.name})`, 'success');
-
-                // Reset button after success
-                setTimeout(() => {
-                    changeBtn.innerHTML = 'Updated!';
-                    setTimeout(() => {
-                        changeBtn.innerHTML = originalText;
-                        changeBtn.disabled = false;
-                    }, 1500);
-                }, 500);
-            } else {
-                showNotification('Please select a valid image file (JPG, PNG, GIF) under 5MB', 'error');
-                // Reset button on error
-                changeBtn.innerHTML = originalText;
-                changeBtn.disabled = false;
-            }
-        } else {
-            // Reset button if no file selected
-            changeBtn.innerHTML = originalText;
-            changeBtn.disabled = false;
-        }
-
-        // Clean up
-        if (document.body.contains(fileInput)) {
-            document.body.removeChild(fileInput);
-        }
-    });
-
-    // Handle cancel (when user closes file dialog without selecting)
-    fileInput.addEventListener('cancel', function() {
-        changeBtn.innerHTML = originalText;
-        changeBtn.disabled = false;
-    });
-
-    document.body.appendChild(fileInput);
-    fileInput.click();
 }
 
 /* ============================================
@@ -400,7 +355,7 @@ function validateForm() {
     let isValid = true;
 
     if (currentMode === 'profile') {
-        const requiredFields = ['first_name', 'last_name', 'email'];
+        const requiredFields = ['first_name', 'last_name', 'email', 'username'];
 
         requiredFields.forEach(fieldName => {
             const field = document.getElementById(fieldName);

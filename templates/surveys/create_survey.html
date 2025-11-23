@@ -50,7 +50,7 @@
         <!-- Content Area -->
         <div class="content-area">
             <!-- Page Title Section -->
-            <div class="page-title-section">
+            <div class="common-dashboard-header">
                 <h1>
                     <span class="material-icons">add_circle</span>
                     Create New Survey
@@ -130,7 +130,14 @@
                             <span class="material-icons">expand_more</span>
                         </button>
                         <div class="section-checkbox-container" id="sectionCheckboxContainer">
-                            {{ form.sections }}
+                            {% for checkbox in form.sections %}
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                     {% if form.sections.errors %}
@@ -182,7 +189,7 @@
                                     <h3><span class="material-icons">checklist</span> Add Questions</h3>
                                     <p>Build your survey by adding questions below</p>
                                 </div>
-                                <div>
+                                <div class="d-flex gap-2">
                                     <button id="addQuestionBtn" class="btn btn-light">
                                         <span class="material-icons">add_circle_outline</span> Add Question
                                     </button>
@@ -808,8 +815,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const removeBtn = div.querySelector('.remove-temp-question');
             removeBtn.addEventListener('click', function() {
-                temporaryQuestions.splice(index, 1);
-                updateTemporaryQuestionsList();
+                Modal.show({
+                    title: 'Remove Question',
+                    message: 'Are you sure you want to remove this pending question?',
+                    type: 'warning',
+                    confirmText: 'Remove',
+                    onConfirm: () => {
+                        temporaryQuestions.splice(index, 1);
+                        updateTemporaryQuestionsList();
+                    }
+                });
             });
         });
     }
@@ -832,70 +847,56 @@ document.addEventListener('DOMContentLoaded', function() {
     
     saveAllBtn.addEventListener('click', function() {
         if (temporaryQuestions.length === 0) {
-
             Modal.alert({
-
                 title: 'Validation Error',
-
                 message: 'No questions to save',
-
                 type: 'warning'
-
             });
             return;
         }
         
-        fetch("{% url 'surveys:add_question' survey.id %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({
-                batch_save: true,
-                questions: temporaryQuestions
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-
-                Modal.alert({
-
-                    title: 'Success',
-
-                    message: data.message,
-
-                    type: 'success',
-
-                    onClose: () => location.reload()
-
+        Modal.show({
+            title: 'Save Questions',
+            message: `Are you sure you want to save ${temporaryQuestions.length} new questions?`,
+            type: 'info',
+            confirmText: 'Save All',
+            onConfirm: () => {
+                fetch("{% url 'surveys:add_question' survey.id %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        batch_save: true,
+                        questions: temporaryQuestions
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Modal.alert({
+                            title: 'Success',
+                            message: data.message,
+                            type: 'success',
+                            onClose: () => location.reload()
+                        });
+                    } else {
+                        Modal.alert({
+                            title: 'Error',
+                            message: data.message,
+                            type: 'danger'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Modal.alert({
+                        title: 'Error',
+                        message: 'Error saving questions: ' + error,
+                        type: 'danger'
+                    });
                 });
-            } else {
-
-                Modal.alert({
-
-                    title: 'Error',
-
-                    message: data.message,
-
-                    type: 'danger'
-
-                });
-
             }
-        })
-        .catch(error => {
-
-            Modal.alert({
-
-                title: 'Error',
-
-                message: 'Error saving questions: ' + error,
-
-                type: 'danger'
-
-            });
         });
     });
     

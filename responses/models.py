@@ -13,6 +13,7 @@ class Response(models.Model):
 
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name='responses')
     respondent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='survey_responses', null=True, blank=True)
+    survey_version = models.PositiveIntegerField(default=1)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
     ip_address = models.GenericIPAddressField(null=True, blank=True)
 
@@ -72,9 +73,9 @@ class Answer(models.Model):
         if self.question.question_type in ['short_answer', 'long_answer']:
             return self.text_answer
         elif self.question.question_type == 'multiple_choice':
-            return self.selected_option.option_text if self.selected_option else None
+            return self.text_answer
         elif self.question.question_type == 'checkbox':
-            return ', '.join([opt.option_text for opt in self.selected_options.all()])
+            return self.text_answer
         elif self.question.question_type == 'likert_scale':
             return str(self.number_answer)
         return None

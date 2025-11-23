@@ -1,27 +1,3 @@
-function goToHome() {
-    window.location.href = '/student/dashboard/';
-}
-
-function goToSurveyList() {
-    window.location.href = '/student/surveys/';
-}
-
-function goToHistory() {
-    window.location.href = '/student/history/';
-}
-
-function goToAnalytics() {
-    window.location.href = '/student/analytics/';
-}
-
-function goToProfile() {
-    window.location.href = '/profile/';
-}
-
-function goToSettings() {
-    window.location.href = '/settings/';
-}
-
 function handleLogout() {
     Modal.show({
         title: 'Logout Confirmation',
@@ -43,27 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeSidebarNavigation() {
-    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
-    sidebarBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const label = this.getAttribute('aria-label');
-            if (label === 'Home') {
-                goToHome();
-            } else if (label === 'Survey List') {
-                goToSurveyList();
-            } else if (label === 'History' || label === 'Survey History') {
-                goToHistory();
-            } else if (label === 'Analytics') {
-                goToAnalytics();
-            } else if (label === 'Profile') {
-                goToProfile();
-            } else if (label === 'Settings') {
-                goToSettings();
-            } else if (label === 'Logout') {
-                handleLogout();
-            }
-        });
-    });
+    const logoutBtn = document.querySelector('.logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
 }
 
 function initializeHistoryPage() {
@@ -80,10 +39,11 @@ function initializeHistoryPage() {
 function initializeFilters() {
     const dateFilter = document.getElementById('date-filter');
     const sortSelect = document.getElementById('sort-select');
+    const searchInput = document.getElementById('history-search');
 
     if (dateFilter) {
         dateFilter.addEventListener('change', function() {
-            filterHistoryByDate(this.value);
+            filterHistory();
         });
     }
 
@@ -92,62 +52,83 @@ function initializeFilters() {
             sortHistory(this.value);
         });
     }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterHistory();
+        });
+    }
 }
 
-function filterHistoryByDate(filterValue) {
-    const historyCards = document.querySelectorAll('.history-card');
+function filterHistory() {
+    const dateFilter = document.getElementById('date-filter') ? document.getElementById('date-filter').value : 'all';
+    const searchTerm = document.getElementById('history-search') ? document.getElementById('history-search').value.toLowerCase() : '';
+    const rows = document.querySelectorAll('tbody tr');
     const currentDate = new Date();
 
-    historyCards.forEach(card => {
-        const completionDate = new Date(card.dataset.completion);
-        let shouldShow = true;
+    rows.forEach(row => {
+        if (row.cells.length < 3) return;
 
-        switch (filterValue) {
+        const dateText = row.cells[2].textContent.trim();
+        const title = row.cells[0].textContent.trim().toLowerCase();
+        const teacher = row.cells[1].textContent.trim().toLowerCase();
+        
+        const completionDate = new Date(dateText);
+        let showDate = true;
+
+        switch (dateFilter) {
             case 'week':
                 const weekAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
-                shouldShow = completionDate >= weekAgo;
+                showDate = completionDate >= weekAgo;
                 break;
             case 'month':
                 const monthAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate());
-                shouldShow = completionDate >= monthAgo;
+                showDate = completionDate >= monthAgo;
                 break;
             case 'semester':
-                // Assuming semester started in September
-                const semesterStart = new Date(currentDate.getFullYear(), 8, 1); // September 1st
-                shouldShow = completionDate >= semesterStart;
+                const semesterStart = new Date(currentDate.getFullYear(), currentDate.getMonth() - 4, 1);
+                showDate = completionDate >= semesterStart;
                 break;
             case 'all':
             default:
-                shouldShow = true;
+                showDate = true;
                 break;
         }
 
-        card.style.display = shouldShow ? 'flex' : 'none';
+        const showSearch = title.includes(searchTerm) || teacher.includes(searchTerm);
+        row.style.display = (showDate && showSearch) ? '' : 'none';
     });
-
-    // Add animation to visible cards
-    animateVisibleCards();
 }
 
 function sortHistory(sortValue) {
-    const container = document.getElementById('history-container');
-    const cards = Array.from(container.querySelectorAll('.history-card'));
+    const tbody = document.querySelector('tbody');
+    if (!tbody) return;
+    
+    const rows = Array.from(tbody.querySelectorAll('tr'));
 
-    cards.sort((a, b) => {
+    rows.sort((a, b) => {
+        if (a.cells.length < 3 || b.cells.length < 3) return 0;
+
         switch (sortValue) {
             case 'completion-date':
-                return new Date(b.dataset.completion) - new Date(a.dataset.completion);
+                const dateA = new Date(a.cells[2].textContent.trim());
+                const dateB = new Date(b.cells[2].textContent.trim());
+                return dateB - dateA;
             case 'title':
-                const titleA = a.querySelector('.survey-title').textContent.toLowerCase();
-                const titleB = b.querySelector('.survey-title').textContent.toLowerCase();
+                const titleA = a.cells[0].textContent.trim().toLowerCase();
+                const titleB = b.cells[0].textContent.trim().toLowerCase();
                 return titleA.localeCompare(titleB);
             case 'teacher':
-                const teacherA = a.querySelector('.teacher-info').textContent.toLowerCase();
-                const teacherB = b.querySelector('.teacher-info').textContent.toLowerCase();
+                const teacherA = a.cells[1].textContent.trim().toLowerCase();
+                const teacherB = b.cells[1].textContent.trim().toLowerCase();
                 return teacherA.localeCompare(teacherB);
             default:
                 return 0;
         }
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+}
     });
 
     // Re-append sorted cards

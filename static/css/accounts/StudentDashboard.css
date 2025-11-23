@@ -267,6 +267,40 @@ body {
     transition: all var(--duration-normal) var(--ease-out);
 }
 
+/* Header Section Styles */
+.header-section {
+    padding: var(--space-6) var(--space-8) 0;
+    margin-bottom: var(--space-4);
+}
+
+.welcome-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.welcome-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: var(--space-1);
+    line-height: 1.2;
+}
+
+.user-name {
+    color: var(--primary-600);
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.welcome-subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+    font-weight: 400;
+}
+
 /* ============================================
    Enhanced Header
    ============================================ */
@@ -1182,6 +1216,16 @@ button {
 @media (max-width: 768px) {
     .main-content {
         margin-left: 0;
+    }
+
+    .welcome-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+    }
+
+    .welcome-title {
+        font-size: 1.5rem;
     }
 
     .sidebar {

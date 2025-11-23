@@ -517,27 +517,48 @@ function processFormSubmission() {
         formData.set('instructor_rating', starRating.value);
     }
 
-    // Simulate form submission
-    setTimeout(() => {
-        // In real implementation, this would be an AJAX call to the server
-        console.log('Form submitted successfully');
-
-        // Store submission data for congratulations page
-        localStorage.setItem('surveySubmissionData', JSON.stringify({
-            timestamp: new Date().toISOString(),
-            surveyTitle: 'IT403 Final Project Evaluation',
-            timeSpent: calculateTimeSpent()
-        }));
-
-        // Redirect to congratulations page - use Django URL if response_id is available
-        const responseId = document.body.getAttribute('data-response-id');
-        if (responseId) {
-            window.location.href = `/surveys/congratulations/${responseId}/`;
-        } else {
-            window.location.href = '/surveys/history/';
+    // Send data to server
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
         }
-
-    }, 2000);
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Clear draft
+            localStorage.removeItem('surveyDraft');
+            
+            // Show Congratulations Modal
+            Modal.alert({
+                title: 'Congratulations! 🎉',
+                message: 'You have successfully submitted the survey.',
+                type: 'success',
+                okText: 'Back to Dashboard',
+                onClose: () => {
+                    window.location.href = data.redirect_url || '/student/dashboard/';
+                }
+            });
+        } else {
+            // Show errors
+            let errorMessage = data.error;
+            if (data.errors && Array.isArray(data.errors)) {
+                errorMessage = data.errors.join('\n');
+            }
+            showNotification(errorMessage || 'Error submitting survey', 'error');
+            
+            submitBtn.innerHTML = originalContent;
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An unexpected error occurred. Please try again.', 'error');
+        submitBtn.innerHTML = originalContent;
+        submitBtn.disabled = false;
+    });
 }
 
 function saveDraft() {

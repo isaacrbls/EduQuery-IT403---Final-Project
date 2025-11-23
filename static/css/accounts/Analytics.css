@@ -413,8 +413,29 @@ body {
     color: var(--info);
 }
 
-.stat-icon .material-icons {
-    font-size: 28px;
+.stat-icon.blue {
+    background: var(--info-bg);
+    color: var(--info);
+}
+
+.stat-icon.orange {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.stat-icon.green {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.stat-icon.yellow {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+}
+
+.stat-icon.purple {
+    background: rgba(147, 51, 234, 0.1);
+    color: #9333ea;
 }
 
 .stat-info {

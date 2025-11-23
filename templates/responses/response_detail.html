@@ -15,7 +15,7 @@
         .response-detail-container {
             width: 100%;
             margin: 0;
-            padding: 30px;
+            padding: 0;
         }
 
         .response-header {
@@ -155,20 +155,20 @@
         }
 
         .back-button {
-            padding: 12px 24px;
-            background: #2F5E53;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: 16px;
-            font-weight: 600;
+            background: #2F5E53;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
             transition: background 0.2s;
             margin-bottom: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
         }
 
         .back-button:hover {
@@ -332,76 +332,34 @@
                         </div>
 
                         <div class="answer-content">
-                            {% if answer.question.question_type == 'text' or answer.question.question_type == 'textarea' or answer.question.question_type == 'email' %}
-                                <div class="answer-text">{{ answer.answer_text|default:"<em class='empty-answer'>No answer provided</em>"|safe }}</div>
+                            {% if answer.question.question_type == 'short_answer' or answer.question.question_type == 'long_answer' %}
+                                <div class="answer-text">{{ answer.text_answer|default:"<em class='empty-answer'>No answer provided</em>"|safe }}</div>
 
-                            {% elif answer.question.question_type == 'mcq' or answer.question.question_type == 'dropdown' %}
-                                {% if answer.selected_option %}
-                                    <div class="answer-text">{{ answer.selected_option.option_text }}</div>
+                            {% elif answer.question.question_type == 'multiple_choice' %}
+                                {% if answer.text_answer %}
+                                    <div class="answer-text">{{ answer.text_answer }}</div>
                                 {% else %}
                                     <div class="empty-answer">No answer selected</div>
                                 {% endif %}
 
                             {% elif answer.question.question_type == 'checkbox' %}
-                                {% if answer.selected_options.exists %}
-                                    <ul class="answer-list">
-                                        {% for option in answer.selected_options.all %}
-                                        <li>{{ option.option_text }}</li>
-                                        {% endfor %}
-                                    </ul>
+                                {% if answer.text_answer %}
+                                    <div class="answer-text">{{ answer.text_answer }}</div>
                                 {% else %}
                                     <div class="empty-answer">No options selected</div>
                                 {% endif %}
 
-                            {% elif answer.question.question_type == 'likert' %}
-                                {% if answer.answer_text %}
+                            {% elif answer.question.question_type == 'likert_scale' %}
+                                {% if answer.number_answer %}
                                     <div class="likert-scale">
-                                        <span class="likert-label">{{ answer.question.likert_scale.min_label }}</span>
-                                        <span class="likert-value">{{ answer.answer_text }}</span>
-                                        <span class="likert-label">{{ answer.question.likert_scale.max_label }}</span>
+                                        <span class="likert-value">{{ answer.number_answer }}</span>
                                     </div>
                                 {% else %}
                                     <div class="empty-answer">No rating provided</div>
-                                {% endif %}
-
-                            {% elif answer.question.question_type == 'rating' %}
-                                {% if answer.answer_text %}
-                                    <div class="rating-display">
-                                        {% with rating=answer.answer_text|add:"0" %}
-                                        {% for i in "12345" %}
-                                            {% if forloop.counter <= rating %}
-                                                <span class="material-icons">star</span>
-                                            {% else %}
-                                                <span class="material-icons" style="color: #d1d5db;">star_border</span>
-                                            {% endif %}
-                                        {% endfor %}
-                                        {% endwith %}
-                                        <span style="margin-left: 10px; color: #374151; font-weight: 600;">{{ answer.answer_text }}/5</span>
-                                    </div>
-                                {% else %}
-                                    <div class="empty-answer">No rating provided</div>
-                                {% endif %}
-
-                            {% elif answer.question.question_type == 'date' %}
-                                {% if answer.answer_text %}
-                                    <div class="answer-text">{{ answer.answer_text|date:"F d, Y" }}</div>
-                                {% else %}
-                                    <div class="empty-answer">No date provided</div>
-                                {% endif %}
-
-                            {% elif answer.question.question_type == 'matching' %}
-                                {% if answer.answer_text %}
-                                    {% with pairs=answer.answer_text|safe %}
-                                    <div class="matching-pairs">
-                                        {{ pairs|safe }}
-                                    </div>
-                                    {% endwith %}
-                                {% else %}
-                                    <div class="empty-answer">No matches provided</div>
                                 {% endif %}
 
                             {% else %}
-                                <div class="answer-text">{{ answer.answer_text|default:"<em class='empty-answer'>No answer provided</em>"|safe }}</div>
+                                <div class="answer-text">{{ answer.text_answer|default:"<em class='empty-answer'>No answer provided</em>"|safe }}</div>
                             {% endif %}
                         </div>
                     </div>

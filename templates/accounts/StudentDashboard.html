@@ -48,8 +48,18 @@
 
         <!-- Main Content -->
         <div class="main-content">
+            
             <!-- Content Area -->
             <div class="content-area">
+                <!-- Header Section -->
+                <div class="common-dashboard-header">
+                    <h2>
+                        <span class="material-icons">dashboard</span>
+                        Hello, {{ request.user.first_name|default:'Student' }}!
+                    </h2>
+                    <p>Here's an overview of your survey activities.</p>
+                </div>
+
                 <div class="content-layout">
                     <!-- Main Section -->
                     <div class="main-section">
@@ -117,6 +127,7 @@
 
                             <div class="survey-list-container">
                                 <!-- Pending Surveys -->
+                                <div id="pending-surveys-list">
                                 {% for survey in pending_surveys %}
                                 <div class="survey-card active-survey">
                                     <div class="survey-card-main">
@@ -153,8 +164,10 @@
                                     </div>
                                 </div>
                                 {% endfor %}
+                                </div>
 
                                 <!-- Completed Surveys -->
+                                <div id="completed-surveys-list">
                                 {% for survey in completed_surveys %}
                                 <div class="survey-card completed-survey">
                                     <div class="survey-card-main">
@@ -187,6 +200,7 @@
                                     </div>
                                 </div>
                                 {% endfor %}
+                                </div>
 
                                 {% if not pending_surveys and not completed_surveys %}
                                 <div class="empty-state">

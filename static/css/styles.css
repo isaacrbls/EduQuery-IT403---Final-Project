@@ -98,7 +98,37 @@ main {
 }
 
 .celebrate-bounce {
-    animation: celebrateBounce 2s ease-in-out infinite;
+    animation: celebrateBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Common Dashboard Header Style */
+.common-dashboard-header {
+    background: linear-gradient(135deg, #2F5E53 0%, #234d45 100%);
+    padding: 1.75rem 2.25rem;
+    border-radius: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(47, 94, 83, 0.3);
+}
+
+.common-dashboard-header h1, 
+.common-dashboard-header h2 {
+    color: white !important;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.common-dashboard-header p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+}
+
+.common-dashboard-header .material-icons {
+    font-size: 2rem;
 }
 
 /* Gradient text effect */

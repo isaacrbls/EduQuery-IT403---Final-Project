@@ -37,6 +37,92 @@ function handleLogout() {
     });
 }
 
+/* ============================================
+   Real-time Updates
+   ============================================ */
+
+function formatDate(dateString) {
+    if (!dateString) return 'No due date';
+    const date = new Date(dateString);
+    return 'Due: ' + date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderSurveyCard(survey) {
+    return `
+        <div class="survey-card active-survey">
+            <div class="survey-card-main">
+                <div class="survey-icon">
+                    <span class="material-icons">assignment</span>
+                </div>
+                <div class="survey-info">
+                    <h3 class="survey-title">${survey.title}</h3>
+                    <div class="survey-meta">
+                        <span class="teacher-info">
+                            <span class="material-icons">person</span>
+                            ${survey.creator_name || 'Unknown Teacher'}
+                        </span>
+                        <span class="due-info">
+                            <span class="material-icons">schedule</span>
+                            ${formatDate(survey.due_date)}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="survey-actions">
+                <div class="survey-status-badge active">
+                    <span class="status-dot"></span>
+                    ACTIVE
+                </div>
+                <a href="/surveys/${survey.id}/take/" class="survey-action-btn primary">
+                    <span class="material-icons">play_arrow</span>
+                    Take Survey
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function fetchPendingSurveys() {
+    fetch('/api/accounts/surveys/unanswered/')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('pending-surveys-list');
+            if (!container) return;
+
+            // Check if we have surveys
+            if (data.surveys && data.surveys.length > 0) {
+                const html = data.surveys.map(survey => renderSurveyCard(survey)).join('');
+                
+                // Only update if content has changed to avoid flickering
+                // A simple way is to compare length or IDs, but for now we'll just replace
+                // Ideally we should diff the DOM or data
+                
+                // For now, let's just update. 
+                // To prevent replacing if user is interacting, we could check for hover, 
+                // but since these are just links, it's okay.
+                
+                // However, to avoid constant DOM thrashing, let's compare the HTML string length or hash
+                // Or just check if the number of items changed.
+                
+                // Let's just replace it for simplicity as requested "realtime"
+                container.innerHTML = html;
+                
+                // Update stats if needed
+                const pendingStat = document.querySelector('.stat-card[data-stat="pending"] .stat-value');
+                if (pendingStat) {
+                    pendingStat.textContent = data.count;
+                }
+                
+                // Also update total surveys stat
+                // We might need another API for total count or calculate it
+                
+            } else {
+                container.innerHTML = ''; // No pending surveys
+            }
+        })
+        .catch(error => console.error('Error fetching surveys:', error));
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const body = document.body;
     const name = (body.getAttribute('data-user-name') || 'Khy').trim();
@@ -223,4 +309,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.showLoading = showLoading;
     window.hideLoading = hideLoading;
     window.showNotification = showNotification;
+
+    // Start polling for pending surveys
+    fetchPendingSurveys(); // Initial fetch
+    setInterval(fetchPendingSurveys, 10000); // Poll every 10 seconds
 });

@@ -156,5 +156,13 @@
             </div>
         </div>
     </div>
+
+    <script id="analytics-data" type="application/json">
+        {
+            "statusData": {{ chart_status_data|safe }},
+            "completionLabels": {{ chart_completion_labels|safe }},
+            "completionData": {{ chart_completion_data|safe }}
+        }
+    </script>
 </body>
 </html>

@@ -3,6 +3,22 @@
  * Enhanced functionality for survey management and creation
  */
 
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 // Navigation functions
 function goToHome() {
     window.location.href = '/teacher/dashboard/';
@@ -308,11 +324,7 @@ function handleQuestionTypeChange(questionId, type) {
 
 // Survey Actions
 function editSurvey(surveyId) {
-    showNotification('Opening survey editor...', 'info');
-    // In a real application, this would navigate to an edit page
-    setTimeout(() => {
-        showNotification('Edit functionality will be implemented soon!', 'warning');
-    }, 1000);
+    window.location.href = `/surveys/${surveyId}/edit/`;
 }
 
 function deleteSurvey(surveyId) {
@@ -322,23 +334,30 @@ function deleteSurvey(surveyId) {
         type: 'danger',
         confirmText: 'Delete',
         onConfirm: () => {
-            showNotification('Survey deleted successfully!', 'success');
-            // In a real application, this would delete from the database
-            setTimeout(() => {
-                // Find the survey item by its onclick attribute
-                const allSurveys = document.querySelectorAll('.survey-item');
-                allSurveys.forEach(item => {
-                    const deleteBtn = item.querySelector('.delete-btn');
-                    if (deleteBtn && deleteBtn.getAttribute('onclick')?.includes(surveyId)) {
-                        item.style.opacity = '0';
-                        item.style.transform = 'translateX(-20px)';
-                        setTimeout(() => {
-                            item.remove();
-                            updateResultsCount();
-                        }, 300);
-                    }
-                });
-            }, 500);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(`/surveys/${surveyId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Survey deleted successfully!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    showNotification(data.message || 'Error deleting survey', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred', 'error');
+                console.error(error);
+            });
         }
     });
 }
@@ -350,46 +369,72 @@ function publishSurvey(surveyId) {
         type: 'info',
         confirmText: 'Publish',
         onConfirm: () => {
-            showNotification('Survey published successfully!', 'success');
-            // In a real application, this would update the database
-            setTimeout(() => {
-                // Update the survey card status
-                const surveyCard = document.querySelector(`[data-survey-id="${surveyId}"]`);
-                if (surveyCard) {
-                    surveyCard.classList.remove('draft');
-                    surveyCard.classList.add('active');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(`/surveys/${surveyId}/publish/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Survey published successfully!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    showNotification(data.message || 'Error publishing survey', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred', 'error');
+                console.error(error);
+            });
+        }
+    });
+}
+        
 
-                    const badge = surveyCard.querySelector('.survey-status-badge');
-                    badge.className = 'survey-status-badge active';
-                badge.innerHTML = '<span class="status-dot"></span>ACTIVE';
-
-                const icon = surveyCard.querySelector('.survey-icon');
-                icon.classList.remove('draft');
-                icon.innerHTML = '<span class="material-icons">assignment</span>';
-
-                // Update action buttons
-                const actionButtons = surveyCard.querySelector('.action-buttons');
-                actionButtons.innerHTML = `
-                    <button class="survey-action-btn edit-btn" onclick="editSurvey('${surveyId}')">
-                        <span class="material-icons">edit</span>
-                        Edit
-                    </button>
-                    <button class="survey-action-btn delete-btn" onclick="deleteSurvey('${surveyId}')">
-                        <span class="material-icons">delete</span>
-                        Delete
-                    </button>
-                `;
-            }
-        }, 500);
-    }
+function unpublishSurvey(surveyId) {
+    Modal.show({
+        title: 'Unpublish Survey',
+        message: 'Are you sure you want to unpublish this survey? It will be moved back to drafts and students will no longer see it.',
+        type: 'warning',
+        confirmText: 'Unpublish',
+        onConfirm: () => {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(`/surveys/${surveyId}/unpublish/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Survey unpublished successfully!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    showNotification(data.message || 'Error unpublishing survey', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred', 'error');
+                console.error(error);
+            });
+        }
+    });
 }
 
 function viewResults(surveyId) {
-    showNotification('Loading survey results...', 'info');
-    // In a real application, this would navigate to a results page
-    setTimeout(() => {
-        showNotification('Results view will be implemented soon!', 'warning');
-    }, 1000);
+    window.location.href = `/responses/survey/${surveyId}/`;
 }
 
 function saveDraft() {
@@ -668,6 +713,7 @@ window.handleQuestionTypeChange = handleQuestionTypeChange;
 window.editSurvey = editSurvey;
 window.deleteSurvey = deleteSurvey;
 window.publishSurvey = publishSurvey;
+window.unpublishSurvey = unpublishSurvey;
 window.viewResults = viewResults;
 window.saveDraft = saveDraft;
 

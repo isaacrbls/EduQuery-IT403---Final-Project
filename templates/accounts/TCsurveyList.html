@@ -11,13 +11,16 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="stylesheet" href="{%static 'css/accounts/TCsurveyList.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+    <link rel="stylesheet" href="{%static 'css/accounts/TCsurveyList.css' %}?v=4">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script defer src="{%static 'js/accounts/TCsurveyList.js' %}?v=3"></script>
+    <script src="{% static 'js/modal.js' %}"></script>
+    <script defer src="{%static 'js/accounts/TCsurveyList.js' %}?v=4"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Khy' }}" data-create-survey-url="{% url 'surveys:create_survey' %}">
     <div class="dashboard-container">
+        {% csrf_token %}
         <!-- Enhanced Sidebar -->
         <div class="sidebar">
             <!-- Navigation Section -->
@@ -81,9 +84,7 @@
                 </div>
 
                 <!-- Results Counter -->
-                <div class="results-counter">
-                    <span id="results-count">Showing {{ surveys|length }} of {{ surveys|length }} surveys</span>
-                </div>
+                
 
                 <!-- Floating Create Button -->
                 <a class="floating-create-btn" href="{% url 'surveys:create_survey' %}" aria-label="Create New Survey">
@@ -94,7 +95,7 @@
                 <!-- Survey Cards Grid -->
                     <div class="surveys-grid" id="surveys-container">
                         {% for survey in surveys %}
-                        <div class="survey-card {{ survey.status }}" data-status="{{ survey.status }}" data-due="{{ survey.due_date|date:'Y-m-d' }}">
+                        <div class="survey-card {{ survey.status }}" data-survey-id="{{ survey.id }}" data-status="{{ survey.status }}" data-due="{{ survey.due_date|date:'Y-m-d' }}">
                             <div class="survey-card-header">
                                 <div class="survey-icon-wrapper {{ survey.status }}">
                                     {% if survey.status == 'active' or survey.status == 'published' %}
@@ -140,6 +141,11 @@
                                 <button class="action-btn publish-btn" onclick="publishSurvey('{{ survey.id }}')">
                                     <span class="material-icons">publish</span>
                                     Publish
+                                </button>
+                                {% elif survey.status == 'active' or survey.status == 'published' %}
+                                <button class="action-btn unpublish-btn" onclick="unpublishSurvey('{{ survey.id }}')">
+                                    <span class="material-icons">unpublished</span>
+                                    Unpublish
                                 </button>
                                 {% endif %}
                                 

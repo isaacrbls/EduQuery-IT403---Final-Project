@@ -218,8 +218,13 @@ def edit_question(request, question_id):
                 survey.save()
                 messages.warning(request, f'Survey version incremented to {survey.version}.')
             
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': 'Question updated successfully!'})
+            
             messages.success(request, 'Question updated successfully!')
             return redirect('surveys:edit_survey', survey_id=survey.id)
+        elif request.headers.get('x-requested-with') == 'XMLHttpRequest':
+             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     else:
         form = QuestionForm(instance=question)
     
@@ -229,6 +234,10 @@ def edit_question(request, question_id):
         'form': form,
         'action': 'Edit'
     }
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'surveys/question_form_partial.html', context)
+        
     return render(request, 'surveys/question_form.html', context)
 
 
@@ -411,21 +420,33 @@ def take_survey(request, survey_id):
         survey=survey,
         respondent=user,
         status='submitted'
-    ).first()
+    ).order_by('-submitted_at').first()
 
-    if existing_submitted and not survey.allow_multiple_submissions:
+    if existing_submitted and existing_submitted.survey_version >= survey.version and not survey.allow_multiple_submissions:
         messages.info(request, 'You have already completed this survey.')
         return redirect('surveys:survey_detail', response_id=existing_submitted.id)
 
     if survey.due_date and timezone.now() > survey.due_date:
         messages.warning(request, 'This survey has passed its due date.')
 
-    response, created = Response.objects.get_or_create(
+    # Find in-progress response for CURRENT version
+    response = Response.objects.filter(
         survey=survey,
         respondent=user if not survey.anonymous else None,
         status='in_progress',
-        defaults={'ip_address': get_client_ip(request)}
-    )
+        survey_version=survey.version
+    ).first()
+
+    created = False
+    if not response:
+        response = Response.objects.create(
+            survey=survey,
+            respondent=user if not survey.anonymous else None,
+            status='in_progress',
+            survey_version=survey.version,
+            ip_address=get_client_ip(request)
+        )
+        created = True
 
     if created:
         ActivityLog.objects.create(
@@ -481,9 +502,9 @@ def submit_survey(request, survey_id):
         survey=survey,
         respondent=user,
         status='submitted'
-    ).first()
+    ).order_by('-submitted_at').first()
 
-    if existing_submitted and not survey.allow_multiple_submissions:
+    if existing_submitted and existing_submitted.survey_version >= survey.version and not survey.allow_multiple_submissions:
         return JsonResponse({
             'success': False,
             'error': 'You have already submitted this survey'
@@ -492,14 +513,16 @@ def submit_survey(request, survey_id):
     response = Response.objects.filter(
         survey=survey,
         respondent=user if not survey.anonymous else None,
-        status='in_progress'
+        status='in_progress',
+        survey_version=survey.version
     ).first()
 
     if not response:
         response = Response.objects.create(
             survey=survey,
             respondent=user if not survey.anonymous else None,
-            ip_address=get_client_ip(request)
+            ip_address=get_client_ip(request),
+            survey_version=survey.version
         )
 
     questions = survey.questions.all()
@@ -509,7 +532,7 @@ def submit_survey(request, survey_id):
     for question in questions:
         answer_key = f'question_{question.id}'
 
-        if question.required:
+        if question.is_required:
             has_answer = False
             
             if question.question_type == 'checkbox':
@@ -528,43 +551,31 @@ def submit_survey(request, survey_id):
         )
 
         try:
-            if question.question_type in ['text', 'textarea', 'email']:
+            if question.question_type in ['short_answer', 'long_answer']:
                 answer.text_answer = request.POST.get(answer_key, '').strip()
                 answer.save()
                 saved_count += 1
 
-            elif question.question_type == 'mcq':
-                option_id = request.POST.get(answer_key)
-                if option_id:
-                    answer.selected_option_id = int(option_id)
+            elif question.question_type == 'multiple_choice':
+                # Store as text since we use JSONField for options
+                val = request.POST.get(answer_key)
+                if val:
+                    answer.text_answer = val
                     answer.save()
                     saved_count += 1
 
             elif question.question_type == 'checkbox':
-                option_ids = request.POST.getlist(answer_key)
-                if option_ids:
+                # Store as comma-separated string
+                option_vals = request.POST.getlist(answer_key)
+                if option_vals:
+                    answer.text_answer = ", ".join(option_vals)
                     answer.save()
-                    answer.selected_options.set([int(oid) for oid in option_ids])
                     saved_count += 1
 
-            elif question.question_type in ['likert', 'rating']:
+            elif question.question_type == 'likert_scale':
                 value = request.POST.get(answer_key)
                 if value:
                     answer.number_answer = int(value)
-                    answer.save()
-                    saved_count += 1
-
-            elif question.question_type == 'date':
-                date_value = request.POST.get(answer_key)
-                if date_value:
-                    answer.date_answer = date_value
-                    answer.save()
-                    saved_count += 1
-
-            elif question.question_type == 'dropdown':
-                option_id = request.POST.get(answer_key)
-                if option_id:
-                    answer.selected_option_id = int(option_id)
                     answer.save()
                     saved_count += 1
 
@@ -587,7 +598,7 @@ def submit_survey(request, survey_id):
     return JsonResponse({
         'success': True,
         'message': 'Survey submitted successfully!',
-        'redirect_url': f'/surveys/congratulations/{response.id}/'
+        'redirect_url': '/student/dashboard/'
     })
 
 
@@ -603,12 +614,21 @@ def save_survey_progress(request, survey_id):
     if not survey.sections.filter(students=user).exists():
         return JsonResponse({'success': False, 'error': 'Access denied'}, status=403)
 
-    response, created = Response.objects.get_or_create(
+    response = Response.objects.filter(
         survey=survey,
         respondent=user if not survey.anonymous else None,
         status='in_progress',
-        defaults={'ip_address': get_client_ip(request)}
-    )
+        survey_version=survey.version
+    ).first()
+
+    if not response:
+        response = Response.objects.create(
+            survey=survey,
+            respondent=user if not survey.anonymous else None,
+            status='in_progress',
+            survey_version=survey.version,
+            ip_address=get_client_ip(request)
+        )
 
     try:
         data = json.loads(request.body)
@@ -693,11 +713,6 @@ def response_history(request):
                 Q(survey__title__icontains=search_query) |
                 Q(survey__description__icontains=search_query)
             )
-
-        for response in responses:
-            if response.submitted_at and response.started_at:
-                delta = response.submitted_at - response.started_at
-                response.completion_time_minutes = int(delta.total_seconds() / 60)
 
         context = {
             'responses': responses,
@@ -830,6 +845,41 @@ def validate_survey_access(request, survey_id):
         'already_submitted': already_submitted,
         'allow_multiple': survey.allow_multiple_submissions
     })
+
+
+@login_required
+@require_http_methods(["POST"])
+def delete_survey(request, survey_id):
+    if not request.user.is_teacher:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+    
+    survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+    survey.delete()
+    return JsonResponse({'success': True, 'message': 'Survey deleted successfully'})
+
+
+@login_required
+@require_http_methods(["POST"])
+def publish_survey(request, survey_id):
+    if not request.user.is_teacher:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+    
+    survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+    survey.status = 'published'
+    survey.save()
+    return JsonResponse({'success': True, 'message': 'Survey published successfully'})
+
+
+@login_required
+@require_http_methods(["POST"])
+def unpublish_survey(request, survey_id):
+    if not request.user.is_teacher:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+    
+    survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+    survey.status = 'draft'
+    survey.save()
+    return JsonResponse({'success': True, 'message': 'Survey unpublished successfully'})
 
 
 def get_client_ip(request):

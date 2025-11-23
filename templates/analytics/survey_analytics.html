@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survey Analytics - EduQuery</title>
-    <link rel="stylesheet" href="{% static 'css/accounts/Analytics.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/accounts/Analytics.css' %}?v=2.1">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2.1">
@@ -57,18 +57,16 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <header class="dashboard-header">
-                <div class="header-top">
-                    <a href="{% url 'analytics:analytics_dashboard' %}" class="back-btn">
-                        <span class="material-icons">arrow_back</span>
-                        Back to Dashboard
-                    </a>
+            <div class="content-area">
+                <div class="common-dashboard-header">
+                    <h1>
+                        <span class="material-icons">analytics</span>
+                        Survey Analytics
+                    </h1>
+                    <p>Detailed insights for this survey</p>
                 </div>
-                <h1>Survey Analytics</h1>
-                <p class="header-subtitle">Detailed insights for this survey</p>
-            </header>
 
-            <div class="analytics-overview">
+                <div class="analytics-overview">
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon blue">
@@ -101,7 +99,7 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon">
+                        <div class="stat-icon yellow">
                             <span class="material-icons">star</span>
                         </div>
                         <div class="stat-info">
@@ -136,9 +134,9 @@
                 </div>
 
                 <div class="text-responses-section">
-                    <h2>Text Responses</h2>
-                    <p class="section-description">Open-ended feedback from respondents</p>
                     <div id="textResponses" class="empty-state">
+                        <h2>Text Responses</h2>
+                    <p class="section-description">Open-ended feedback from respondents</p>
                         <span class="material-icons">notes</span>
                         <p>No text responses yet</p>
                     </div>
@@ -188,42 +186,48 @@
             
             if(surveyId) {
                 loadSurveyAnalytics(surveyId);
-                // Poll for updates every 30 seconds
-                setInterval(() => loadSurveyAnalytics(surveyId), 30000);
+                // Poll for updates every 5 seconds
+                setInterval(() => loadSurveyAnalytics(surveyId), 5000);
             } else {
                 console.error('Could not determine survey ID from URL');
             }
         });
 
         async function loadSurveyAnalytics(surveyId) {
-            console.log('Loading analytics for survey:', surveyId);
+            // console.log('Loading analytics for survey:', surveyId);
             
             try {
-                // Fetch Summary
-                const summaryRes = await fetch(`/analytics/api/survey/${surveyId}/summary/`);
+                const [summaryRes, mcqRes, likertRes, textRes] = await Promise.all([
+                    fetch(`/analytics/api/survey/${surveyId}/summary/`),
+                    fetch(`/analytics/api/survey/${surveyId}/mcq-data/`),
+                    fetch(`/analytics/api/survey/${surveyId}/likert-data/`),
+                    fetch(`/analytics/api/survey/${surveyId}/text-data/`)
+                ]);
+
                 const summaryData = await summaryRes.json();
+                const mcqData = await mcqRes.json();
+                const likertData = await likertRes.json();
+                const textData = await textRes.json();
+
                 if(summaryData.status === 'success') {
                     document.getElementById('surveyResponses').textContent = summaryData.data.response_count;
-                    // Update other stats if available
                 }
 
-                // Fetch MCQ Data
-                const mcqRes = await fetch(`/analytics/api/survey/${surveyId}/mcq-data/`);
-                const mcqData = await mcqRes.json();
+                // Clear containers before re-rendering to avoid duplicates
+                const chartsContainer = document.getElementById('questionCharts');
+                if (chartsContainer) chartsContainer.innerHTML = '';
+                
+                const textContainer = document.getElementById('textResponses');
+                if (textContainer) textContainer.innerHTML = '';
+
                 if(mcqData.status === 'success') {
                     renderCharts(mcqData.data, 'questionCharts');
                 }
 
-                // Fetch Likert Data
-                const likertRes = await fetch(`/analytics/api/survey/${surveyId}/likert-data/`);
-                const likertData = await likertRes.json();
                 if(likertData.status === 'success') {
                     renderCharts(likertData.data, 'questionCharts');
                 }
 
-                // Fetch Text Data
-                const textRes = await fetch(`/analytics/api/survey/${surveyId}/text-data/`);
-                const textData = await textRes.json();
                 if(textData.status === 'success') {
                     renderTextResponses(textData.data, 'textResponses');
                 }
@@ -363,26 +367,45 @@
                     cloudContainer.innerHTML = '<p style="text-align:center; color:#9ca3af; padding-top: 130px;">Not enough data for word cloud</p>';
                 }
                 
+                // Responses List Container
+                const listContainer = document.createElement('div');
+                listContainer.className = 'responses-list-container';
+                listContainer.style.marginTop = '20px';
+                listContainer.style.border = '1px solid #e5e7eb';
+                listContainer.style.borderRadius = '8px';
+                listContainer.style.overflow = 'hidden';
+
+                const listHeader = document.createElement('div');
+                listHeader.style.padding = '10px 15px';
+                listHeader.style.background = '#f9fafb';
+                listHeader.style.borderBottom = '1px solid #e5e7eb';
+                listHeader.style.fontWeight = '600';
+                listHeader.style.color = '#374151';
+                listHeader.textContent = 'Individual Responses';
+                listContainer.appendChild(listHeader);
+
                 const list = document.createElement('ul');
                 list.className = 'text-response-list';
                 list.style.listStyle = 'none';
                 list.style.padding = '0';
-                list.style.maxHeight = '200px';
+                list.style.margin = '0';
+                list.style.maxHeight = '300px';
                 list.style.overflowY = 'auto';
                 
                 if (item.answers.length === 0) {
-                    list.innerHTML = '<li style="color: #9ca3af; font-style: italic;">No text responses provided.</li>';
+                    list.innerHTML = '<li style="color: #9ca3af; font-style: italic; padding: 15px;">No text responses provided.</li>';
                 } else {
                     item.answers.forEach(ans => {
                         const li = document.createElement('li');
                         li.textContent = ans;
-                        li.style.padding = '10px';
+                        li.style.padding = '12px 15px';
                         li.style.borderBottom = '1px solid #f3f4f6';
                         li.style.color = '#4b5563';
                         list.appendChild(li);
                     });
                 }
-                wrapper.appendChild(list);
+                listContainer.appendChild(list);
+                wrapper.appendChild(listContainer);
                 container.appendChild(wrapper);
             });
         }
