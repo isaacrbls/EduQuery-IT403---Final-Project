@@ -341,8 +341,8 @@ def student_dashboard(request):
     sections = user.enrolled_sections.all()
 
     context = {
-        'pending_surveys': pending_surveys[:5],  # Show 5 most recent
-        'completed_surveys': completed_surveys[:5],
+        'pending_surveys': pending_surveys[:3],  # Show 3 most recent pending
+        'completed_surveys': completed_surveys,  # Show all completed
         'total_surveys': total_surveys,
         'completed_count': completed_count,
         'pending_count': pending_count,
@@ -387,7 +387,7 @@ def teacher_dashboard(request):
     ).order_by('-submitted_at')[:10]
 
     context = {
-        'surveys': surveys[:10],
+        'surveys': surveys[:3],  # Show 3 most recent
         'total_surveys': total_surveys,
         'published_surveys': published_surveys,
         'draft_surveys': draft_surveys,

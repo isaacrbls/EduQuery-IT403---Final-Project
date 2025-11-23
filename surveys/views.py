@@ -87,16 +87,29 @@ def save_survey_builder(request):
                 # Check if we need to increment version
                 has_responses = survey.response_count > 0
                 
-                # Get old question texts for comparison
-                old_questions = list(survey.questions.filter(is_active=True).values_list('question_text', flat=True))
-                new_questions = [q.get('question_text', '') for q in questions_data]
+                # Get old questions data for detailed comparison
+                old_questions_data = list(survey.questions.filter(is_active=True).order_by('order').values(
+                    'question_text', 'question_type', 'is_required', 'options', 
+                    'likert_min', 'likert_max', 'likert_labels'
+                ))
+                
+                # Prepare new questions data for comparison
+                new_questions_data = [{
+                    'question_text': q.get('question_text', ''),
+                    'question_type': q.get('question_type'),
+                    'is_required': q.get('is_required', True),
+                    'options': q.get('options', []),
+                    'likert_min': q.get('likert_min', 1),
+                    'likert_max': q.get('likert_max', 5),
+                    'likert_labels': q.get('likert_labels', [])
+                } for q in questions_data]
                 
                 # Check for content changes
                 content_changed = (
                     survey.title != title or 
                     survey.description != description or
-                    len(old_questions) != len(new_questions) or
-                    set(old_questions) != set(new_questions)  # Check if questions changed
+                    len(old_questions_data) != len(new_questions_data) or
+                    old_questions_data != new_questions_data
                 )
                 
                 survey.title = title
@@ -111,8 +124,8 @@ def save_survey_builder(request):
                 
                 survey.save()
                 
-                # Soft delete existing questions
-                survey.questions.filter(is_active=True).update(is_active=False)
+                # Delete old questions completely (we're recreating all questions)
+                survey.questions.all().delete()
                 
                 action = 'survey_updated'
                 message = f'Survey updated successfully'
@@ -599,9 +612,12 @@ def take_survey(request, survey_id):
     ).order_by('-submitted_at').first()
 
     # Only prevent if they've submitted the CURRENT version (survey wasn't edited since)
-    if existing_submitted and existing_submitted.survey_version >= survey.version and not survey.allow_multiple_submissions:
+    # If survey.version > submitted version, allow retake
+    if existing_submitted and existing_submitted.survey_version >= survey.version:
         messages.info(request, 'You have already completed this survey.')
         return redirect('accounts:student_dashboard')
+    elif existing_submitted and existing_submitted.survey_version < survey.version:
+        messages.info(request, 'This survey has been updated. You can answer it again.')
 
     if survey.due_date and timezone.now() > survey.due_date:
         messages.warning(request, 'This survey has passed its due date.')
@@ -704,7 +720,8 @@ def submit_survey(request, survey_id):
             survey_version=survey.version
         )
 
-    questions = survey.questions.all()
+    # Only get active questions
+    questions = survey.questions.filter(is_active=True)
     errors = []
     saved_count = 0
 
@@ -754,15 +771,22 @@ def submit_survey(request, survey_id):
             elif question.question_type == 'likert_scale':
                 value = request.POST.get(answer_key)
                 if value:
-                    answer.number_answer = int(value)
-                    answer.save()
-                    saved_count += 1
+                    try:
+                        answer.number_answer = int(value)
+                        answer.save()
+                        saved_count += 1
+                    except ValueError:
+                        errors.append(f'Invalid value for question: {question.question_text[:50]}')
 
         except Exception as e:
-            errors.append(f'Error saving answer for question {question.order}: {str(e)}')
+            errors.append(f'Error saving answer for question: {str(e)}')
 
     if errors:
         return JsonResponse({'success': False, 'errors': errors}, status=400)
+
+    # Ensure we have a response object
+    if not response:
+        return JsonResponse({'success': False, 'error': 'No response found'}, status=400)
 
     response.status = 'submitted'
     response.submitted_at = timezone.now()

@@ -1,4 +1,5 @@
 {% load static %}
+{% load survey_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -167,23 +168,21 @@
                                 {% elif question.question_type == 'likert_scale' %}
                                 <!-- Likert Scale -->
                                 <div class="likert-scale">
-                                    {% for i in "12345"|make_list %}
-                                    {% if forloop.counter >= question.likert_min and forloop.counter <= question.likert_max %}
+                                    {% for i in question.likert_min|range_filter:question.likert_max %}
                                     <div class="likert-option">
                                         <input type="radio" 
-                                               id="question_{{ question.id }}_{{ forloop.counter }}" 
+                                               id="question_{{ question.id }}_{{ i }}" 
                                                name="question_{{ question.id }}" 
-                                               value="{{ forloop.counter }}"
-                                               {% if question.existing_answer.number_answer == forloop.counter %}checked{% endif %}
+                                               value="{{ i }}"
+                                               {% if question.existing_answer.number_answer == i %}checked{% endif %}
                                                {% if question.is_required %}required{% endif %}>
-                                        <label for="question_{{ question.id }}_{{ forloop.counter }}">
-                                            <span class="likert-number">{{ forloop.counter }}</span>
-                                            {% if question.likert_labels|length > 0 %}
-                                            <span class="likert-label">{{ question.likert_labels|slice:forloop.counter0 }}</span>
+                                        <label for="question_{{ question.id }}_{{ i }}">
+                                            <span class="likert-number">{{ i }}</span>
+                                            {% if question.likert_labels and forloop.counter0 < question.likert_labels|length %}
+                                            <span class="likert-label">{{ question.likert_labels|index:forloop.counter0 }}</span>
                                             {% endif %}
                                         </label>
                                     </div>
-                                    {% endif %}
                                     {% endfor %}
                                 </div>
                                 {% endif %}

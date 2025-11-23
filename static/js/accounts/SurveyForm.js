@@ -455,7 +455,10 @@ function setupModalHandlers() {
     }
 
     if (confirmBtn) {
-        confirmBtn.addEventListener('click', processFormSubmission);
+        // Remove any existing listener first
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        newConfirmBtn.addEventListener('click', processFormSubmission);
     }
 
     // Close modal when clicking overlay
@@ -497,15 +500,26 @@ function closeModal() {
     }
 }
 
+let isSubmitting = false;
+
 function processFormSubmission() {
+    // Prevent multiple submissions
+    if (isSubmitting) {
+        console.log('Submission already in progress');
+        return;
+    }
+    
+    isSubmitting = true;
     closeModal();
 
     // Show loading state
     const submitBtn = document.getElementById('submitBtn');
+    const confirmBtn = document.getElementById('confirmSubmit');
     const originalContent = submitBtn.innerHTML;
 
     submitBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Submitting...';
     submitBtn.disabled = true;
+    if (confirmBtn) confirmBtn.disabled = true;
 
     // Collect form data
     const form = document.getElementById('surveyForm');
@@ -526,20 +540,21 @@ function processFormSubmission() {
         }
     })
     .then(response => {
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        return response.json();
+        // Read JSON first, then check if successful
+        return response.json().then(data => {
+            if (!response.ok) {
+                // Return both response status and data for error handling
+                return Promise.reject({ status: response.status, data: data });
+            }
+            return data;
+        });
     })
     .then(data => {
-        console.log('Response data:', data);
         if (data.success) {
             // Clear draft
             localStorage.removeItem('surveyDraft');
             
-            console.log('About to show modal...');
-            console.log('Modal object:', window.Modal);
-            
-            // Show Congratulations Modal
+            // Show success message and redirect
             if (typeof Modal !== 'undefined' && Modal.alert) {
                 Modal.alert({
                     title: 'Congratulations! 🎉',
@@ -547,34 +562,70 @@ function processFormSubmission() {
                     type: 'success',
                     okText: 'Back to Dashboard',
                     onClose: () => {
-                        console.log('Modal closed, redirecting...');
                         window.location.href = data.redirect_url || '/student/dashboard/';
                     }
                 });
-                console.log('Modal.alert called');
             } else {
-                console.error('Modal is not defined!');
                 // Fallback to regular alert
                 alert('Congratulations! You have successfully submitted the survey.');
                 window.location.href = data.redirect_url || '/student/dashboard/';
             }
         } else {
-            // Show errors
-            let errorMessage = data.error;
+            // Show errors and re-enable button
+            let errorMessage = data.error || 'Error submitting survey';
             if (data.errors && Array.isArray(data.errors)) {
-                errorMessage = data.errors.join('\n');
+                errorMessage = 'Please fix the following issues:\n\n' + data.errors.map((err, i) => `${i + 1}. ${err}`).join('\n');
             }
-            showNotification(errorMessage || 'Error submitting survey', 'error');
             
+            // Show error in modal
+            if (typeof Modal !== 'undefined' && Modal.alert) {
+                Modal.alert({
+                    title: 'Submission Error',
+                    message: errorMessage,
+                    type: 'error',
+                    okText: 'OK'
+                });
+            } else {
+                alert(errorMessage);
+            }
+            
+            // Re-enable button
             submitBtn.innerHTML = originalContent;
             submitBtn.disabled = false;
+            if (confirmBtn) confirmBtn.disabled = false;
+            isSubmitting = false;
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification('An unexpected error occurred. Please try again.', 'error');
+        
+        // Handle structured error with data
+        if (error.data) {
+            let errorMessage = error.data.error || 'Error submitting survey';
+            if (error.data.errors && Array.isArray(error.data.errors)) {
+                errorMessage = 'Please fix the following issues:\n\n' + error.data.errors.map((err, i) => `${i + 1}. ${err}`).join('\n');
+            }
+            
+            // Show error in modal
+            if (typeof Modal !== 'undefined' && Modal.alert) {
+                Modal.alert({
+                    title: 'Submission Error',
+                    message: errorMessage,
+                    type: 'error',
+                    okText: 'OK'
+                });
+            } else {
+                alert(errorMessage);
+            }
+        } else {
+            showNotification('An unexpected error occurred. Please try again.', 'error');
+        }
+        
+        // Always re-enable button on error
         submitBtn.innerHTML = originalContent;
         submitBtn.disabled = false;
+        if (confirmBtn) confirmBtn.disabled = false;
+        isSubmitting = false;
     });
 }
 
