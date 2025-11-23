@@ -31,6 +31,9 @@
                 <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn active" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
                 </a>
+                <a href="{% url 'accounts:section_list' %}" class="sidebar-btn" aria-label="Sections" data-tooltip="Sections">
+                    <span class="material-icons">groups</span>
+                </a>
                 <a href="{% url 'responses:response_list' %}" class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
                     <span class="material-icons">assignment_turned_in</span>
                 </a>
@@ -60,26 +63,38 @@
             <div class="content-area">
 
                 <!-- Section Header -->
-                <div class="section-header">
-                    <div class="header-left">
-                        <span class="material-icons section-icon">view_list</span>
-                        <h2>List of Survey</h2>
-                    </div>
-                    <div class="header-right">
-                        <label for="status-filter" class="visually-hidden">Filter by status</label>
-                        <select id="status-filter" class="filter-select" aria-label="Filter by status">
-                            <option value="all">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="draft">Draft</option>
-                            <option value="closed">Closed</option>
-                        </select>
-                        <label for="sort-select" class="visually-hidden">Sort surveys</label>
-                        <select id="sort-select" class="filter-select" aria-label="Sort surveys">
-                            <option value="due-date">Sort by Due Date</option>
-                            <option value="created-date">Sort by Created Date</option>
-                            <option value="title">Sort by Title</option>
-                            <option value="responses">Sort by Responses</option>
-                        </select>
+                <div class="common-dashboard-header">
+                    <h2>
+                        <span class="material-icons">view_list</span>
+                        List of Survey
+                    </h2>
+                    <p>Manage your surveys and view their status.</p>
+                </div>
+
+                <div class="section-header" style="margin-bottom: 20px; justify-content: flex-end;">
+                    <div class="header-right" style="width: 100%; justify-content: space-between;">
+                        <!-- Tabs -->
+                        <div class="survey-tabs">
+                            <button class="tab-btn active" data-tab="my-surveys">My Surveys</button>
+                            <button class="tab-btn" data-tab="archive">Archive</button>
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <label for="status-filter" class="visually-hidden">Filter by status</label>
+                            <select id="status-filter" class="filter-select" aria-label="Filter by status">
+                                <option value="all">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="draft">Draft</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                            <label for="sort-select" class="visually-hidden">Sort surveys</label>
+                            <select id="sort-select" class="filter-select" aria-label="Sort surveys">
+                                <option value="due-date">Sort by Due Date</option>
+                                <option value="created-date">Sort by Created Date</option>
+                                <option value="title">Sort by Title</option>
+                                <option value="responses">Sort by Responses</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -137,34 +152,41 @@
                             </div>
                             
                             <div class="survey-card-actions">
-                                {% if survey.status == 'draft' %}
-                                <button class="action-btn publish-btn" onclick="publishSurvey('{{ survey.id }}')">
-                                    <span class="material-icons">publish</span>
-                                    Publish
-                                </button>
-                                {% elif survey.status == 'active' or survey.status == 'published' %}
-                                <button class="action-btn unpublish-btn" onclick="unpublishSurvey('{{ survey.id }}')">
-                                    <span class="material-icons">unpublished</span>
-                                    Unpublish
-                                </button>
-                                {% endif %}
-                                
-                                {% if survey.status == 'closed' %}
-                                <button class="action-btn view-btn" onclick="viewResults('{{ survey.id }}')">
-                                    <span class="material-icons">visibility</span>
-                                    View
+                                {% if survey.status == 'archived' %}
+                                <button class="action-btn restore-btn" onclick="restoreSurvey('{{ survey.id }}')">
+                                    <span class="material-icons">restore_from_trash</span>
+                                    Restore
                                 </button>
                                 {% else %}
-                                <button class="action-btn edit-btn" onclick="editSurvey('{{ survey.id }}')">
-                                    <span class="material-icons">edit</span>
-                                    Edit
-                                </button>
+                                    {% if survey.status == 'draft' %}
+                                    <button class="action-btn publish-btn" onclick="publishSurvey('{{ survey.id }}')">
+                                        <span class="material-icons">publish</span>
+                                        Publish
+                                    </button>
+                                    {% elif survey.status == 'active' or survey.status == 'published' %}
+                                    <button class="action-btn unpublish-btn" onclick="unpublishSurvey('{{ survey.id }}')">
+                                        <span class="material-icons">unpublished</span>
+                                        Unpublish
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if survey.status == 'closed' %}
+                                    <button class="action-btn view-btn" onclick="viewResults('{{ survey.id }}')">
+                                        <span class="material-icons">visibility</span>
+                                        View
+                                    </button>
+                                    {% else %}
+                                    <button class="action-btn edit-btn" onclick="editSurvey('{{ survey.id }}')">
+                                        <span class="material-icons">edit</span>
+                                        Edit
+                                    </button>
+                                    {% endif %}
+                                    
+                                    <button class="action-btn delete-btn" onclick="deleteSurvey('{{ survey.id }}')">
+                                        <span class="material-icons">delete</span>
+                                        Delete
+                                    </button>
                                 {% endif %}
-                                
-                                <button class="action-btn delete-btn" onclick="deleteSurvey('{{ survey.id }}')">
-                                    <span class="material-icons">delete</span>
-                                    Delete
-                                </button>
                             </div>
                         </div>
                         {% empty %}

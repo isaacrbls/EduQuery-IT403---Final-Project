@@ -132,7 +132,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const sidebarBtns = document.querySelectorAll('.sidebar-btn');
     sidebarBtns.forEach((btn, index) => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
             sidebarBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             

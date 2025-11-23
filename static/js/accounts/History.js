@@ -1,9 +1,19 @@
-function handleLogout() {
+function handleLogout(e) {
+    e.preventDefault();
+    
+    if (typeof Modal === 'undefined') {
+        console.error('Modal library not loaded');
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/logout/';
+        }
+        return;
+    }
+
     Modal.show({
         title: 'Logout Confirmation',
         message: 'Are you sure you want to logout? You will be redirected to the login page.',
         type: 'warning',
-        icon: 'warning',
+        icon: 'logout',
         confirmText: 'Logout',
         cancelText: 'Cancel',
         confirmDanger: true,
@@ -19,10 +29,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeSidebarNavigation() {
-    const logoutBtn = document.querySelector('.logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
-    }
+    const logoutBtns = document.querySelectorAll('.logout-btn');
+    logoutBtns.forEach(btn => {
+        btn.addEventListener('click', handleLogout);
+    });
 }
 
 function initializeHistoryPage() {

@@ -57,6 +57,7 @@ class Section(models.Model):
     description = models.TextField(blank=True, null=True)
     academic_year = models.CharField(max_length=20)
     semester = models.CharField(max_length=20)
+    is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

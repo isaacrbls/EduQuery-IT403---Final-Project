@@ -539,15 +539,18 @@ def student_history_details(request, response_id):
     completion_time = None
     if response.submitted_at and response.started_at:
         delta = response.submitted_at - response.started_at
-        minutes = abs(delta.total_seconds() / 60)
-        if minutes < 1:
-            completion_time = "Less than a minute"
-        elif minutes < 60:
-            completion_time = f"{int(minutes)} minute{'s' if int(minutes) != 1 else ''}"
+        total_seconds = int(delta.total_seconds())
+        
+        if total_seconds < 60:
+            completion_time = f"{total_seconds} second{'s' if total_seconds != 1 else ''}"
+        elif total_seconds < 3600:
+            minutes = total_seconds // 60
+            seconds = total_seconds % 60
+            completion_time = f"{minutes} min {seconds} sec"
         else:
-            hours = int(minutes / 60)
-            remaining_minutes = int(minutes % 60)
-            completion_time = f"{hours} hour{'s' if hours != 1 else ''} {remaining_minutes} minute{'s' if remaining_minutes != 1 else ''}"
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            completion_time = f"{hours} hr {minutes} min"
     
     # Organize answers by question
     question_answers = []
@@ -647,3 +650,20 @@ def student_survey_list(request):
     }
     
     return render(request, 'accounts/SurveyListdashboard.html', context)
+
+
+@login_required
+def section_list(request):
+    """View for listing and managing sections"""
+    if not request.user.is_teacher:
+        return redirect('accounts:student_dashboard')
+        
+    all_sections = Section.objects.filter(teacher=request.user).order_by('-created_at')
+    active_sections = all_sections.filter(is_archived=False)
+    archived_sections = all_sections.filter(is_archived=True)
+    
+    context = {
+        'active_sections': active_sections,
+        'archived_sections': archived_sections,
+    }
+    return render(request, 'accounts/Sections.html', context)

@@ -28,6 +28,10 @@ function goToSurveyList() {
     window.location.href = '/surveys/';
 }
 
+function goToSections() {
+    window.location.href = '/teacher/sections/';
+}
+
 function goToHistory() {
     window.location.href = '/surveys/history/';
 }
@@ -49,23 +53,45 @@ function goToSettings() {
 }
 
 function handleLogout() {
-    window.location.href = '/accounts/logout/';
+    if (typeof Modal !== 'undefined') {
+        Modal.show({
+            title: 'Logout Confirmation',
+            message: 'Are you sure you want to logout? You will be redirected to the login page.',
+            type: 'warning',
+            icon: 'warning',
+            confirmText: 'Logout',
+            cancelText: 'Cancel',
+            confirmDanger: true,
+            onConfirm: () => {
+                window.location.href = '/accounts/logout/';
+            }
+        });
+    } else {
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/accounts/logout/';
+        }
+    }
 }
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeSidebarNavigation();
+    initializeTabs();
+    filterSurveys(); // Initial filter to hide archived surveys in "My Surveys" tab
 });
 
 function initializeSidebarNavigation() {
     const sidebarBtns = document.querySelectorAll('.sidebar-btn');
     sidebarBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
             const label = this.getAttribute('aria-label');
             if (label === 'Home') {
                 goToHome();
             } else if (label === 'Survey List') {
                 goToSurveyList();
+            } else if (label === 'Sections') {
+                goToSections();
             } else if (label === 'History') {
                 goToHistory();
             } else if (label === 'Responses') {
@@ -433,6 +459,41 @@ function unpublishSurvey(surveyId) {
     });
 }
 
+function restoreSurvey(surveyId) {
+    Modal.show({
+        title: 'Restore Survey',
+        message: 'Are you sure you want to restore this survey? It will be moved to drafts.',
+        type: 'info',
+        confirmText: 'Restore',
+        onConfirm: () => {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(`/surveys/${surveyId}/restore/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Survey restored successfully!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    showNotification(data.message || 'Error restoring survey', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred', 'error');
+                console.error(error);
+            });
+        }
+    });
+}
+
 function viewResults(surveyId) {
     window.location.href = `/responses/survey/${surveyId}/`;
 }
@@ -506,16 +567,62 @@ function handleFormSubmit(event) {
 }
 
 // Filter and Sort Functions
+function initializeTabs() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Remove active class from all tabs
+            tabBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked tab
+            btn.classList.add('active');
+            
+            // Filter surveys based on new tab
+            filterSurveys();
+        });
+    });
+}
+
 function filterSurveys() {
     const statusFilter = document.getElementById('status-filter').value;
-    const surveyItems = document.querySelectorAll('.survey-item');
+    const surveyItems = document.querySelectorAll('.survey-card');
+    const activeTab = document.querySelector('.tab-btn.active') ? document.querySelector('.tab-btn.active').getAttribute('data-tab') : 'my-surveys';
+    const searchInput = document.getElementById('search-input');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
 
     let visibleCount = 0;
 
     surveyItems.forEach(item => {
         const status = item.getAttribute('data-status');
+        const title = item.querySelector('.survey-title').textContent.toLowerCase();
+        
+        let isVisible = true;
 
-        if (statusFilter === 'all' || status === statusFilter) {
+        // Tab filtering
+        if (activeTab === 'my-surveys') {
+            if (status === 'archived') {
+                isVisible = false;
+            }
+        } else if (activeTab === 'archive') {
+            if (status !== 'archived') {
+                isVisible = false;
+            }
+        }
+
+        // Status filtering
+        if (isVisible && statusFilter !== 'all') {
+            if (status !== statusFilter) {
+                isVisible = false;
+            }
+        }
+
+        // Search filtering
+        if (isVisible && searchTerm) {
+            if (!title.includes(searchTerm)) {
+                isVisible = false;
+            }
+        }
+
+        if (isVisible) {
             item.style.display = '';
             visibleCount++;
         } else {
@@ -529,7 +636,7 @@ function filterSurveys() {
 function sortSurveys() {
     const sortValue = document.getElementById('sort-select').value;
     const container = document.getElementById('surveys-container');
-    const items = Array.from(container.querySelectorAll('.survey-item'));
+    const items = Array.from(container.querySelectorAll('.survey-card'));
 
     items.sort((a, b) => {
         switch(sortValue) {
@@ -561,39 +668,17 @@ function sortSurveys() {
 function updateResultsCount(count = null) {
     const resultsCount = document.getElementById('results-count');
     if (count === null) {
-        const visibleItems = document.querySelectorAll('.survey-item:not([style*="display: none"])').length;
-        const allItems = document.querySelectorAll('.survey-item').length;
-        count = visibleItems > 0 ? visibleItems : allItems;
+        const visibleItems = document.querySelectorAll('.survey-card:not([style*="display: none"])').length;
+        count = visibleItems;
     }
-    resultsCount.textContent = `Showing ${count} of ${document.querySelectorAll('.survey-item').length} surveys`;
+    resultsCount.textContent = `Showing ${count} surveys`;
 }
 
 // Search Functionality
 const searchInput = document.getElementById('search-input');
 if (searchInput) {
     searchInput.addEventListener('input', debounce(function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const surveyItems = document.querySelectorAll('.survey-item');
-
-        let visibleCount = 0;
-
-        surveyItems.forEach(item => {
-            const title = item.querySelector('.survey-title').textContent.toLowerCase();
-            const statusFilter = document.getElementById('status-filter').value;
-            const itemStatus = item.getAttribute('data-status');
-
-            const matchesSearch = title.includes(searchTerm);
-            const matchesFilter = statusFilter === 'all' || itemStatus === statusFilter;
-
-            if (matchesSearch && matchesFilter) {
-                item.style.display = '';
-                visibleCount++;
-            } else {
-                item.style.display = 'none';
-            }
-        });
-
-        updateResultsCount(visibleCount);
+        filterSurveys();
     }, 300));
 }
 
@@ -714,6 +799,7 @@ window.editSurvey = editSurvey;
 window.deleteSurvey = deleteSurvey;
 window.publishSurvey = publishSurvey;
 window.unpublishSurvey = unpublishSurvey;
+window.restoreSurvey = restoreSurvey;
 window.viewResults = viewResults;
 window.saveDraft = saveDraft;
 

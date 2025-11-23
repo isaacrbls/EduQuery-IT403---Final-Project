@@ -42,6 +42,6 @@ class SectionSerializer(serializers.ModelSerializer):
         model = Section
         fields = ['id', 'name', 'code', 'teacher', 'teacher_name',
                   'students', 'student_count', 'description',
-                  'academic_year', 'semester', 'created_at']
+                  'academic_year', 'semester', 'is_archived', 'created_at']
         read_only_fields = ['id', 'created_at']
 

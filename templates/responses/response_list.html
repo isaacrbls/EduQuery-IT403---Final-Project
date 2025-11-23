@@ -26,6 +26,11 @@
                 <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
                 </a>
+                {% if request.user.is_teacher %}
+                <a href="{% url 'accounts:section_list' %}" class="sidebar-btn" aria-label="Sections" data-tooltip="Sections">
+                    <span class="material-icons">groups</span>
+                </a>
+                {% endif %}
                 <a href="{% url 'responses:response_list' %}" class="sidebar-btn active" aria-label="Responses" data-tooltip="Responses">
                     <span class="material-icons">assignment_turned_in</span>
                 </a>
@@ -50,16 +55,17 @@
                 <div class="content-layout">
                     <div class="main-section">
                         <!-- Section Header -->
-                        <div class="section-header">
-                            <div class="header-left">
-                                <span class="material-icons section-icon">assignment_turned_in</span>
-                                <div>
-                                    <h2>Response Management</h2>
-                                    <p style="color: var(--gray-500); margin: 0; font-size: 14px;">Select a survey to view student submissions</p>
-                                </div>
-                            </div>
-                            <div class="header-right">
-                                <form method="get" class="search-box-wrapper">
+                        <div class="common-dashboard-header">
+                            <h2>
+                                <span class="material-icons">assignment_turned_in</span>
+                                Response Management
+                            </h2>
+                            <p>Select a survey to view student submissions.</p>
+                        </div>
+
+                        <div class="section-header" style="margin-bottom: 20px; justify-content: flex-end;">
+                            <div class="header-right" style="width: 100%;">
+                                <form method="get" class="search-box-wrapper" style="display: flex; justify-content: flex-end;">
                                     <div class="search-box">
                                         <span class="material-icons search-icon">search</span>
                                         <input type="text" name="search" placeholder="Search surveys..." value="{{ search_query }}">

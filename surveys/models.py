@@ -11,6 +11,7 @@ class Survey(models.Model):
         ('draft', 'Draft'),
         ('published', 'Published'),
         ('closed', 'Closed'),
+        ('archived', 'Archived'),
     )
 
     title = models.CharField(max_length=200)

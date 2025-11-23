@@ -12,232 +12,6 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/History.css' %}">
-    <style>
-        /* Layout Fixes */
-        .main-content {
-            padding: 0;
-            height: 100vh;
-            box-sizing: border-box;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .content-area {
-            width: 100%;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 30px;
-            gap: 20px;
-            overflow-y: auto;
-        }
-
-        /* Section Header */
-        .section-header {
-            background: transparent;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 20px;
-            width: 100%;
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .section-icon {
-            font-size: 28px;
-            color: #2F5E53;
-            padding: 10px;
-            background: #f0fdfa;
-            border-radius: 12px;
-        }
-
-        .section-title h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #111827;
-            margin: 0;
-            letter-spacing: -0.01em;
-        }
-
-        .header-controls {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            align-items: center;
-        }
-
-        .response-table {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
-            border: 1px solid #e5e7eb;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .search-filter-bar {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            align-items: center;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-box input {
-            width: 300px;
-            padding: 10px 40px 10px 40px;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 14px;
-            color: #4b5563;
-            background-color: #f9fafb;
-            transition: all 0.2s;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #2F5E53;
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(47, 94, 83, 0.1);
-        }
-
-        .search-box .search-icon {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #2F5E53;
-            font-size: 20px;
-            left: 14px;
-            pointer-events: none;
-        }
-
-        .filter-select {
-            padding: 10px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 14px;
-            min-width: 180px;
-            color: #4b5563;
-            background-color: #f9fafb;
-            transition: all 0.2s;
-        }
-
-        .filter-select:focus {
-            outline: none;
-            border-color: #2F5E53;
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(47, 94, 83, 0.1);
-        }
-
-        .response-table-container {
-            padding: 0;
-            background: white;
-            overflow-x: auto;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        th {
-            background: #f8fafc;
-            padding: 18px 30px;
-            text-align: left;
-            font-weight: 600;
-            color: #64748b;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid #e2e8f0;
-            white-space: nowrap;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        td {
-            padding: 20px 30px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #334155;
-            vertical-align: middle;
-            font-size: 0.95rem;
-            transition: background-color 0.2s;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: #f8fafc;
-        }
-
-        .view-btn {
-            padding: 8px 18px;
-            background: white;
-            color: #2F5E53;
-            border: 1px solid #2F5E53;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .view-btn:hover {
-            background: #2F5E53;
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(47, 94, 83, 0.15);
-        }
-
-        .status-badge {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .status-badge::before {
-            content: '';
-            display: block;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: currentColor;
-        }
-
-        .status-completed {
-            background: #ecfdf5;
-            color: #059669;
-        }
-    </style>
     <script src="{% static 'js/modal.js' %}"></script>
     <script defer src="{% static 'js/accounts/History.js' %}?v=2"></script>
 </head>
@@ -273,11 +47,15 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="content-area">
+                <div class="common-dashboard-header">
+                    <h2>
+                        <span class="material-icons">history</span>
+                        History
+                    </h2>
+                    <p>View your past survey responses and activity.</p>
+                </div>
+
                 <div class="section-header">
-                    <div class="section-title">
-                        <span class="material-icons section-icon">history</span>
-                        <h2>History</h2>
-                    </div>
                     <div class="header-controls">
                         <div class="search-filter-bar">
                             <div class="search-box">
@@ -324,8 +102,8 @@
                                     </td>
                                     <td>{{ response.submitted_at|date:"M d, Y" }}</td>
                                     <td>
-                                        {% if response.completion_time_minutes %}
-                                            {{ response.completion_time_minutes }} min
+                                        {% if response.completion_time_formatted %}
+                                            {{ response.completion_time_formatted }}
                                         {% else %}
                                             <span style="color: #9ca3af;">-</span>
                                         {% endif %}

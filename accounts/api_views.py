@@ -72,6 +72,14 @@ class SectionViewSet(viewsets.ModelViewSet):
             return Section.objects.filter(students=user)
         return Section.objects.all()
 
+    @action(detail=True, methods=['get'])
+    def students(self, request, pk=None):
+        """Get list of students in a section"""
+        section = self.get_object()
+        students = section.students.all()
+        serializer = UserSerializer(students, many=True)
+        return Response(serializer.data)
+
     @action(detail=True, methods=['post'])
     def enroll(self, request, pk=None):
         """Enroll a student in a section"""

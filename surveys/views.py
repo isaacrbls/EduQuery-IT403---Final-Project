@@ -768,15 +768,18 @@ def survey_detail(request, response_id):
     completion_time = None
     if response.submitted_at and response.started_at:
         delta = response.submitted_at - response.started_at
-        minutes = int(delta.total_seconds() / 60)
-        if minutes < 60:
-            completion_time = f"{minutes} minute{'s' if minutes != 1 else ''}"
+        total_seconds = int(delta.total_seconds())
+        
+        if total_seconds < 60:
+            completion_time = f"{total_seconds} second{'s' if total_seconds != 1 else ''}"
+        elif total_seconds < 3600:
+            minutes = total_seconds // 60
+            seconds = total_seconds % 60
+            completion_time = f"{minutes} min {seconds} sec"
         else:
-            hours = minutes // 60
-            remaining_minutes = minutes % 60
-            completion_time = f"{hours} hour{'s' if hours != 1 else ''}"
-            if remaining_minutes > 0:
-                completion_time += f" {remaining_minutes} minute{'s' if remaining_minutes != 1 else ''}"
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            completion_time = f"{hours} hr {minutes} min"
 
     context = {
         'response': response,
@@ -854,8 +857,23 @@ def delete_survey(request, survey_id):
         return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
     
     survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
-    survey.delete()
-    return JsonResponse({'success': True, 'message': 'Survey deleted successfully'})
+    survey.status = 'archived'
+    survey.is_active = False
+    survey.save()
+    return JsonResponse({'success': True, 'message': 'Survey archived successfully'})
+
+
+@login_required
+@require_http_methods(["POST"])
+def restore_survey(request, survey_id):
+    if not request.user.is_teacher:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+    
+    survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+    survey.status = 'draft'
+    survey.is_active = False
+    survey.save()
+    return JsonResponse({'success': True, 'message': 'Survey restored successfully'})
 
 
 @login_required

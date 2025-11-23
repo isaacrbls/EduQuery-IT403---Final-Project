@@ -27,4 +27,7 @@ urlpatterns = [
     # Student history
     path('student/history/', views.student_history, name='student_history'),
     path('student/history/<int:response_id>/', views.student_history_details, name='student_history_details'),
+
+    # Sections
+    path('teacher/sections/', views.section_list, name='section_list'),
 ]

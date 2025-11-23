@@ -12,6 +12,10 @@ function goToSurveyList() {
     window.location.href = '/surveys/';
 }
 
+function goToSections() {
+    window.location.href = '/teacher/sections/';
+}
+
 function goToHistory() {
     window.location.href = '/surveys/history/';
 }
@@ -33,7 +37,24 @@ function goToSettings() {
 }
 
 function handleLogout() {
-    window.location.href = '/accounts/logout/';
+    if (typeof Modal !== 'undefined') {
+        Modal.show({
+            title: 'Logout Confirmation',
+            message: 'Are you sure you want to logout? You will be redirected to the login page.',
+            type: 'warning',
+            icon: 'warning',
+            confirmText: 'Logout',
+            cancelText: 'Cancel',
+            confirmDanger: true,
+            onConfirm: () => {
+                window.location.href = '/accounts/logout/';
+            }
+        });
+    } else {
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/accounts/logout/';
+        }
+    }
 }
 
 function goBack() {
@@ -98,6 +119,8 @@ function initializeDetails() {
                 goToHome();
             } else if (label === 'Survey List') {
                 goToSurveyList();
+            } else if (label === 'Sections') {
+                goToSections();
             } else if (label === 'History' || label === 'Survey History') {
                 goToHistory();
             } else if (label === 'Responses') {

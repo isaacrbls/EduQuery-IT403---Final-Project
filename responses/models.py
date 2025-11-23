@@ -45,6 +45,23 @@ class Response(models.Model):
             return int(self.completion_time.total_seconds() / 60)
         return None
 
+    @property
+    def completion_time_formatted(self):
+        """Return formatted completion time string"""
+        if self.completion_time:
+            total_seconds = int(self.completion_time.total_seconds())
+            if total_seconds < 60:
+                return f"{total_seconds} second{'s' if total_seconds != 1 else ''}"
+            elif total_seconds < 3600:
+                minutes = total_seconds // 60
+                seconds = total_seconds % 60
+                return f"{minutes} min {seconds} sec"
+            else:
+                hours = total_seconds // 3600
+                minutes = (total_seconds % 3600) // 60
+                return f"{hours} hr {minutes} min"
+        return "N/A"
+
 
 class Answer(models.Model):
     """Model for individual question answers"""

@@ -35,6 +35,9 @@
                 </a>
                 {% endif %}
                 {% if request.user.user_type == 'teacher' %}
+                <a href="{% url 'accounts:section_list' %}" class="sidebar-btn" aria-label="Sections" data-tooltip="Sections">
+                    <span class="material-icons">groups</span>
+                </a>
                 <a href="{% url 'responses:response_list' %}" class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
                     <span class="material-icons">assignment_turned_in</span>
                 </a>
@@ -61,16 +64,12 @@
         <!-- Main Content -->
         <div class="main-content">
             <!-- Header Section -->
-            <div class="header-section">
-
-
-                <!-- Welcome Message -->
-                <div class="welcome-section">
-                    <div class="welcome-content">
-                        <h2 class="welcome-title">Hello, <span class="user-name">{{ request.user.first_name|default:'Khy' }}</span>!</h2>
-                        <p class="welcome-subtitle">Manage your profile information and preferences.</p>
-                    </div>
-                </div>
+            <div class="common-dashboard-header">
+                <h2>
+                    <span class="material-icons">person</span>
+                    Hello, {{ request.user.first_name|default:'Khy' }}!
+                </h2>
+                <p>Manage your profile information and preferences.</p>
             </div>
 
             <!-- Profile Section -->
