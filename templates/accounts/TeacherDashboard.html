@@ -50,9 +50,9 @@
 
             <!-- User Section -->
             <div class="sidebar-user">
-                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -142,7 +142,7 @@
                                             <span class="material-icons section-icon">assignment</span>
                                             <h2>List of Survey</h2>
                                         </div>
-                                        <a href="{% url 'surveys:create_survey' %}" class="create-survey-btn">
+                                        <a href="{% url 'surveys:survey_builder' %}" class="create-survey-btn">
                                             <span class="material-icons">add</span>
                                             Create Survey
                                         </a>

@@ -3,6 +3,51 @@ from .models import Survey, Question
 from accounts.models import Section
 
 
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Question
+        fields = ['question_text', 'question_type', 'is_required', 'options', 
+                  'likert_min', 'likert_max', 'likert_labels']
+        widgets = {
+            'question_text': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Enter your question'}),
+            'question_type': forms.Select(attrs={'class': 'form-select'}),
+            'is_required': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'likert_min': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'likert_max': forms.NumberInput(attrs={'class': 'form-control', 'max': 10}),
+            'options': forms.HiddenInput(),
+            'likert_labels': forms.HiddenInput(),
+        }
+        labels = {
+            'question_text': 'Question',
+            'question_type': 'Question Type',
+            'is_required': 'Required',
+            'likert_min': 'Minimum Value',
+            'likert_max': 'Maximum Value',
+        }
+    
+    def clean_options(self):
+        options = self.cleaned_data.get('options')
+        question_type = self.cleaned_data.get('question_type')
+        
+        if question_type in ['multiple_choice', 'checkbox']:
+            if not options or len(options) < 2:
+                raise forms.ValidationError('Multiple choice and checkbox questions must have at least 2 options.')
+        
+        return options
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        question_type = cleaned_data.get('question_type')
+        likert_min = cleaned_data.get('likert_min')
+        likert_max = cleaned_data.get('likert_max')
+        
+        if question_type == 'likert_scale':
+            if likert_min and likert_max and likert_min >= likert_max:
+                raise forms.ValidationError('Likert maximum must be greater than minimum.')
+        
+        return cleaned_data
+
+
 class SurveyForm(forms.ModelForm):
     class Meta:
         model = Survey

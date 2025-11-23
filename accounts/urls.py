@@ -15,8 +15,6 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('student/analytics/', views.analytics_view, name='analytics'),
 
-    path('forgot-password/', views.forgot_password, name='forgot_password'),
-
     # Dashboards
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),

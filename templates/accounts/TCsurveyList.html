@@ -18,7 +18,7 @@
     <script defer src="{%static 'js/accounts/TCsurveyList.js' %}?v=4"></script>
 </head>
 
-<body data-user-name="{{ request.user.first_name|default:'Khy' }}" data-create-survey-url="{% url 'surveys:create_survey' %}">
+<body data-user-name="{{ request.user.first_name|default:'Khy' }}" data-create-survey-url="{% url 'surveys:survey_builder' %}">
     <div class="dashboard-container">
         {% csrf_token %}
         <!-- Enhanced Sidebar -->
@@ -50,9 +50,9 @@
 
             <!-- User Section -->
             <div class="sidebar-user">
-                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -83,7 +83,7 @@
                             <label for="status-filter" class="visually-hidden">Filter by status</label>
                             <select id="status-filter" class="filter-select" aria-label="Filter by status">
                                 <option value="all">All Status</option>
-                                <option value="active">Active</option>
+                                <option value="published">Published</option>
                                 <option value="draft">Draft</option>
                                 <option value="closed">Closed</option>
                             </select>
@@ -102,7 +102,7 @@
                 
 
                 <!-- Floating Create Button -->
-                <a class="floating-create-btn" href="{% url 'surveys:create_survey' %}" aria-label="Create New Survey">
+                <a class="floating-create-btn" href="{% url 'surveys:survey_builder' %}" aria-label="Create New Survey">
                     <span class="material-icons">add</span>
                     <span class="btn-text">Create New Survey</span>
                 </a>
@@ -195,17 +195,67 @@
                             <p>No surveys found. Create one to get started!</p>
                         </div>
                         {% endfor %}
-
-
-
-
-
-
-
-
-
-
                     </div>
+
+                    <!-- Pagination Controls -->
+                    {% if surveys.has_other_pages %}
+                    <nav aria-label="Page navigation" style="margin-top: 30px;">
+                        <ul class="pagination justify-content-center" style="gap: 4px;">
+                            {% if surveys.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET.status and request.GET.status != 'all' %}&status={{ request.GET.status }}{% endif %}" aria-label="First" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ surveys.previous_page_number }}{% if request.GET.status and request.GET.status != 'all' %}&status={{ request.GET.status }}{% endif %}" aria-label="Previous" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">&lsaquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&laquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&lsaquo;</span>
+                                </li>
+                            {% endif %}
+
+                            {% for num in surveys.paginator.page_range %}
+                                {% if surveys.number == num %}
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link" style="background-color: #234d45; border-color: #234d45; color: white; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</span>
+                                    </li>
+                                {% elif num > surveys.number|add:'-3' and num < surveys.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if request.GET.status and request.GET.status != 'all' %}&status={{ request.GET.status }}{% endif %}" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if surveys.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ surveys.next_page_number }}{% if request.GET.status and request.GET.status != 'all' %}&status={{ request.GET.status }}{% endif %}" aria-label="Next" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">&rsaquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ surveys.paginator.num_pages }}{% if request.GET.status and request.GET.status != 'all' %}&status={{ request.GET.status }}{% endif %}" aria-label="Last" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&rsaquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
             </div>
         </div>
     </div>

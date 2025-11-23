@@ -9,9 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/History.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/modal.js' %}"></script>
     <script defer src="{% static 'js/accounts/History.js' %}?v=2"></script>
 </head>
@@ -47,75 +49,76 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="content-area">
-                <div class="common-dashboard-header">
-                    <h2>
-                        <span class="material-icons">history</span>
+                <!-- Header Section -->
+                <div class="common-dashboard-header" style="background: linear-gradient(135deg, #234d45 0%, #1a3a33 100%); padding: 40px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h2 style="color: white; font-size: 32px; font-weight: 700; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
+                        <span class="material-icons" style="font-size: 36px;">history</span>
                         History
                     </h2>
-                    <p>View your past survey responses and activity.</p>
+                    <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 0;">View your past survey responses and activity.</p>
                 </div>
 
-                <div class="section-header">
-                    <div class="header-controls">
-                        <div class="search-filter-bar">
-                            <div class="search-box">
-                                <span class="material-icons search-icon">search</span>
-                                <input type="text" id="history-search" placeholder="Search history...">
-                            </div>
-                            <select id="date-filter" class="filter-select">
-                                <option value="all">All Time</option>
-                                <option value="week">This Week</option>
-                                <option value="month">This Month</option>
-                                <option value="semester">This Semester</option>
-                            </select>
-                            <select id="sort-select" class="filter-select">
-                                <option value="completion-date">Sort by Completion Date</option>
-                                <option value="title">Sort by Title</option>
-                                <option value="teacher">Sort by Teacher</option>
-                            </select>
+                <!-- Search and Filter Section -->
+                <div class="section-header" style="background: white; padding: 20px 30px; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div class="header-controls" style="display: flex; gap: 16px; align-items: center;">
+                        <div class="search-box" style="flex: 1; position: relative;">
+                            <span class="material-icons search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 20px;">search</span>
+                            <input type="text" id="history-search" placeholder="Search history..." style="width: 100%; padding: 10px 12px 10px 44px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
                         </div>
+                        <select id="date-filter" class="filter-select" style="padding: 10px 16px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-width: 140px; background: white;">
+                            <option value="all">All Time</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="semester">This Semester</option>
+                        </select>
+                        <select id="sort-select" class="filter-select" style="padding: 10px 16px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-width: 200px; background: white;">
+                            <option value="completion-date">Sort by Completion Date</option>
+                            <option value="title">Sort by Title</option>
+                            <option value="teacher">Sort by Teacher</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="response-table">
-                    <div class="response-table-container">
-                        {% if responses %}
-                        <table>
+                <!-- Table Section -->
+                <div class="response-table" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div class="response-table-container" style="overflow-x: auto;">
+                        {% if responses_page %}
+                        <table style="width: 100%; border-collapse: collapse;">
                             <thead>
-                                <tr>
-                                    <th>Survey Title</th>
-                                    <th>Teacher</th>
-                                    <th>Date Completed</th>
-                                    <th>Time Taken</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                                    <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #5b6572; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">SURVEY TITLE</th>
+                                    <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #5b6572; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">TEACHER</th>
+                                    <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #5b6572; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">DATE COMPLETED</th>
+                                    <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #5b6572; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">TIME TAKEN</th>
+                                    <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #5b6572; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">STATUS</th>
+                                    <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #5b6572; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for response in responses %}
-                                <tr>
-                                    <td>
-                                        <strong>{{ response.survey.title }}</strong>
+                                {% for response in responses_page %}
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 20px 24px;">
+                                        <strong style="color: #111827; font-size: 14px;">{{ response.survey.title }}</strong>
                                     </td>
-                                    <td>
+                                    <td style="padding: 20px 24px; color: #6b7280; font-size: 14px;">
                                         {{ response.survey.creator.get_full_name|default:response.survey.creator.username }}
                                     </td>
-                                    <td>{{ response.submitted_at|date:"M d, Y" }}</td>
-                                    <td>
+                                    <td style="padding: 20px 24px; color: #6b7280; font-size: 14px;">{{ response.submitted_at|date:"M d, Y" }}</td>
+                                    <td style="padding: 20px 24px; color: #6b7280; font-size: 14px;">
                                         {% if response.completion_time_formatted %}
                                             {{ response.completion_time_formatted }}
                                         {% else %}
                                             <span style="color: #9ca3af;">-</span>
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        <span class="status-badge completed">
+                                    <td style="padding: 20px 24px;">
+                                        <span style="display: inline-block; padding: 4px 12px; background: #d1fae5; color: #065f46; border-radius: 12px; font-size: 12px; font-weight: 600;">
                                             COMPLETED
                                         </span>
                                     </td>
-                                    <td>
-                                        <a href="{% url 'accounts:student_history_details' response.id %}" class="view-btn">
-                                            <span class="material-icons" style="font-size: 16px;">visibility</span>
+                                    <td style="padding: 20px 24px;">
+                                        <a href="{% url 'accounts:student_history_details' response.id %}" style="display: inline-flex; align-items: center; gap: 6px; color: #234d45; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#1a3a33'" onmouseout="this.style.color='#234d45'">
+                                            <span class="material-icons" style="font-size: 18px;">visibility</span>
                                             View Details
                                         </a>
                                     </td>
@@ -123,11 +126,71 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+
+                        <!-- Pagination Controls -->
+                        {% if responses_page.has_other_pages %}
+                        <nav aria-label="Page navigation" style="padding: 20px; border-top: 1px solid #e5e7eb;">
+                            <ul class="pagination justify-content-center mb-0" style="gap: 4px;">
+                                {% if responses_page.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                            <span aria-hidden="true">«</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ responses_page.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                            <span aria-hidden="true">‹</span>
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">«</span>
+                                    </li>
+                                    <li class="page-item disabled">
+                                        <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">‹</span>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in responses_page.paginator.page_range %}
+                                    {% if responses_page.number == num %}
+                                        <li class="page-item active" aria-current="page">
+                                            <span class="page-link" style="background-color: #234d45; border-color: #234d45; color: white; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</span>
+                                        </li>
+                                    {% elif num > responses_page.number|add:'-3' and num < responses_page.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if responses_page.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ responses_page.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                            <span aria-hidden="true">›</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ responses_page.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                            <span aria-hidden="true">»</span>
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">›</span>
+                                    </li>
+                                    <li class="page-item disabled">
+                                        <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">»</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+
                         {% else %}
-                        <div class="empty-state">
-                            <span class="material-icons">assignment</span>
-                            <p>No completed surveys yet</p>
-                            <a href="{% url 'accounts:student_survey_list' %}" class="primary-btn">
+                        <div class="empty-state" style="padding: 80px 40px; text-align: center;">
+                            <span class="material-icons" style="font-size: 64px; color: #9ca3af;">assignment</span>
+                            <p style="margin: 16px 0; color: #6b7280; font-size: 16px;">No completed surveys yet</p>
+                            <a href="{% url 'surveys:survey_list' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: #234d45; color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.background='#1a3a33'" onmouseout="this.style.background='#234d45'">
                                 <span class="material-icons">list_alt</span>
                                 Browse Surveys
                             </a>

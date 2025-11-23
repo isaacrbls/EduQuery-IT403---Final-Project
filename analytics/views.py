@@ -67,8 +67,21 @@ def analytics_dashboard(request):
     if total_potential_responses > 0:
         response_rate = (total_responses / total_potential_responses) * 100
 
-    # 5. Recent Surveys
-    recent_surveys = surveys.order_by('-created_at')[:5]
+    # 5. Recent Surveys with Pagination
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    
+    all_recent_surveys = surveys.annotate(
+        total_responses=Count('responses', filter=Q(responses__status='submitted'))
+    ).order_by('-created_at')
+    paginator = Paginator(all_recent_surveys, 8)  # 8 items per page
+    page = request.GET.get('page', 1)
+    
+    try:
+        recent_surveys = paginator.page(page)
+    except PageNotAnInteger:
+        recent_surveys = paginator.page(1)
+    except EmptyPage:
+        recent_surveys = paginator.page(paginator.num_pages)
 
     # 6. Chart Data: Response Timeline (Last 30 days)
     timeline_data = []

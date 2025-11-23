@@ -55,64 +55,61 @@
             <div class="content-area">
                 <!-- Survey List Content -->
                 <div class="survey-list-section">
-                    <div class="common-dashboard-header">
-                        <h2>
-                            <span class="material-icons">view_list</span>
+                    <!-- Header Section -->
+                    <div class="common-dashboard-header" style="background: linear-gradient(135deg, #234d45 0%, #1a3a33 100%); padding: 40px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h2 style="color: white; font-size: 32px; font-weight: 700; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <span class="material-icons" style="font-size: 36px;">view_list</span>
                             List of Survey
                         </h2>
-                        <p>View and participate in available surveys.</p>
+                        <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 0;">View and participate in available surveys.</p>
                     </div>
 
-                    <div class="section-header" style="margin-bottom: 20px; justify-content: flex-end;">
-                        <div class="header-controls" style="width: 100%;">
-                            <!-- Search and Filter Controls -->
-                            <div class="survey-controls" style="justify-content: flex-end;">
-                                <div class="search-section">
-                                    <div class="search-box">
-                                        <span class="material-icons search-icon">search</span>
-                                        <input 
-                                            type="text" 
-                                            id="survey-search" 
-                                            class="search-input" 
-                                            placeholder="Search surveys by name..."
-                                            value="{{ search_query|default:'' }}"
-                                        >
-                                        <button id="clear-search" class="clear-search-btn" style="display: none;">
-                                            <span class="material-icons">close</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="filter-section">
-                                    <select id="status-filter" class="filter-select">
-                                        <option value="all">All Status</option>
-                                        <option value="active">Active</option>
-                                        <option value="completed">Completed</option>
-                                        <option value="overdue">Overdue</option>
-                                        <option value="upcoming">Upcoming</option>
-                                    </select>
-                                </div>
-                                <div class="sort-section">
-                                    <select id="sort-select" class="filter-select">
-                                        <option value="due-date">Sort by Due Date</option>
-                                        <option value="created-date">Sort by Created Date</option>
-                                        <option value="title">Sort by Title</option>
-                                        <option value="teacher">Sort by Teacher</option>
-                                        <option value="status">Sort by Status</option>
-                                    </select>
-                                </div>
+                    <!-- Search and Filter Section -->
+                    <div class="section-header" style="background: white; padding: 20px 30px; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div class="header-controls" style="display: flex; gap: 16px; align-items: center; justify-content: flex-end;">
+                            <div class="search-box" style="flex: 1; position: relative;">
+                                <span class="material-icons search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 20px;">search</span>
+                                <input 
+                                    type="text" 
+                                    id="survey-search" 
+                                    class="search-input" 
+                                    placeholder="Search surveys by name..."
+                                    value="{{ search_query|default:'' }}"
+                                    style="width: 100%; padding: 10px 12px 10px 44px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;"
+                                >
+                                <button id="clear-search" class="clear-search-btn" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                                    <span class="material-icons" style="color: #9ca3af; font-size: 20px;">close</span>
+                                </button>
                             </div>
+                            <select id="status-filter" class="filter-select" style="padding: 10px 16px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-width: 140px; background: white;">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                            <select id="sort-select" class="filter-select" style="padding: 10px 16px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-width: 180px; background: white;">
+                                <option value="due-date">Sort by Due Date</option>
+                                <option value="created-date">Sort by Created Date</option>
+                                <option value="title">Sort by Title</option>
+                                <option value="teacher">Sort by Teacher</option>
+                                <option value="status">Sort by Status</option>
+                            </select>
                         </div>
-                    </div>
                     </div>
 
                     <!-- Survey Cards Grid -->
                     <div class="surveys-grid" id="surveys-container">
                         {% if surveys %}
                             {% for survey in surveys %}
-                        <div class="survey-card active" data-status="active" data-survey-id="{{ survey.id }}">
+                        <div class="survey-card {% if survey.is_completed %}completed{% else %}active{% endif %}" 
+                             data-status="{% if survey.is_completed %}completed{% else %}pending{% endif %}" 
+                             data-survey-id="{{ survey.id }}">
                             <div class="survey-card-main">
                                 <div class="survey-icon">
-                                    <span class="material-icons">assignment</span>
+                                    {% if survey.is_completed %}
+                                        <span class="material-icons" style="color: #10b981;">check_circle</span>
+                                    {% else %}
+                                        <span class="material-icons" style="color: #234d45;">assignment</span>
+                                    {% endif %}
                                 </div>
                                 <div class="survey-info">
                                     <h3 class="survey-title">{{ survey.title }}</h3>
@@ -122,7 +119,7 @@
                                             {{ survey.creator.get_full_name|default:survey.creator.username }}
                                         </span>
                                         {% if survey.due_date %}
-                                        <span class="due-info">
+                                        <span class="due-info {% if survey.is_overdue %}overdue{% endif %}">
                                             <span class="material-icons">schedule</span>
                                             Due: {{ survey.due_date|date:"M d, Y" }}
                                         </span>
@@ -134,14 +131,25 @@
                                 </div>
                             </div>
                             <div class="survey-actions">
+                                {% if survey.is_completed %}
+                                <div class="survey-status-badge completed">
+                                    <span class="status-dot"></span>
+                                    COMPLETED
+                                </div>
+                                <button class="survey-action-btn secondary" onclick="window.location.href='{% url 'accounts:student_history' %}'">
+                                    <span class="material-icons">visibility</span>
+                                    View Response
+                                </button>
+                                {% else %}
                                 <div class="survey-status-badge active">
                                     <span class="status-dot"></span>
-                                    ACTIVE
+                                    PENDING
                                 </div>
                                 <button class="survey-action-btn primary" onclick="window.location.href='{% url 'surveys:take_survey' survey.id %}'">
                                     <span class="material-icons">play_arrow</span>
                                     Take Survey
                                 </button>
+                                {% endif %}
                             </div>
                         </div>
                             {% endfor %}
@@ -157,6 +165,65 @@
                         </div>
                         {% endif %}
                     </div>
+
+                    <!-- Pagination Controls -->
+                    {% if surveys.has_other_pages %}
+                    <nav aria-label="Page navigation" style="margin-top: 30px;">
+                        <ul class="pagination justify-content-center" style="gap: 4px;">
+                            {% if surveys.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if filter_status and filter_status != 'all' %}&status={{ filter_status }}{% endif %}" aria-label="First" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">«</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ surveys.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if filter_status and filter_status != 'all' %}&status={{ filter_status }}{% endif %}" aria-label="Previous" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">‹</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">«</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">‹</span>
+                                </li>
+                            {% endif %}
+
+                            {% for num in surveys.paginator.page_range %}
+                                {% if surveys.number == num %}
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link" style="background-color: #234d45; border-color: #234d45; color: white; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</span>
+                                    </li>
+                                {% elif num > surveys.number|add:'-3' and num < surveys.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if filter_status and filter_status != 'all' %}&status={{ filter_status }}{% endif %}" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if surveys.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ surveys.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if filter_status and filter_status != 'all' %}&status={{ filter_status }}{% endif %}" aria-label="Next" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">›</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ surveys.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if filter_status and filter_status != 'all' %}&status={{ filter_status }}{% endif %}" aria-label="Last" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">»</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">›</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">»</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
                 </div>
             </div>
         </div>

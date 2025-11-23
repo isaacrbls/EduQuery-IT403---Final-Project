@@ -715,10 +715,22 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // Filter and sort
+    // Filter and sort - reload page with query params
     const statusFilter = document.getElementById('status-filter');
     if (statusFilter) {
-        statusFilter.addEventListener('change', filterSurveys);
+        // Set current value from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentStatus = urlParams.get('status');
+        if (currentStatus) {
+            statusFilter.value = currentStatus;
+        }
+        
+        statusFilter.addEventListener('change', function() {
+            const url = new URL(window.location);
+            url.searchParams.set('status', this.value);
+            url.searchParams.delete('page'); // Reset to page 1
+            window.location.href = url.toString();
+        });
     }
 
     const sortSelect = document.getElementById('sort-select');

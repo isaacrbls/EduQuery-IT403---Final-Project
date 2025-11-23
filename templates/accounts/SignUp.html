@@ -79,9 +79,14 @@
                 <option value="teacher">Teacher</option>
               </select>
             </div>
-            <div class="field">
-              <label class="sr-only" for="student_id">Student ID</label>
-              <input id="student_id" name="student_id" type="text" placeholder="Student ID (optional)" />
+            <div class="field" id="section-field">
+              <label class="sr-only" for="section">Section</label>
+              <select id="section" name="section" class="form-select">
+                <option value="">Select Section (optional)</option>
+                {% for section in sections %}
+                <option value="{{ section.id }}">{{ section.name }}</option>
+                {% endfor %}
+              </select>
             </div>
           </div>
 

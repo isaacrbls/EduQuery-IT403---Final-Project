@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2.1">
+    <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+    <script src="{% static 'js/modal.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         .analytics-chart-card {
@@ -32,6 +34,9 @@
                     <span class="material-icons">list_alt</span>
                 </a>
                 {% if request.user.is_teacher %}
+                <a href="{% url 'accounts:section_list' %}" class="sidebar-btn" aria-label="Sections" data-tooltip="Sections">
+                    <span class="material-icons">groups</span>
+                </a>
                 <a href="{% url 'responses:response_list' %}" class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
                     <span class="material-icons">assignment_turned_in</span>
                 </a>
@@ -49,9 +54,9 @@
 
             <!-- User Section -->
             <div class="sidebar-user">
-                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -430,6 +435,29 @@
                 .slice(0, 50) // Limit to top 50 words
                 .map(([word, count]) => [word, count]); // Return raw count, scaling handled in weightFactor
         }
+    </script>
+    <script>
+        // Logout handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.querySelector('.logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    Modal.show({
+                        title: 'Logout Confirmation',
+                        message: 'Are you sure you want to logout? You will be redirected to the login page.',
+                        type: 'warning',
+                        icon: 'warning',
+                        confirmText: 'Logout',
+                        cancelText: 'Cancel',
+                        confirmDanger: true,
+                        onConfirm: () => {
+                            window.location.href = '/accounts/logout/';
+                        }
+                    });
+                });
+            }
+        });
     </script>
 </body>
 </html>

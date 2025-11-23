@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2.1">
+    <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+    <script src="{% static 'js/modal.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -47,9 +49,9 @@
             </nav>
             <div class="sidebar-spacer"></div>
             <div class="sidebar-user">
-                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -121,10 +123,10 @@
                     <p class="section-description">Click on a survey to view detailed analytics</p>
                     <div class="survey-list">
                         {% for survey in recent_surveys %}
-                        <div class="survey-item" data-survey-url="{% url 'analytics:survey_analytics' survey.id %}">
+                        <div class="survey-item" data-survey-url="{% url 'analytics:survey_analytics' survey.id %}" style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
                             <div class="survey-info">
                                 <h4>{{ survey.title }}</h4>
-                                <p>Created: {{ survey.created_at|date:'M d, Y' }}</p>
+                                <p>Created: {{ survey.created_at|date:'M d, Y' }} | Responses: {{ survey.total_responses|default:0 }}</p>
                             </div>
                             <div>
                                 <span class="survey-status-badge survey-status-{{ survey.status }}">
@@ -139,6 +141,65 @@
                         </div>
                         {% endfor %}
                     </div>
+                    
+                    <!-- Pagination Controls -->
+                    {% if recent_surveys.has_other_pages %}
+                    <nav aria-label="Page navigation" style="margin-top: 20px;">
+                        <ul class="pagination justify-content-center" style="gap: 4px;">
+                            {% if recent_surveys.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1" aria-label="First" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">«</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ recent_surveys.previous_page_number }}" aria-label="Previous" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">‹</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">«</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">‹</span>
+                                </li>
+                            {% endif %}
+
+                            {% for num in recent_surveys.paginator.page_range %}
+                                {% if recent_surveys.number == num %}
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link" style="background-color: #234d45; border-color: #234d45; color: white; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</span>
+                                    </li>
+                                {% elif num > recent_surveys.number|add:'-3' and num < recent_surveys.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if recent_surveys.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ recent_surveys.next_page_number }}" aria-label="Next" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">›</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ recent_surveys.paginator.num_pages }}" aria-label="Last" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                        <span aria-hidden="true">»</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">›</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">»</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
                 </div>
             </div>
         </main>
@@ -235,6 +296,29 @@
                             } 
                         }
                     }
+                });
+            }
+        });
+    </script>
+    <script>
+        // Logout handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.querySelector('.logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    Modal.show({
+                        title: 'Logout Confirmation',
+                        message: 'Are you sure you want to logout? You will be redirected to the login page.',
+                        type: 'warning',
+                        icon: 'warning',
+                        confirmText: 'Logout',
+                        cancelText: 'Cancel',
+                        confirmDanger: true,
+                        onConfirm: () => {
+                            window.location.href = '/accounts/logout/';
+                        }
+                    });
                 });
             }
         });

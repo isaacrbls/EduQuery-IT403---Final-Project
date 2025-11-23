@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}">
     <style>
         .response-table {
@@ -195,6 +196,11 @@
                 <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
                     <span class="material-icons">list_alt</span>
                 </a>
+                {% if request.user.is_teacher %}
+                <a href="{% url 'accounts:section_list' %}" class="sidebar-btn" aria-label="Sections" data-tooltip="Sections">
+                    <span class="material-icons">groups</span>
+                </a>
+                {% endif %}
                 <a href="{% url 'responses:response_list' %}" class="sidebar-btn active" aria-label="Responses" data-tooltip="Responses">
                     <span class="material-icons">assignment_turned_in</span>
                 </a>
@@ -209,9 +215,9 @@
             <div class="sidebar-spacer"></div>
 
             <div class="sidebar-user">
-                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -493,6 +499,29 @@
             attachDeleteListeners();
             // Poll every 10 seconds
             setInterval(fetchResponses, 10000);
+        });
+    </script>
+    <script>
+        // Logout handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.querySelector('.logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    Modal.show({
+                        title: 'Logout Confirmation',
+                        message: 'Are you sure you want to logout? You will be redirected to the login page.',
+                        type: 'warning',
+                        icon: 'warning',
+                        confirmText: 'Logout',
+                        cancelText: 'Cancel',
+                        confirmDanger: true,
+                        onConfirm: () => {
+                            window.location.href = '/accounts/logout/';
+                        }
+                    });
+                });
+            }
         });
     </script>
 </body>

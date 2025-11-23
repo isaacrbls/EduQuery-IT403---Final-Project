@@ -17,6 +17,7 @@ class LikertScaleSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     options = QuestionOptionSerializer(many=True, read_only=True)
     likert_scale = LikertScaleSerializer(read_only=True)
+    required = serializers.BooleanField(source='is_required')
 
     class Meta:
         model = Question
@@ -57,13 +58,18 @@ class SurveyDetailSerializer(serializers.ModelSerializer):
 
 
 class SurveyCreateSerializer(serializers.ModelSerializer):
+    questions = serializers.ListField(child=serializers.DictField(), required=False, write_only=True)
+    section_ids = serializers.ListField(child=serializers.IntegerField(), required=False, write_only=True)
+
     class Meta:
         model = Survey
         fields = ['title', 'description', 'status', 'anonymous',
                   'allow_multiple_submissions', 'randomize_questions',
-                  'show_results', 'start_date', 'due_date']
+                  'show_results', 'start_date', 'due_date', 'questions', 'section_ids']
 
     def create(self, validated_data):
+        validated_data.pop('questions', None)
+        validated_data.pop('section_ids', None)
         validated_data['creator'] = self.context['request'].user
         return super().create(validated_data)
 

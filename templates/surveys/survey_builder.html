@@ -5,101 +5,402 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survey Builder - EduQuery</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/accounts/TeacherDashboard.css' %}">
     <link rel="stylesheet" href="{% static 'css/surveys/survey_builder.css' %}">
 </head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3 sidebar">
-                <h4 class="mb-4"><span class="material-icons">dashboard</span> Survey Builder</h4>
-                
-                <div class="survey-info mb-4">
-                    <input type="text" id="surveyTitle" class="form-control mb-2" placeholder="Survey Title" value="{{ survey.title|default:'' }}">
-                    <textarea id="surveyDescription" class="form-control mb-2" placeholder="Survey Description" rows="3">{{ survey.description|default:'' }}</textarea>
-                    
-                    <div class="mb-2">
-                        <label class="form-label">Due Date</label>
-                        <input type="datetime-local" id="dueDate" class="form-control" value="{{ survey.due_date|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    
-                    <div class="mb-2">
-                        <label class="form-label">Assign to Sections</label>
-                        <select id="sectionSelect" class="form-select" multiple>
-                            {% for section in sections %}
-                            <option value="{{ section.id }}">{{ section.name }} ({{ section.code }})</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+
+<body data-user-name="{{ request.user.first_name|default:'Teacher' }}">
+    <div class="dashboard-container">
+        {% csrf_token %}
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+            <!-- Navigation Section -->
+            <nav class="sidebar-nav" role="navigation">
+                <a href="{% url 'accounts:teacher_dashboard' %}" class="sidebar-btn" aria-label="Home" data-tooltip="Home">
+                    <span class="material-icons">home</span>
+                </a>
+                <a href="{% url 'surveys:survey_list' %}" class="sidebar-btn" aria-label="Survey List" data-tooltip="Survey List">
+                    <span class="material-icons">list_alt</span>
+                </a>
+                <a href="{% url 'accounts:section_list' %}" class="sidebar-btn" aria-label="Sections" data-tooltip="Sections">
+                    <span class="material-icons">groups</span>
+                </a>
+                <a href="{% url 'responses:response_list' %}" class="sidebar-btn" aria-label="Responses" data-tooltip="Responses">
+                    <span class="material-icons">assignment_turned_in</span>
+                </a>
+                <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-btn" aria-label="Analytics" data-tooltip="Analytics">
+                    <span class="material-icons">analytics</span>
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="sidebar-btn" aria-label="Profile" data-tooltip="Profile">
+                    <span class="material-icons">person</span>
+                </a>
+            </nav>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-area">
+                <!-- Header Section -->
+                <div class="common-dashboard-header">
+                    <h2>
+                        <span class="material-icons">edit_note</span>
+                        Survey Builder
+                    </h2>
+                    <p>Create and customize your survey with drag-and-drop question types</p>
+                </div>
+
+<div class="survey-builder-container">
+    <!-- Left Sidebar: Survey Info & Question Palette -->
+    <div class="builder-sidebar">
+        <div class="sidebar-header">
+            <h5><i class="material-icons">info</i> Survey Details</h5>
+        </div>
+        
+        <!-- Survey Information Form -->
+        <div class="survey-info-section">
+            <form id="surveyInfoForm">
+                <div class="mb-3">
+                    <label for="surveyTitle" class="form-label">Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="surveyTitle" placeholder="Enter survey title" required>
                 </div>
                 
-                <div class="question-types">
-                    <h6>Question Types</h6>
-                    <div class="question-type-item" data-type="text">
-                        <span class="material-icons">short_text</span> Short Text
-                    </div>
-                    <div class="question-type-item" data-type="textarea">
-                        <span class="material-icons">notes</span> Long Text
-                    </div>
-                    <div class="question-type-item" data-type="mcq">
-                        <span class="material-icons">radio_button_checked</span> Multiple Choice
-                    </div>
-                    <div class="question-type-item" data-type="checkbox">
-                        <span class="material-icons">check_box</span> Checkboxes
-                    </div>
-                    <div class="question-type-item" data-type="dropdown">
-                        <span class="material-icons">arrow_drop_down_circle</span> Dropdown
-                    </div>
-                    <div class="question-type-item" data-type="likert">
-                        <span class="material-icons">linear_scale</span> Likert Scale
-                    </div>
-                    <div class="question-type-item" data-type="rating">
-                        <span class="material-icons">star</span> Rating
-                    </div>
-                    <div class="question-type-item" data-type="matching">
-                        <span class="material-icons">compare_arrows</span> Matching
-                    </div>
-                    <div class="question-type-item" data-type="date">
-                        <span class="material-icons">event</span> Date
-                    </div>
-                    <div class="question-type-item" data-type="email">
-                        <span class="material-icons">email</span> Email
-                    </div>
+                <div class="mb-3">
+                    <label for="surveyDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="surveyDescription" rows="3" placeholder="Enter survey description"></textarea>
                 </div>
+                
+                <div class="mb-3">
+                    <label for="dueDate" class="form-label">Due Date <span class="text-danger">*</span></label>
+                    <input type="datetime-local" class="form-control" id="dueDate" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Assign to Sections <span class="text-danger">*</span></label>
+                    <div class="dropdown sections-dropdown">
+                        <button class="form-control dropdown-toggle text-start" type="button" id="sectionsDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="sectionsDropdownText">Select sections...</span>
+                        </button>
+                        <ul class="dropdown-menu w-100" id="sectionsDropdownMenu" aria-labelledby="sectionsDropdownBtn">
+                            <li class="dropdown-header d-flex justify-content-between align-items-center">
+                                <span>Available Sections</span>
+                                <button type="button" class="btn btn-sm btn-link text-decoration-none" onclick="refreshSections()" title="Refresh sections list">
+                                    <i class="material-icons" style="font-size: 1.1rem;">refresh</i>
+                                </button>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <div id="sectionsChecklistContainer">
+                                {% for section in sections %}
+                                <li>
+                                    <label class="dropdown-item">
+                                        <input class="form-check-input me-2 section-checkbox" type="checkbox" value="{{ section.id }}" data-name="{{ section.name }}">
+                                        {{ section.name }}
+                                    </label>
+                                </li>
+                                {% empty %}
+                                <li><span class="dropdown-item text-muted small">No sections available</span></li>
+                                {% endfor %}
+                            </div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-primary" href="{% url 'accounts:section_list' %}" target="_blank">
+                                    <i class="material-icons" style="font-size: 1.1rem; vertical-align: middle;">add</i>
+                                    Create New Section
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="selectedSectionsDisplay" class="mt-2"></div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="isActive">
+                    <label class="form-check-label" for="isActive">
+                        Active (visible to students)
+                    </label>
+                </div>
+            </form>
+        </div>
+        
+        <div class="sidebar-divider"></div>
+        
+        <!-- Question Types Palette -->
+        <div class="question-palette">
+            <h5><i class="material-icons">widgets</i> Question Types</h5>
+            <p class="small text-muted">Click on a question type to add it to your survey</p>
+            
+            <div class="question-type-item" data-type="multiple_choice">
+                <i class="material-icons">radio_button_checked</i>
+                <span>Multiple Choice</span>
             </div>
             
-            <div class="col-md-9 main-content">
-                <div class="toolbar mb-3">
-                    <button class="btn btn-primary" id="saveSurvey">
-                        <span class="material-icons">save</span> Save
-                    </button>
-                    <button class="btn btn-success" id="publishSurvey">
-                        <span class="material-icons">publish</span> Publish
-                    </button>
-                    <button class="btn btn-secondary" id="previewSurvey">
-                        <span class="material-icons">visibility</span> Preview
-                    </button>
-                </div>
-                
-                <div id="questionContainer" class="question-container"></div>
-                
-                <div class="add-question-prompt text-center py-5" id="addQuestionPrompt">
-                    <span class="material-icons" style="font-size: 48px; color: #ccc;">add_circle</span>
-                    <p>Drag a question type here to add questions</p>
-                </div>
+            <div class="question-type-item" data-type="checkbox">
+                <i class="material-icons">check_box</i>
+                <span>Checkboxes</span>
+            </div>
+            
+            <div class="question-type-item" data-type="likert_scale">
+                <i class="material-icons">linear_scale</i>
+                <span>Likert Scale</span>
+            </div>
+            
+            <div class="question-type-item" data-type="short_answer">
+                <i class="material-icons">short_text</i>
+                <span>Short Answer</span>
+            </div>
+            
+            <div class="question-type-item" data-type="long_answer">
+                <i class="material-icons">subject</i>
+                <span>Long Answer</span>
             </div>
         </div>
     </div>
     
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const surveyId = {{ survey.id|default:'null' }};
-        const csrfToken = '{{ csrf_token }}';
-    </script>
-    <script src="{% static 'js/surveys/survey_builder.js' %}"></script>
+    <!-- Main Content: Questions List -->
+    <div class="builder-main">
+        <div class="builder-header">
+            <h4><span class="material-icons">list</span> Survey Questions</h4>
+            <div class="builder-actions">
+                <button type="button" class="btn btn-outline-secondary" id="saveDraftBtn">
+                    <i class="material-icons">save</i> Save as Draft
+                </button>
+                <button type="button" class="btn btn-success" id="publishBtn">
+                    <i class="material-icons">publish</i> Publish Survey
+                </button>
+            </div>
+        </div>
+        
+        <div class="drop-zone" id="questionsContainer">
+            <div class="empty-state" id="emptyState">
+                <i class="material-icons">arrow_back</i>
+                <p>Drag question types from the left panel to start building your survey</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+<!-- Question Editor Modal -->
+<div class="modal fade" id="questionEditorModal" tabindex="-1" aria-labelledby="questionEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="questionEditorModalLabel">Edit Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="questionEditorForm">
+                    <div class="mb-3">
+                        <label for="questionText" class="form-label">Question Text <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="questionText" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isRequired" checked>
+                        <label class="form-check-label" for="isRequired">
+                            Required Question
+                        </label>
+                    </div>
+                    
+                    <!-- Multiple Choice / Checkbox Options -->
+                    <div id="optionsSection" style="display: none;">
+                        <label class="form-label">Options <span class="text-danger">*</span></label>
+                        <div id="optionsContainer"></div>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addOptionBtn">
+                            <i class="material-icons">add</i> Add Option
+                        </button>
+                    </div>
+                    
+                    <!-- Likert Scale Settings -->
+                    <div id="likertSection" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="likertMin" class="form-label">Minimum Value</label>
+                                <input type="number" class="form-control" id="likertMin" value="1" min="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="likertMax" class="form-label">Maximum Value</label>
+                                <input type="number" class="form-control" id="likertMax" value="5" min="2" max="10">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="likertTemplate" class="form-label">Template</label>
+                            <select class="form-select" id="likertTemplate">
+                                <option value="">Custom</option>
+                                <option value="agreement">Agreement (Strongly Disagree - Strongly Agree)</option>
+                                <option value="satisfaction">Satisfaction (Very Dissatisfied - Very Satisfied)</option>
+                                <option value="frequency">Frequency (Never - Always)</option>
+                                <option value="quality">Quality (Poor - Excellent)</option>
+                                <option value="likelihood">Likelihood (Very Unlikely - Very Likely)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Scale Labels</label>
+                            <div id="likertLabelsContainer"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Preview Section -->
+                    <div class="question-preview mt-4">
+                        <h6>Preview</h6>
+                        <div id="questionPreview" class="preview-content"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveQuestionBtn">Save Question</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay" style="display: none;">
+    <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<!-- Confirmation Modals -->
+<div class="modal fade" id="confirmSaveDraftModal" tabindex="-1" aria-labelledby="confirmSaveDraftLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmSaveDraftLabel">Save as Draft</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to save this survey as a draft?</p>
+                <p class="text-muted small">The survey will not be visible to students until published.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmSaveDraftBtn">Save Draft</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmPublishModal" tabindex="-1" aria-labelledby="confirmPublishLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmPublishLabel">Publish Survey</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to publish this survey?</p>
+                <p class="text-muted small">Once published, the survey will be visible to students in the selected sections.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmPublishBtn">Publish Survey</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">
+                    <i class="material-icons" style="vertical-align: middle;">error</i>
+                    Error
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Error message will appear here</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">
+                    <i class="material-icons" style="vertical-align: middle;">check_circle</i>
+                    Success
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Success message will appear here</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="{% static 'js/surveys/survey_builder.js' %}"></script>
+<script src="{% static 'js/modal.js' %}"></script>
+<script defer src="{% static 'js/accounts/TeacherDashboard.js' %}"></script>
+<script id="survey-data" type="application/json">
+    {% if survey %}
+    {
+        "id": {{ survey.id }},
+        "title": "{{ survey.title|escapejs }}",
+        "description": "{{ survey.description|escapejs }}",
+        "due_date": "{{ survey.due_date|date:'Y-m-d\\TH:i' }}",
+        "is_active": {{ survey.is_active|yesno:"true,false" }},
+        "sections": [{% for section in survey.sections.all %}{{ section.id }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        "questions": [
+            {% for question in survey.questions.all %}
+            {
+                "id": {{ question.id }},
+                "question_type": "{{ question.question_type }}",
+                "question_text": "{{ question.question_text|escapejs }}",
+                "is_required": {{ question.is_required|yesno:"true,false" }},
+                "options": {{ question.options|safe }},
+                "likert_min": {{ question.likert_min }},
+                "likert_max": {{ question.likert_max }},
+                "likert_labels": {{ question.likert_labels|safe }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }
+    {% else %}
+    null
+    {% endif %}
+</script>
+<script>
+    // Parse survey data from JSON script tag
+    const surveyDataElement = document.getElementById('survey-data');
+    window.surveyData = surveyDataElement ? JSON.parse(surveyDataElement.textContent) : null;
+</script>
 </body>
 </html>

@@ -525,22 +525,39 @@ function processFormSubmission() {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             // Clear draft
             localStorage.removeItem('surveyDraft');
             
+            console.log('About to show modal...');
+            console.log('Modal object:', window.Modal);
+            
             // Show Congratulations Modal
-            Modal.alert({
-                title: 'Congratulations! 🎉',
-                message: 'You have successfully submitted the survey.',
-                type: 'success',
-                okText: 'Back to Dashboard',
-                onClose: () => {
-                    window.location.href = data.redirect_url || '/student/dashboard/';
-                }
-            });
+            if (typeof Modal !== 'undefined' && Modal.alert) {
+                Modal.alert({
+                    title: 'Congratulations! 🎉',
+                    message: 'You have successfully submitted the survey.',
+                    type: 'success',
+                    okText: 'Back to Dashboard',
+                    onClose: () => {
+                        console.log('Modal closed, redirecting...');
+                        window.location.href = data.redirect_url || '/student/dashboard/';
+                    }
+                });
+                console.log('Modal.alert called');
+            } else {
+                console.error('Modal is not defined!');
+                // Fallback to regular alert
+                alert('Congratulations! You have successfully submitted the survey.');
+                window.location.href = data.redirect_url || '/student/dashboard/';
+            }
         } else {
             // Show errors
             let errorMessage = data.error;

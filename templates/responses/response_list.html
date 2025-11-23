@@ -10,9 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/StudentDashboard.css' %}">
     <link rel="stylesheet" href="{% static 'css/accounts/TCsurveyList.css' %}">
     <link rel="stylesheet" href="{% static 'css/responses/response_list.css' %}?v=1">
+    <script src="{% static 'js/modal.js' %}"></script>
 </head>
 
 <body data-user-name="{{ request.user.first_name|default:'Teacher' }}">
@@ -43,9 +45,9 @@
             </nav>
             <div class="sidebar-spacer"></div>
             <div class="sidebar-user">
-                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -128,10 +130,74 @@
                             </div>
                             {% endfor %}
                         </div>
+                        
+                        <!-- Pagination -->
+                        {% if surveys.has_other_pages %}
+                        <div class="pagination-container" style="margin-top: 2rem;">
+                            <nav aria-label="Surveys pagination">
+                                <ul class="pagination justify-content-center">
+                                    {% if surveys.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ surveys.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">&laquo;</span>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    {% for num in surveys.paginator.page_range %}
+                                        {% if surveys.number == num %}
+                                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                        {% elif num > surveys.number|add:'-3' and num < surveys.number|add:'3' %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if surveys.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ surveys.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">&raquo;</span>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        // Logout handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.querySelector('.logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    Modal.show({
+                        title: 'Logout Confirmation',
+                        message: 'Are you sure you want to logout? You will be redirected to the login page.',
+                        type: 'warning',
+                        icon: 'warning',
+                        confirmText: 'Logout',
+                        cancelText: 'Cancel',
+                        confirmDanger: true,
+                        onConfirm: () => {
+                            window.location.href = '/accounts/logout/';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>

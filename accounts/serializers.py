@@ -43,5 +43,10 @@ class SectionSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'code', 'teacher', 'teacher_name',
                   'students', 'student_count', 'description',
                   'academic_year', 'semester', 'is_archived', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'created_at', 'teacher']
+    
+    def create(self, validated_data):
+        # Auto-set teacher from request context
+        validated_data['teacher'] = self.context['request'].user
+        return super().create(validated_data)
 

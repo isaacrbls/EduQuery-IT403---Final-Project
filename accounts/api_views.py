@@ -146,3 +146,29 @@ def get_unanswered_surveys(request):
         'search_query': search_query
     })
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_teacher_sections(request):
+    """
+    API endpoint to get all sections for the current teacher
+    """
+    user = request.user
+    
+    # Check if user is a teacher
+    if not user.is_teacher:
+        return Response(
+            {'error': 'Access denied. Teachers only.'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    # Get teacher's non-archived sections
+    sections = Section.objects.filter(
+        teacher=user,
+        is_archived=False
+    ).order_by('name')
+    
+    # Serialize the data
+    serializer = SectionSerializer(sections, many=True)
+    
+    return Response(serializer.data)

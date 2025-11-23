@@ -47,9 +47,9 @@
             <div class="sidebar-spacer"></div>
 
             <div class="sidebar-user">
-                <a href="{% url 'accounts:logout' %}" class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
+                <button class="sidebar-btn logout-btn" aria-label="Logout" data-tooltip="Logout">
                     <span class="material-icons">logout</span>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -69,12 +69,6 @@
                     <div class="section-tabs">
                         <button class="tab-btn active" data-tab="active-sections">Active Sections</button>
                         <button class="tab-btn" data-tab="archived-sections">Archived</button>
-                    </div>
-                    <div class="header-right">
-                        <button id="create-section-btn" class="primary-btn">
-                            <span class="material-icons">add</span>
-                            Create Section
-                        </button>
                     </div>
                 </div>
 
@@ -129,6 +123,65 @@
                     {% endfor %}
                 </div>
 
+                <!-- Pagination for Active Sections -->
+                {% if active_sections.has_other_pages %}
+                <nav aria-label="Page navigation" style="margin-top: 30px;">
+                    <ul class="pagination justify-content-center" style="gap: 4px;">
+                        {% if active_sections.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" aria-label="First" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ active_sections.previous_page_number }}" aria-label="Previous" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                    <span aria-hidden="true">&lsaquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&laquo;</span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&lsaquo;</span>
+                            </li>
+                        {% endif %}
+
+                        {% for num in active_sections.paginator.page_range %}
+                            {% if active_sections.number == num %}
+                                <li class="page-item active" aria-current="page">
+                                    <span class="page-link" style="background-color: #234d45; border-color: #234d45; color: white; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</span>
+                                </li>
+                            {% elif num > active_sections.number|add:'-3' and num < active_sections.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if active_sections.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ active_sections.next_page_number }}" aria-label="Next" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                    <span aria-hidden="true">&rsaquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ active_sections.paginator.num_pages }}" aria-label="Last" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&rsaquo;</span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
                 <!-- Archived Sections Grid -->
                 <div id="archived-sections" class="sections-grid tab-content" style="display: none;">
                     {% for section in archived_sections %}
@@ -176,8 +229,73 @@
                     </div>
                     {% endfor %}
                 </div>
+                
+                <!-- Pagination for Archived Sections -->
+                {% if archived_sections.has_other_pages %}
+                <nav aria-label="Page navigation" style="margin-top: 30px;">
+                    <ul class="pagination justify-content-center" style="gap: 4px;">
+                        {% if archived_sections.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?archived_page=1" aria-label="First" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?archived_page={{ archived_sections.previous_page_number }}" aria-label="Previous" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                    <span aria-hidden="true">&lsaquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&laquo;</span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&lsaquo;</span>
+                            </li>
+                        {% endif %}
+
+                        {% for num in archived_sections.paginator.page_range %}
+                            {% if archived_sections.number == num %}
+                                <li class="page-item active" aria-current="page">
+                                    <span class="page-link" style="background-color: #234d45; border-color: #234d45; color: white; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</span>
+                                </li>
+                            {% elif num > archived_sections.number|add:'-3' and num < archived_sections.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?archived_page={{ num }}" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem; min-width: 40px; text-align: center;">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if archived_sections.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?archived_page={{ archived_sections.next_page_number }}" aria-label="Next" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                    <span aria-hidden="true">&rsaquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?archived_page={{ archived_sections.paginator.num_pages }}" aria-label="Last" style="color: #234d45; border-color: #dee2e6; padding: 0.5rem 0.75rem;">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&rsaquo;</span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link" style="background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; padding: 0.5rem 0.75rem;">&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
             </div>
         </div>
+
+        <!-- Floating Create Section Button -->
+        <button id="create-section-btn" class="floating-create-btn">
+            <span class="material-icons">add</span>
+            <span class="btn-text">Create Section</span>
+        </button>
     </div>
 
     <!-- Create/Edit Section Modal -->
@@ -204,11 +322,19 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="academic-year">Academic Year</label>
-                            <input type="text" id="academic-year" name="academic_year" required placeholder="e.g. 2023-2024">
+                            <select id="academic-year" name="academic_year" required>
+                                <option value="">Select Academic Year</option>
+                                <option value="2023-2024">2023-2024</option>
+                                <option value="2024-2025">2024-2025</option>
+                                <option value="2025-2026">2025-2026</option>
+                                <option value="2026-2027">2026-2027</option>
+                                <option value="2027-2028">2027-2028</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="semester">Semester</label>
                             <select id="semester" name="semester" required>
+                                <option value="">Select Semester</option>
                                 <option value="1st Semester">1st Semester</option>
                                 <option value="2nd Semester">2nd Semester</option>
                                 <option value="Summer">Summer</option>

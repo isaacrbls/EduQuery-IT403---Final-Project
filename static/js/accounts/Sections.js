@@ -73,11 +73,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.reload();
             } else {
                 const errorData = await response.json();
-                alert('Error: ' + JSON.stringify(errorData));
+                Modal.alert({
+                    title: 'Error',
+                    message: 'Error: ' + JSON.stringify(errorData),
+                    type: 'danger',
+                    icon: 'error'
+                });
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while saving the section.');
+            Modal.alert({
+                title: 'Error',
+                message: 'An error occurred while saving the section.',
+                type: 'danger',
+                icon: 'error'
+            });
         }
     });
 
@@ -154,11 +164,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.reload();
             } else {
                 const errorData = await response.json();
-                alert('Error: ' + JSON.stringify(errorData));
+                Modal.alert({
+                    title: 'Error',
+                    message: 'Error: ' + JSON.stringify(errorData),
+                    type: 'danger',
+                    icon: 'error'
+                });
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while updating the section.');
+            Modal.alert({
+                title: 'Error',
+                message: 'An error occurred while updating the section.',
+                type: 'danger',
+                icon: 'error'
+            });
         }
     }
 

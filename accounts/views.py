@@ -34,6 +34,9 @@ def signup_view(request):
     if request.user.is_authenticated:
         return redirect('accounts:index')
 
+    # Get all active sections for the dropdown
+    sections = Section.objects.filter(is_archived=False).order_by('name')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -42,24 +45,24 @@ def signup_view(request):
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
         user_type = request.POST.get('user_type', 'student')
-        student_id = request.POST.get('student_id', '')
+        section_id = request.POST.get('section', '')
 
         # Validation
         if not all([username, email, password, password_confirm]):
             messages.error(request, 'All fields are required.')
-            return render(request, 'accounts/SignUp.html')
+            return render(request, 'accounts/SignUp.html', {'sections': sections})
 
         if password != password_confirm:
             messages.error(request, 'Passwords do not match.')
-            return render(request, 'accounts/SignUp.html')
+            return render(request, 'accounts/SignUp.html', {'sections': sections})
 
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists.')
-            return render(request, 'accounts/SignUp.html')
+            return render(request, 'accounts/SignUp.html', {'sections': sections})
 
         if User.objects.filter(email=email).exists():
             messages.error(request, 'Email already registered.')
-            return render(request, 'accounts/SignUp.html')
+            return render(request, 'accounts/SignUp.html', {'sections': sections})
 
         # Create user
         try:
@@ -69,9 +72,21 @@ def signup_view(request):
                 password=password,
                 first_name=first_name,
                 last_name=last_name,
-                user_type=user_type,
-                student_id=student_id if user_type == 'student' else None
+                user_type=user_type
             )
+
+            # Enroll student in selected section
+            if user_type == 'student' and section_id:
+                try:
+                    section = Section.objects.get(id=section_id, is_archived=False)
+                    section.students.add(user)
+                    ActivityLog.objects.create(
+                        user=user,
+                        action='section_enrolled',
+                        description=f'Enrolled in section: {section.name}'
+                    )
+                except Section.DoesNotExist:
+                    pass
 
             # Log activity
             ActivityLog.objects.create(
@@ -84,9 +99,9 @@ def signup_view(request):
             return redirect('accounts:login')
         except Exception as e:
             messages.error(request, f'Error creating account: {str(e)}')
-            return render(request, 'accounts/SignUp.html')
+            return render(request, 'accounts/SignUp.html', {'sections': sections})
 
-    return render(request, 'accounts/SignUp.html')
+    return render(request, 'accounts/SignUp.html', {'sections': sections})
 
 
 def login_view(request):
@@ -487,6 +502,8 @@ def analytics_view(request):
 @login_required
 def student_history(request):
     """Student survey history - all completed surveys"""
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    
     if not request.user.is_student:
         messages.error(request, 'Access denied. Students only.')
         return redirect('accounts:index')
@@ -504,9 +521,21 @@ def student_history(request):
         response.answer_count = response.answers.count()
         # Note: completion_time is already a property on the Response model
     
+    # Pagination - 8 items per page
+    paginator = Paginator(completed_responses, 8)
+    page = request.GET.get('page', 1)
+    
+    try:
+        responses_page = paginator.page(page)
+    except PageNotAnInteger:
+        responses_page = paginator.page(1)
+    except EmptyPage:
+        responses_page = paginator.page(paginator.num_pages)
+    
     context = {
-        'responses': completed_responses,
-        'total_completed': completed_responses.count(),
+        'responses': responses_page,
+        'responses_page': responses_page,  # For template compatibility
+        'total_completed': paginator.count,
     }
     
     return render(request, 'accounts/History.html', context)
@@ -601,31 +630,22 @@ def student_history_details(request, response_id):
 
 @login_required
 def student_survey_list(request):
-    """Student survey list - displays only non-answered surveys with search filter"""
+    """Student survey list - displays surveys with teacher-like layout and pagination"""
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    
     if not request.user.is_student:
         messages.error(request, 'Access denied. Students only.')
         return redirect('accounts:index')
     
     user = request.user
-    search_query = request.GET.get('search', '').strip()
     
-    # Get surveys assigned to student's sections that are published
+    # Get all assigned surveys (published)
     assigned_surveys = Survey.objects.filter(
         sections__students=user,
         status='published'
-    ).distinct()
+    ).distinct().order_by('-created_at')
     
-    # Apply search filter if provided
-    if search_query:
-        assigned_surveys = assigned_surveys.filter(
-            Q(title__icontains=search_query) | 
-            Q(description__icontains=search_query)
-        )
-    
-    # Order by most recent
-    assigned_surveys = assigned_surveys.order_by('-created_at')
-    
-    # Filter out surveys that the student has already answered for the CURRENT version
+    # Get completed survey IDs with versions
     submitted_responses = Response.objects.filter(
         respondent=user,
         status='submitted'
@@ -637,16 +657,36 @@ def student_survey_list(request):
         ver = resp['survey_version']
         if sid not in submitted_map or ver > submitted_map[sid]:
             submitted_map[sid] = ver
-            
-    unanswered_surveys = []
-    for survey in assigned_surveys:
-        last_completed_version = submitted_map.get(survey.id, 0)
-        if last_completed_version < survey.version:
-            unanswered_surveys.append(survey)
+    
+    # Filter by status
+    status_filter = request.GET.get('status', 'all')
+    if status_filter == 'pending':
+        # Only unanswered or old version
+        filtered_surveys = [s for s in assigned_surveys if submitted_map.get(s.id, 0) < s.version]
+    elif status_filter == 'completed':
+        # Only completed current version
+        filtered_surveys = [s for s in assigned_surveys if submitted_map.get(s.id, 0) >= s.version]
+    else:
+        filtered_surveys = list(assigned_surveys)
+    
+    # Add completion status to each survey
+    for survey in filtered_surveys:
+        survey.is_completed = submitted_map.get(survey.id, 0) >= survey.version
+        survey.is_overdue = survey.due_date and timezone.now() > survey.due_date if survey.due_date else False
+    
+    # Pagination - 8 items per page (same as teacher)
+    paginator = Paginator(filtered_surveys, 8)
+    page = request.GET.get('page', 1)
+    
+    try:
+        surveys_page = paginator.page(page)
+    except PageNotAnInteger:
+        surveys_page = paginator.page(1)
+    except EmptyPage:
+        surveys_page = paginator.page(paginator.num_pages)
     
     context = {
-        'surveys': unanswered_surveys,
-        'search_query': search_query,
+        'surveys': surveys_page,
     }
     
     return render(request, 'accounts/SurveyListdashboard.html', context)
@@ -657,13 +697,37 @@ def section_list(request):
     """View for listing and managing sections"""
     if not request.user.is_teacher:
         return redirect('accounts:student_dashboard')
+    
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
         
     all_sections = Section.objects.filter(teacher=request.user).order_by('-created_at')
     active_sections = all_sections.filter(is_archived=False)
     archived_sections = all_sections.filter(is_archived=True)
     
+    # Pagination for active sections - 8 items per page
+    page = request.GET.get('page', 1)
+    paginator_active = Paginator(active_sections, 8)
+    
+    try:
+        active_sections_page = paginator_active.page(page)
+    except PageNotAnInteger:
+        active_sections_page = paginator_active.page(1)
+    except EmptyPage:
+        active_sections_page = paginator_active.page(paginator_active.num_pages)
+    
+    # Pagination for archived sections - 8 items per page
+    archived_page = request.GET.get('archived_page', 1)
+    paginator_archived = Paginator(archived_sections, 8)
+    
+    try:
+        archived_sections_page = paginator_archived.page(archived_page)
+    except PageNotAnInteger:
+        archived_sections_page = paginator_archived.page(1)
+    except EmptyPage:
+        archived_sections_page = paginator_archived.page(paginator_archived.num_pages)
+    
     context = {
-        'active_sections': active_sections,
-        'archived_sections': archived_sections,
+        'active_sections': active_sections_page,
+        'archived_sections': archived_sections_page,
     }
     return render(request, 'accounts/Sections.html', context)

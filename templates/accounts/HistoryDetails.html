@@ -58,12 +58,7 @@
                             <span class="material-icons section-icon">history</span>
                             <h2>History Details</h2>
                         </div>
-                        <div class="header-controls">
-                            <button class="action-btn primary download-btn">
-                                <span class="material-icons">download</span>
-                                Download Results
-                            </button>
-                        </div>
+                        
                     </div>
 
                     <!-- Survey Details Card -->
@@ -105,42 +100,68 @@
                 <h4>Survey Responses</h4>
             </div>
             <div class="answers-list">
-                {% for answer in answers %}
-                <div class="answer-item">
-                    <div class="question">
-                        <strong>Q{{ forloop.counter }}:</strong> {{ answer.question.question_text }}
-                        {% if answer.question.is_required %}<span style="color: #ef4444;">*</span>{% endif %}
-                    </div>
-                    <div class="answer">
-                        {% if answer.question.question_type == 'short_answer' or answer.question.question_type == 'long_answer' %}
-                            {{ answer.text_answer|default:"No answer provided" }}
-                        {% elif answer.question.question_type == 'multiple_choice' %}
-                            {{ answer.selected_option.option_text|default:"No answer selected" }}
-                        {% elif answer.question.question_type == 'checkbox' %}
-                            {% if answer.selected_options.all %}
-                                {% for option in answer.selected_options.all %}
-                                    {{ option.option_text }}{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
+                {% if question_answers %}
+                    {% for qa in question_answers %}
+                    <div class="answer-item">
+                        <div class="question-header">
+                            <span class="question-number">Q{{ forloop.counter }}</span>
+                            <div class="question-content">
+                                <p class="question-text">{{ qa.question.question_text }}{% if qa.question.is_required %} <span class="required-mark">*</span>{% endif %}</p>
+                                <span class="question-type-badge">{{ qa.question.get_question_type_display }}</span>
+                            </div>
+                        </div>
+                        <div class="answer-content">
+                            {% if qa.question.question_type == 'short_answer' or qa.question.question_type == 'long_answer' %}
+                                <div class="text-answer">{{ qa.answer.text_answer|default:"No answer provided" }}</div>
+                            {% elif qa.question.question_type == 'multiple_choice' %}
+                                <div class="choice-answer">
+                                    <span class="material-icons">radio_button_checked</span>
+                                    <span>{{ qa.answer.selected_option.option_text|default:"No answer selected" }}</span>
+                                </div>
+                            {% elif qa.question.question_type == 'checkbox' %}
+                                <div class="checkbox-answers">
+                                    {% if qa.answer.selected_options.all %}
+                                        {% for option in qa.answer.selected_options.all %}
+                                        <div class="checkbox-item">
+                                            <span class="material-icons">check_box</span>
+                                            <span>{{ option.option_text }}</span>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="no-answer">No options selected</div>
+                                    {% endif %}
+                                </div>
+                            {% elif qa.question.question_type == 'likert_scale' %}
+                                {% if qa.answer.number_answer %}
+                                <div class="likert-answer">
+                                    <div class="likert-scale-display">
+                                        <div class="scale-values">
+                                            {% for i in qa.question.likert_min|add:"0"|make_list %}
+                                                {% if forloop.counter <= qa.question.likert_max and forloop.counter >= qa.question.likert_min %}
+                                                <span class="scale-value {% if forloop.counter == qa.answer.number_answer %}selected{% endif %}">
+                                                    {{ forloop.counter }}
+                                                </span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <div class="scale-label">Rating: {{ qa.answer.number_answer }}/{{ qa.question.likert_max }}</div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                    <div class="no-answer">No rating provided</div>
+                                {% endif %}
                             {% else %}
-                                No options selected
+                                <div class="text-answer">{{ qa.answer_text|default:"No answer provided" }}</div>
                             {% endif %}
-                        {% elif answer.question.question_type == 'likert_scale' %}
-                            {% if answer.number_answer %}
-                                Rating: {{ answer.number_answer }}/{{ answer.question.likert_max }}
-                            {% else %}
-                                No rating provided
-                            {% endif %}
-                        {% else %}
-                            {{ answer.get_answer_display|default:"No answer provided" }}
-                        {% endif %}
+                        </div>
                     </div>
-                </div>
-                {% empty %}
-                <div class="no-answers" style="text-align: center; padding: 2rem; color: #6b7280;">
-                    <span class="material-icons" style="font-size: 48px; color: #9ca3af;">quiz</span>
+                    {% endfor %}
+                {% else %}
+                <div class="no-answers">
+                    <span class="material-icons">quiz</span>
                     <p>No answers recorded</p>
                 </div>
-                {% endfor %}
+                {% endif %}
             </div>
         </div>
 

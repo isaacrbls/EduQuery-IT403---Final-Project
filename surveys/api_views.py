@@ -1,3 +1,4 @@
+import logging
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,6 +14,7 @@ from .serializers import (
 )
 from accounts.models import Section
 
+logger = logging.getLogger(__name__)
 
 class SurveyViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -37,6 +39,95 @@ class SurveyViewSet(viewsets.ModelViewSet):
         elif self.action in ['create', 'update', 'partial_update']:
             return SurveyCreateSerializer
         return SurveyDetailSerializer
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        logger.info(f"Creating survey with data: {request.data}")
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Extract questions and sections from validated_data if present (safer than request.data)
+        # Note: We must copy them because serializer.save() might modify validated_data
+        questions_data = serializer.validated_data.get('questions', request.data.get('questions', []))
+        section_ids = serializer.validated_data.get('section_ids', request.data.get('section_ids', []))
+        
+        survey = serializer.save()
+        
+        # Handle sections
+        if section_ids:
+            survey.sections.set(section_ids)
+            
+        # Handle questions
+        logger.info(f"Questions data: {questions_data}")
+        self._save_questions(survey, questions_data)
+        
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        # Extract questions and sections
+        questions_data = serializer.validated_data.get('questions', request.data.get('questions', []))
+        section_ids = serializer.validated_data.get('section_ids', request.data.get('section_ids', []))
+        
+        survey = serializer.save()
+        
+        # Handle sections
+        if 'section_ids' in request.data or 'section_ids' in serializer.validated_data:
+            survey.sections.set(section_ids)
+            
+        # Handle questions
+        if 'questions' in request.data or 'questions' in serializer.validated_data:
+            instance.questions.all().delete()
+            self._save_questions(instance, questions_data)
+            
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+    def _save_questions(self, survey, questions_data):
+        for q_data in questions_data:
+            question = Question.objects.create(
+                survey=survey,
+                question_text=q_data.get('question_text'),
+                question_type=q_data.get('question_type'),
+                is_required=q_data.get('required', True),
+                order=q_data.get('order', 0)
+            )
+            
+            if question.question_type in ['multiple_choice', 'checkbox']:
+                options = q_data.get('options', [])
+                # Save to JSONField
+                question.options = options
+                question.save()
+                
+                for idx, opt_text in enumerate(options):
+                    QuestionOption.objects.create(
+                        question=question,
+                        option_text=opt_text,
+                        order=idx
+                    )
+            
+            elif question.question_type == 'likert_scale':
+                likert_data = q_data.get('likert_scale', {})
+                # Save to fields
+                question.likert_min = likert_data.get('min_value', 1)
+                question.likert_max = likert_data.get('max_value', 5)
+                question.save()
+                
+                LikertScale.objects.create(
+                    question=question,
+                    min_value=likert_data.get('min_value', 1),
+                    max_value=likert_data.get('max_value', 5),
+                    min_label=likert_data.get('min_label', 'Strongly Disagree'),
+                    max_label=likert_data.get('max_label', 'Strongly Agree')
+                )
 
     @action(detail=True, methods=['get'])
     def questions(self, request, pk=None):

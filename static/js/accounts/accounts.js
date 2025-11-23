@@ -35,4 +35,27 @@
       }
     });
   }
+
+  // User type change handler for signup page
+  const userTypeSelect = document.getElementById('user_type');
+  const sectionField = document.getElementById('section-field');
+
+  if (userTypeSelect && sectionField) {
+    function toggleSectionField() {
+      if (userTypeSelect.value === 'student') {
+        sectionField.style.display = 'block';
+      } else {
+        sectionField.style.display = 'none';
+        // Clear section selection when teacher is selected
+        const sectionSelect = document.getElementById('section');
+        if (sectionSelect) sectionSelect.value = '';
+      }
+    }
+
+    // Initialize on page load
+    toggleSectionField();
+
+    // Listen for changes
+    userTypeSelect.addEventListener('change', toggleSectionField);
+  }
 })();

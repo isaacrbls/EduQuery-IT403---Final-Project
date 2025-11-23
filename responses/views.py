@@ -40,8 +40,19 @@ def response_list(request):
     if search_query:
         surveys = surveys.filter(title__icontains=search_query)
 
+    # Pagination - 8 items per page
+    paginator = Paginator(surveys, 8)
+    page = request.GET.get('page', 1)
+    
+    try:
+        surveys_page = paginator.page(page)
+    except PageNotAnInteger:
+        surveys_page = paginator.page(1)
+    except EmptyPage:
+        surveys_page = paginator.page(paginator.num_pages)
+
     context = {
-        'surveys': surveys,
+        'surveys': surveys_page,
         'search_query': search_query,
     }
 

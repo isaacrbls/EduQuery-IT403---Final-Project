@@ -19,9 +19,14 @@ urlpatterns = [
     path('question/<int:question_id>/restore/', views.restore_question, name='restore_question'),
     path('<int:survey_id>/questions/reorder/', views.reorder_questions, name='reorder_questions'),
     
+    # Survey Builder (Drag-and-Drop)
     path('builder/', views.survey_builder, name='survey_builder'),
     path('builder/<int:survey_id>/', views.survey_builder, name='survey_builder_edit'),
-    path('take/<int:survey_id>/', views.take_survey, name='take_survey'),
+    path('builder/save/', views.save_survey_builder, name='save_survey_builder'),
+    
+    # Survey Taking
+    path('<int:survey_id>/take/', views.take_survey, name='take_survey'),
+    path('take/<int:survey_id>/', views.take_survey, name='take_survey_alt'),
     path('submit/<int:survey_id>/', views.submit_survey, name='submit_survey'),
     path('save-progress/<int:survey_id>/', views.save_survey_progress, name='save_progress'),
     path('validate/<int:survey_id>/', views.validate_survey_access, name='validate_access'),

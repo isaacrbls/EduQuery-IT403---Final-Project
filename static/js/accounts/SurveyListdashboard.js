@@ -295,10 +295,22 @@ function setupSearchAndFilters() {
         searchInput.addEventListener('input', debounce(handleSearch, 300));
     }
 
-    // Filter functionality
+    // Filter functionality - reload page with query params
     const statusFilter = document.getElementById('status-filter');
     if (statusFilter) {
-        statusFilter.addEventListener('change', handleStatusFilter);
+        // Set current value from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentStatus = urlParams.get('status');
+        if (currentStatus) {
+            statusFilter.value = currentStatus;
+        }
+        
+        statusFilter.addEventListener('change', function() {
+            const url = new URL(window.location);
+            url.searchParams.set('status', this.value);
+            url.searchParams.delete('page'); // Reset to page 1
+            window.location.href = url.toString();
+        });
     }
 
     // Sort functionality

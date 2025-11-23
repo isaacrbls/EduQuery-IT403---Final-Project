@@ -18,6 +18,159 @@ from accounts.models import Section
 
 
 @login_required
+def survey_builder(request, survey_id=None):
+    """Drag-and-drop survey builder interface"""
+    if not request.user.is_teacher:
+        messages.error(request, 'Access denied. Teachers only.')
+        return redirect('accounts:index')
+    
+    survey = None
+    if survey_id:
+        survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+    
+    # Get teacher's sections
+    sections = Section.objects.filter(teacher=request.user, is_archived=False)
+    
+    context = {
+        'survey': survey,
+        'sections': sections,
+    }
+    
+    return render(request, 'surveys/survey_builder.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def save_survey_builder(request):
+    """Save survey from builder with versioning support"""
+    if not request.user.is_teacher:
+        return JsonResponse({'success': False, 'error': 'Access denied'}, status=403)
+    
+    try:
+        data = json.loads(request.body)
+        
+        # Extract survey data
+        survey_id = data.get('id')
+        title = data.get('title', '').strip()
+        description = data.get('description', '').strip()
+        due_date_str = data.get('due_date')
+        is_active = data.get('is_active', False)
+        status = data.get('status', 'draft')
+        section_ids = data.get('sections', [])
+        questions_data = data.get('questions', [])
+        
+        # Validation
+        if not title:
+            return JsonResponse({'success': False, 'error': 'Title is required'}, status=400)
+        
+        if not section_ids:
+            return JsonResponse({'success': False, 'error': 'At least one section is required'}, status=400)
+        
+        if not due_date_str:
+            return JsonResponse({'success': False, 'error': 'Due date is required'}, status=400)
+        
+        if not questions_data:
+            return JsonResponse({'success': False, 'error': 'At least one question is required'}, status=400)
+        
+        # Parse due date
+        try:
+            due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00'))
+        except:
+            return JsonResponse({'success': False, 'error': 'Invalid due date format'}, status=400)
+        
+        with transaction.atomic():
+            # Create or update survey
+            if survey_id:
+                survey = get_object_or_404(Survey, id=survey_id, creator=request.user)
+                old_version = survey.version
+                
+                # Check if we need to increment version
+                has_responses = survey.response_count > 0
+                
+                # Get old question texts for comparison
+                old_questions = list(survey.questions.filter(is_active=True).values_list('question_text', flat=True))
+                new_questions = [q.get('question_text', '') for q in questions_data]
+                
+                # Check for content changes
+                content_changed = (
+                    survey.title != title or 
+                    survey.description != description or
+                    len(old_questions) != len(new_questions) or
+                    set(old_questions) != set(new_questions)  # Check if questions changed
+                )
+                
+                survey.title = title
+                survey.description = description
+                survey.due_date = due_date
+                survey.is_active = is_active
+                survey.status = status
+                
+                # Increment version if there are responses and content changed
+                if has_responses and content_changed:
+                    survey.version += 1
+                
+                survey.save()
+                
+                # Soft delete existing questions
+                survey.questions.filter(is_active=True).update(is_active=False)
+                
+                action = 'survey_updated'
+                message = f'Survey updated successfully'
+                if survey.version > old_version:
+                    message += f' (Version {survey.version})'
+            else:
+                # Create new survey
+                survey = Survey.objects.create(
+                    title=title,
+                    description=description,
+                    creator=request.user,
+                    due_date=due_date,
+                    is_active=is_active,
+                    status=status
+                )
+                action = 'survey_created'
+                message = 'Survey created successfully'
+            
+            # Assign sections
+            survey.sections.set(section_ids)
+            
+            # Create questions
+            for q_data in questions_data:
+                Question.objects.create(
+                    survey=survey,
+                    question_text=q_data.get('question_text', ''),
+                    question_type=q_data.get('question_type'),
+                    is_required=q_data.get('is_required', True),
+                    order=q_data.get('order', 0),
+                    options=q_data.get('options', []),
+                    likert_min=q_data.get('likert_min', 1),
+                    likert_max=q_data.get('likert_max', 5),
+                    likert_labels=q_data.get('likert_labels', [])
+                )
+            
+            # Log activity
+            ActivityLog.objects.create(
+                user=request.user,
+                action=action,
+                description=f'{"Created" if action == "survey_created" else "Updated"} survey: {title}'
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': message,
+                'id': survey.id,
+                'version': survey.version
+            })
+    
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@login_required
 def create_survey(request):
     if not request.user.is_teacher:
         messages.error(request, 'Access denied. Teachers only.')
@@ -318,29 +471,41 @@ def reorder_questions(request, survey_id):
 
 
 @login_required
-def survey_builder(request, survey_id=None):
-    """
-    Legacy survey builder view - redirects to the new form-based builder.
-    For creating new surveys, redirect to create_survey.
-    For editing existing surveys, redirect to edit_survey.
-    """
-    if not request.user.is_teacher:
-        messages.error(request, 'Access denied. Teachers only.')
-        return redirect('accounts:index')
-    
-    if survey_id:
-        # Editing existing survey - redirect to edit_survey
-        return redirect('surveys:edit_survey', survey_id=survey_id)
-    else:
-        # Creating new survey - redirect to create_survey
-        return redirect('surveys:create_survey')
-
-
-@login_required
 def survey_list(request):
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    
     if request.user.is_teacher:
+        # Auto-close expired surveys
+        now = timezone.now()
+        Survey.objects.filter(
+            creator=request.user,
+            status='published',
+            due_date__lt=now
+        ).update(status='closed')
+        
         surveys = request.user.created_surveys.all().order_by('-created_at')
-        return render(request, 'accounts/TCsurveyList.html', {'surveys': surveys})
+        
+        # Filter by status
+        status_filter = request.GET.get('status', 'all')
+        if status_filter == 'published':
+            surveys = surveys.filter(status='published')
+        elif status_filter == 'draft':
+            surveys = surveys.filter(status='draft')
+        elif status_filter == 'closed':
+            surveys = surveys.filter(status='closed')
+        
+        # Pagination for teacher - 8 items per page
+        paginator = Paginator(surveys, 8)
+        page = request.GET.get('page', 1)
+        
+        try:
+            surveys_page = paginator.page(page)
+        except PageNotAnInteger:
+            surveys_page = paginator.page(1)
+        except EmptyPage:
+            surveys_page = paginator.page(paginator.num_pages)
+        
+        return render(request, 'accounts/TCsurveyList.html', {'surveys': surveys_page})
 
     if not request.user.is_student:
         messages.error(request, 'Access denied. Students only.')
@@ -390,8 +555,19 @@ def survey_list(request):
             ).first()
             survey.has_progress = in_progress_response is not None
 
+    # Pagination for student surveys - 8 items per page
+    paginator = Paginator(surveys, 8)
+    page = request.GET.get('page', 1)
+    
+    try:
+        surveys_page = paginator.page(page)
+    except PageNotAnInteger:
+        surveys_page = paginator.page(1)
+    except EmptyPage:
+        surveys_page = paginator.page(paginator.num_pages)
+
     context = {
-        'surveys': surveys,
+        'surveys': surveys_page,
         'pending_count': pending_surveys.count(),
         'completed_count': completed_surveys.count(),
         'total_count': assigned_surveys.count(),
@@ -422,9 +598,10 @@ def take_survey(request, survey_id):
         status='submitted'
     ).order_by('-submitted_at').first()
 
+    # Only prevent if they've submitted the CURRENT version (survey wasn't edited since)
     if existing_submitted and existing_submitted.survey_version >= survey.version and not survey.allow_multiple_submissions:
         messages.info(request, 'You have already completed this survey.')
-        return redirect('surveys:survey_detail', response_id=existing_submitted.id)
+        return redirect('accounts:student_dashboard')
 
     if survey.due_date and timezone.now() > survey.due_date:
         messages.warning(request, 'This survey has passed its due date.')
@@ -504,10 +681,12 @@ def submit_survey(request, survey_id):
         status='submitted'
     ).order_by('-submitted_at').first()
 
+    # Only prevent submission if they've submitted the CURRENT version
+    # If survey.version is higher, they can submit again (survey was edited)
     if existing_submitted and existing_submitted.survey_version >= survey.version and not survey.allow_multiple_submissions:
         return JsonResponse({
             'success': False,
-            'error': 'You have already submitted this survey'
+            'error': 'You have already submitted this survey for the current version'
         }, status=400)
 
     response = Response.objects.filter(
@@ -714,8 +893,19 @@ def response_history(request):
                 Q(survey__description__icontains=search_query)
             )
 
+        # Pagination for student responses
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+        paginator = Paginator(responses, 8)
+        page = request.GET.get('page', 1)
+        try:
+            responses_page = paginator.page(page)
+        except PageNotAnInteger:
+            responses_page = paginator.page(1)
+        except EmptyPage:
+            responses_page = paginator.page(paginator.num_pages)
+
         context = {
-            'responses': responses,
+            'responses_page': responses_page,
             'total_responses': responses.count(),
             'search_query': search_query,
         }
@@ -735,8 +925,19 @@ def response_history(request):
                 Q(description__icontains=search_query)
             )
         
+        # Pagination for teacher surveys
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+        paginator = Paginator(surveys, 8)
+        page = request.GET.get('page', 1)
+        try:
+            surveys_page = paginator.page(page)
+        except PageNotAnInteger:
+            surveys_page = paginator.page(1)
+        except EmptyPage:
+            surveys_page = paginator.page(paginator.num_pages)
+        
         context = {
-            'surveys': surveys,
+            'surveys_page': surveys_page,
             'total_surveys': surveys.count(),
             'search_query': search_query,
         }
